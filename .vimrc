@@ -195,8 +195,9 @@ let g:NERDToggleCheckAllLines = 1
 "配置vim- nerdcommenter注释插件
 
 "YouCompleteMe
+nnoremap <leader>jd :YcmCompleter GoTo<CR>
 "启用加载.ycm_extra_conf.py提示
-let g:ycm_confirm_extra_conf=1
+let g:ycm_confirm_extra_conf=0
 "在注释输入中也能补全
 let g:ycm_complete_in_comments = 1
 "在字符串输入中也能补全
