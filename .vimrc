@@ -6,8 +6,6 @@ set encoding=utf-8
 set termencoding=utf-8
 "设置文件编码
 set fileencoding=utf-8
-"显示输入的命令
-set showcmd
 "设置颜色级别
 set t_Co=256
 "文件自动更新载入
@@ -257,3 +255,5 @@ let g:ale_linters = {
     \   'python': ['pylint'],
     \}
 
+"显示已输入命令，需要放在最后一行才会生效
+set showcmd
