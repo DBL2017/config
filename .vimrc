@@ -69,6 +69,7 @@ set cursorline
 nnoremap <Leader>q :q!<CR>
 nnoremap <Leader>w :w<CR>
 
+
 ""插件安装配置
 filetype off
 set rtp+=~/.vim/bundle/Vundle.vim
@@ -197,7 +198,7 @@ let g:NERDToggleCheckAllLines = 1
 "YouCompleteMe
 nnoremap <leader>jd :YcmCompleter GoTo<CR>
 "启用加载.ycm_extra_conf.py提示
-let g:ycm_confirm_extra_conf=0
+let g:ycm_confirm_extra_conf=1
 "在注释输入中也能补全
 let g:ycm_complete_in_comments = 1
 "在字符串输入中也能补全
@@ -209,7 +210,24 @@ let g:ycm_collect_identifiers_from_comments_and_strings = 1
 let g:ycm_seed_identifiers_with_syntax=1
 "语言关键字补全, 不过python关键字都很短，所以，需要的自己打开
 let g:ycm_collect_identifiers_from_tags_files = 1
-" 从第2个键入字符就开始罗列匹配项
+"基于语义不全
+let g:ycm_key_invoke_completion = '<c-z>'
+let g:ycm_semantic_triggers =  {
+            \ 'c,cpp,python,java,go,erlang,perl': ['re!\w{2}'],
+            \ 'cs,lua,javascript': ['re!\w{2}'],
+            \ }
+"文件白名单，其中的文件会被分析
+let g:ycm_filetype_whitelist = {
+            \ "c":1,
+            \ "cpp":1, 
+            \ "objc":1,
+            \ "sh":1,
+            \ "zsh":1,
+            \ "zimbu":1,
+            \ }
+"在弹出窗口显示文档，默认是在顶部的预览窗口
+let g:ycm_auto_hover='CursorHold'
+"从第2个键入字符就开始罗列匹配项
 let g:ycm_min_num_of_chars_for_completion=2
 "配置文件
 let g:ycm_global_ycm_extra_conf='~/.vim/bundle/YouCompleteMe/third_party/ycmd/.ycm_extra_conf.py'
@@ -219,8 +237,8 @@ let g:ycm_global_ycm_extra_conf='~/.vim/bundle/YouCompleteMe/third_party/ycmd/.y
 "标志列始终打开
 let g:ale_sign_column_always = 1
 "自定义图标
-let g:ale_sign_error = '✗'
-let g:ale_sign_warning = '⚡'
+"let g:ale_sign_error = '✗'
+"let g:ale_sign_warning = '⚡'
 "显示Linter名称,出错或警告等相关信息
 let g:ale_echo_msg_error_str = 'E'
 let g:ale_echo_msg_warning_str = 'W'
@@ -234,8 +252,8 @@ nmap sp <Plug>(ale_previous_wrap)
 nmap sn <Plug>(ale_next_wrap)
 "使用clang对c和c++进行语法检查，对python使用pylint进行语法检查
 let g:ale_linters = {
-    \   'c++': ['gcc'],
-    \   'c': ['gcc'],
+    \   'c++': ['clang'],
+    \   'c': ['clang'],
     \   'python': ['pylint'],
     \}
 
