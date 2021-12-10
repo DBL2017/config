@@ -93,7 +93,7 @@ nnoremap <leader>n :NERDTreeFocus<CR>
 nnoremap <C-t> :NERDTreeToggle<CR>
 nnoremap <C-f> :NERDTreeFind<CR>
 "打开vim时打开NERDTree
-autocmd VimEnter * NERDTree | wincmd p
+"autocmd VimEnter * NERDTree | wincmd p
 "退出最后一个tab时同时退出NERDTree.
 autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | quit | endif
 "设置显示方式
@@ -196,7 +196,7 @@ let g:NERDToggleCheckAllLines = 1
 "YouCompleteMe
 nnoremap <leader>jd :YcmCompleter GoTo<CR>
 "启用加载.ycm_extra_conf.py提示
-let g:ycm_confirm_extra_conf=1
+let g:ycm_confirm_extra_conf=0
 "在注释输入中也能补全
 let g:ycm_complete_in_comments = 1
 "在字符串输入中也能补全
@@ -205,10 +205,13 @@ let g:ycm_complete_in_strings = 1
 let g:ycm_collect_identifiers_from_tags_files=1
 "注释和字符串中的文字也会被收入补全
 let g:ycm_collect_identifiers_from_comments_and_strings = 1
+"启用语法提示，比如C语言
 let g:ycm_seed_identifiers_with_syntax=1
 "语言关键字补全, 不过python关键字都很短，所以，需要的自己打开
 let g:ycm_collect_identifiers_from_tags_files = 1
-"基于语义不全
+"禁止缓存，每次重新生成匹配项
+let g:ycm_cache_omnifunc = 1
+"基于语义补全
 let g:ycm_key_invoke_completion = '<c-z>'
 let g:ycm_semantic_triggers =  {
             \ 'c,cpp,python,java,go,erlang,perl': ['re!\w{2}'],
@@ -223,20 +226,48 @@ let g:ycm_filetype_whitelist = {
             \ "zsh":1,
             \ "zimbu":1,
             \ }
-"在弹出窗口显示文档，默认是在顶部的预览窗口
+"添加preview到completeopt中
+let g:ycm_add_preview_to_completeopt=1
+"设置预览窗口， popup或者preview
+set completeopt=preview
+"设置为-1表示使用预览窗口展示信息
+let g:ycm_max_num_candidates_to_detail =-1
+"完成补全后关闭预览窗口
+let g:ycm_autoclose_preview_window_after_completion = 1
+"离开插入模式关闭预览窗口
+let g:ycm_autoclose_preview_window_after_insertion = 1
+"手动打开或关闭弹出窗口
+nmap <leader>D <plug>(YCMHover)
+"在弹出窗口显示文档
 let g:ycm_auto_hover='CursorHold'
+"弹出窗口语法高亮
+augroup MyYCMCustom
+    autocmd!
+    autocmd FileType c,cpp let b:ycm_hover = {
+                \ 'command': 'GetDoc',
+                \ 'syntax': &filetype
+                \ }
+ augroup END
 "从第2个键入字符就开始罗列匹配项
 let g:ycm_min_num_of_chars_for_completion=2
 "配置文件
 let g:ycm_global_ycm_extra_conf='~/.vim/bundle/YouCompleteMe/third_party/ycmd/.ycm_extra_conf.py'
+"禁用语法检查
+let g:ycm_show_diagnostics_ui = 0
+"禁用语法检查符号
+let g:ycm_enable_diagnostic_signs=0
+"禁用语法检查高亮
+let g:ycm_enable_diagnostic_higihtling=0
+"禁用回显语法检查文本
+let g:ycm_echo_current_diagnostic = 0
 "YouCompleteMe
 
 "配置ale
 "标志列始终打开
-let g:ale_sign_column_always = 1
+let g:ale_sign_column_always = 0
 "自定义图标
-"let g:ale_sign_error = '✗'
-"let g:ale_sign_warning = '⚡'
+let g:ale_sign_error = 'E'
+let g:ale_sign_warning = 'W'
 "显示Linter名称,出错或警告等相关信息
 let g:ale_echo_msg_error_str = 'E'
 let g:ale_echo_msg_warning_str = 'W'
