@@ -128,6 +128,7 @@ let g:NERDTreeGitStatusIndicatorMapCustom = {
             \ 'Clean'     :'✔︎',
             \ 'Unknown'   :'?',
             \ }
+let g:NERDTreeGitStatusUseNerdFonts = 1
 "配置nerdtree-git-plugin
 
 "配置vim-clang-format
@@ -264,7 +265,7 @@ let g:ycm_echo_current_diagnostic = 0
 
 "配置ale
 "标志列始终打开
-let g:ale_sign_column_always = 0
+let g:ale_sign_column_always = 1
 "自定义图标
 let g:ale_sign_error = 'E'
 let g:ale_sign_warning = 'W'
@@ -285,6 +286,19 @@ let g:ale_linters = {
     \   'c': ['clang'],
     \   'python': ['pylint'],
     \}
+
+"配置gitgutter
+"启用gitgutter
+let g:gitgutter_enabled = 1
+"适配背景色，0禁用，1启用
+let g:gitgutter_set_sign_backgrounds = 0
+"设置符号颜色
+highlight GitGutterAdd    guifg=#009900 ctermfg=2
+highlight GitGutterChange guifg=#bbbb00 ctermfg=3
+highlight GitGutterDelete guifg=#ff2222 ctermfg=1
+"变化行号高亮
+let g:gitgutter_highlight_linenrs = 1
+"配置gitgutter
 
 "显示已输入命令，需要放在最后一行才会生效
 set showcmd
