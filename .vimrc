@@ -62,6 +62,10 @@ syntax enable
 syntax on
 "高亮当前行
 set cursorline
+"高亮当前列
+"set cursorcolumn
+"highlight CursorLine   cterm=NONE ctermbg=blue ctermfg=red guibg=NONE guifg=NONE
+"highlight CursorColumn cterm=NONE ctermbg=NONE ctermfg=NONE guibg=NONE guifg=NONE
 
 "快捷键
 nnoremap <Leader>q :q!<CR>
@@ -84,6 +88,8 @@ Plugin 'airblade/vim-gitgutter'
 Plugin 'octol/vim-cpp-enhanced-highlight'
 Plugin 'preservim/nerdcommenter'
 Plugin 'dense-analysis/ale'
+Plugin 'godlygeek/tabular'
+Plugin 'plasticboy/vim-markdown'
 call vundle#end()
 filetype plugin indent on
 
@@ -162,15 +168,13 @@ let g:airline#extensions#hunks#enabled = 1
 let g:airline#extensions#tabline#left_alt_sep = '|'
 let g:airline#extensions#tabline#formatter = 'unique_tail_improved'
 let g:airline#extensions#ale#enabled = 1
-function! AirlineInit()
-    let g:airline_section_a=airline#section#create(['mode','','branch'])
-    let g:airline_section_b=airline#section#create_left(['ffenc','hunks', '%f'])
-    let g:airline_section_c=airline#section#create(['filetype'])
-    let g:airline_section_x=airline#section#create(['%p%%'])
-    let g:airline_section_y=airline#section#create(['0x%B'])
-    let g:airline_section_z=airline#section#create_right(['L:%l','C:%c'])
-endfunction
-autocmd VimEnter * call AirlineInit()
+
+let g:airline_section_a=airline#section#create(['mode','','branch'])
+let g:airline_section_b=airline#section#create_left(['ffenc','hunks', '%f'])
+let g:airline_section_c=airline#section#create(['filetype'])
+let g:airline_section_x=airline#section#create(['%p%%'])
+let g:airline_section_y=airline#section#create(['0x%B'])
+let g:airline_section_z=airline#section#create_right(['L:%l','C:%c'])
 "配置vim airline
 
 "配置vim- nerdcommenter注释插件
@@ -248,7 +252,7 @@ augroup MyYCMCustom
                 \ 'command': 'GetDoc',
                 \ 'syntax': &filetype
                 \ }
- augroup END
+augroup END
 "从第2个键入字符就开始罗列匹配项
 let g:ycm_min_num_of_chars_for_completion=2
 "配置文件
