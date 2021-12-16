@@ -45,6 +45,8 @@ set updatetime=100
 set hlsearch
 "增量查找
 set incsearch
+"取消循环查找
+set nowrapscan
 "大小写敏感
 set noignorecase
 "设置不兼容vi
@@ -56,8 +58,10 @@ autocmd BufReadPost *
      \ endif
 
 "代码
-"语法高亮
-syntax enable
+"仅在终端颜色支持时语法高亮
+if &t_Co > 1
+    syntax enable
+endif
 "允许用指定语法高亮配色方案替换默认方案
 syntax on
 "高亮当前行
@@ -186,7 +190,7 @@ let g:airline_right_sep = '◀'
 let g:airline_right_alt_sep = '❮'
 function! AirlineInit()
 let g:airline_section_a=airline#section#create(['mode',' ','branch'])
-let g:airline_section_b=airline#section#create_left(['hunks', 'ffenc','file'])
+let g:airline_section_b=airline#section#create_left(['ffenc','hunks','file'])
 let g:airline_section_c=airline#section#create(['filetype'])
 let g:airline_section_x=airline#section#create(['%p%%'])
 let g:airline_section_y=airline#section#create(['0x%B'])
