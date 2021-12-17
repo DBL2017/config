@@ -325,6 +325,6 @@ highlight GitGutterDelete guifg=#ff2222 ctermfg=1
 "变化行号高亮
 let g:gitgutter_highlight_linenrs = 1
 "配置gitgutter
-
+nnoremap <Leader>s :<C-u>call gitblame#echo()<CR>
 "显示已输入命令，需要放在最后一行才会生效
 set showcmd
