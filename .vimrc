@@ -95,6 +95,7 @@ Plugin 'dense-analysis/ale'
 Plugin 'godlygeek/tabular'
 Plugin 'plasticboy/vim-markdown'
 Plugin 'jiangmiao/auto-pairs'
+Plugin 'zivyangll/git-blame.vim'
 call vundle#end()
 filetype plugin indent on
 
