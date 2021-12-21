@@ -95,6 +95,7 @@ Plugin 'dense-analysis/ale'
 Plugin 'godlygeek/tabular'
 Plugin 'plasticboy/vim-markdown'
 Plugin 'jiangmiao/auto-pairs'
+Plugin 'zivyangll/git-blame.vim'
 call vundle#end()
 filetype plugin indent on
 
@@ -351,5 +352,6 @@ endfunc
 "新建文件后，自动定位到文件末尾
 autocmd BufNewFile * normal G
 
+nnoremap <Leader>s :<C-u>call gitblame#echo()<CR>
 "显示已输入命令，需要放在最后一行才会生效
 set showcmd
