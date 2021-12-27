@@ -70,7 +70,7 @@ set cursorline
 "set cursorcolumn
 "highlight CursorLine   cterm=NONE ctermbg=blue ctermfg=red guibg=NONE guifg=NONE
 "highlight CursorColumn cterm=NONE ctermbg=NONE ctermfg=NONE guibg=NONE guifg=NONE
-
+hi CursorLine term=bold cterm=bold ctermbg=237
 "快捷键
 nnoremap <Leader>q :q!<CR>
 nnoremap <Leader>w :w<CR>
@@ -350,7 +350,7 @@ func AddHeadCommentSH()
     call append(line(".")+6, "#!/bin/bash")
 endfunc
 "新建文件后，自动定位到文件末尾
-autocmd BufNewFile * normal G
+autocmd BufNewFile * normal 4G
 
 nnoremap <Leader>s :<C-u>call gitblame#echo()<CR>
 "显示已输入命令，需要放在最后一行才会生效
