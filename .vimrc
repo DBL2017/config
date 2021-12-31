@@ -329,6 +329,32 @@ highlight GitGutterDelete guifg=#ff2222 ctermfg=1
 "变化行号高亮
 let g:gitgutter_highlight_linenrs = 1
 "配置gitgutter
+"新建文件插入文件头注释
+autocmd BufNewFile *.cpp,*.hpp,*.[ch] exec ":call AddHeadCommentC()" 
+func AddHeadCommentC()
+    call setline(1, "/*************************************************************************")
+    call append(line("."), " > File Name: ".expand("%"))
+    call append(line(".")+1, " > Author: blduan")
+    call append(line(".")+2, " > Mail: 1578770584@qq.com")
+    call append(line(".")+3, " > Created Time: ".strftime("%c"))
+    call append(line(".")+4, " > Description: ")
+    call append(line(".")+5, " ************************************************************************/")
+    call append(line(".")+6, "")
+endfunc
+autocmd BufNewFile *.sh exec ":call AddHeadCommentSH()" 
+func AddHeadCommentSH()
+    call setline(1, "##########################################################################")
+    call append(line("."), "# File Name: ".expand("%"))
+    call append(line(".")+1, "# Author: blduan")
+    call append(line(".")+2, "# Mail: 1578770584@qq.com")
+    call append(line(".")+3, "# Created Time: ".strftime("%c"))
+    call append(line(".")+4, " > Description: ")
+    call append(line(".")+5, "##########################################################################")
+    call append(line(".")+6, "#!/bin/bash")
+endfunc
+"新建文件后，自动定位到文件末尾
+autocmd BufNewFile * normal 4G
+
 nnoremap <Leader>s :<C-u>call gitblame#echo()<CR>
 "显示已输入命令，需要放在最后一行才会生效
 set showcmd
