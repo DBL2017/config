@@ -70,10 +70,13 @@ set cursorline
 "set cursorcolumn
 "highlight CursorLine   cterm=NONE ctermbg=blue ctermfg=red guibg=NONE guifg=NONE
 "highlight CursorColumn cterm=NONE ctermbg=NONE ctermfg=NONE guibg=NONE guifg=NONE
-
+hi CursorLine term=bold cterm=bold ctermbg=237
 "快捷键
 nnoremap <Leader>q :q!<CR>
 nnoremap <Leader>w :w<CR>
+"设置n始终向后
+nnoremap <expr> n 'Nn'[v:searchforward]
+nnoremap <expr> N 'nN'[v:searchforward]
 
 
 ""插件安装配置
