@@ -51,6 +51,8 @@ set nowrapscan
 set noignorecase
 "设置不兼容vi
 set nocompatible
+"vimgrep 查找结果显示在quickfix窗口中，打开时默认在当前tab，下面设置为newtab或已经打开的tab
+set switchbuf+=usetab,newtab
 "返回上次编辑位置
 autocmd BufReadPost *
      \ if line("'\"") > 0 && line("'\"") <= line("$") |
