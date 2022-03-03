@@ -101,6 +101,8 @@ Plugin 'godlygeek/tabular'
 Plugin 'plasticboy/vim-markdown'
 Plugin 'jiangmiao/auto-pairs'
 Plugin 'zivyangll/git-blame.vim'
+Plugin 'skywind3000/asynctasks.vim'
+Plugin 'skywind3000/asyncrun.vim'
 call vundle#end()
 filetype plugin indent on
 
@@ -355,7 +357,7 @@ func AddHeadCommentSH()
     call append(line(".")+6, "#!/bin/bash")
 endfunc
 "新建文件后，自动定位到文件末尾
-autocmd BufNewFile * normal 4G
+autocmd BufNewFile * normal G
 
 nnoremap <Leader>s :<C-u>call gitblame#echo()<CR>
 "显示已输入命令，需要放在最后一行才会生效
