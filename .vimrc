@@ -87,7 +87,8 @@ set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 Plugin 'VundleVim/Vundle.vim'
 Plugin 'preservim/nerdtree'
-Plugin 'Xuyuanp/nerdtree-git-plugin'
+" nerdtree-git-plugin会大量消耗内存
+" Plugin 'Xuyuanp/nerdtree-git-plugin'
 Plugin 'rhysd/vim-clang-format'
 Plugin 'ycm-core/YouCompleteMe'
 Plugin 'vim-airline/vim-airline'
@@ -96,13 +97,12 @@ Plugin 'tpope/vim-fugitive'
 Plugin 'airblade/vim-gitgutter'
 Plugin 'octol/vim-cpp-enhanced-highlight'
 Plugin 'preservim/nerdcommenter'
-Plugin 'dense-analysis/ale'
+" 需要配置compile-commands.json
+" Plugin 'dense-analysis/ale'
 Plugin 'godlygeek/tabular'
-Plugin 'plasticboy/vim-markdown'
+" Plugin 'plasticboy/vim-markdown'
 Plugin 'jiangmiao/auto-pairs'
-Plugin 'zivyangll/git-blame.vim'
-Plugin 'skywind3000/asynctasks.vim'
-Plugin 'skywind3000/asyncrun.vim'
+" Plugin 'zivyangll/git-blame.vim'
 call vundle#end()
 filetype plugin indent on
 
@@ -135,19 +135,19 @@ let g:NERDTreeCustomOpenArgs={'file':{'where': 't'}}
 "配置NERDTree结束
 
 "配置nerdtree-git-plugin
-let g:NERDTreeGitStatusIndicatorMapCustom = {
-            \ 'Modified'  :'✹',
-            \ 'Staged'    :'✚',
-            \ 'Untracked' :'✭',
-            \ 'Renamed'   :'➜',
-            \ 'Unmerged'  :'═',
-            \ 'Deleted'   :'✖',
-            \ 'Dirty'     :'✗',
-            \ 'Ignored'   :'☒',
-            \ 'Clean'     :'✔︎',
-            \ 'Unknown'   :'?',
-            \ }
-let g:NERDTreeGitStatusUseNerdFonts = 1
+" let g:NERDTreeGitStatusIndicatorMapCustom = {
+"             \ 'Modified'  :'✹',
+"             \ 'Staged'    :'✚',
+"             \ 'Untracked' :'✭',
+"             \ 'Renamed'   :'➜',
+"             \ 'Unmerged'  :'═',
+"             \ 'Deleted'   :'✖',
+"             \ 'Dirty'     :'✗',
+"             \ 'Ignored'   :'☒',
+"             \ 'Clean'     :'✔︎',
+"             \ 'Unknown'   :'?',
+"             \ }
+" let g:NERDTreeGitStatusUseNerdFonts = 1
 "配置nerdtree-git-plugin
 
 "配置vim-clang-format
@@ -167,8 +167,8 @@ let g:clang_format#detect_style_file=1
 "配置tab快捷键
 nnoremap <S-Right> :tabn<CR>
 nnoremap <S-Left> :tabp<CR>
-nnoremap <C-c-o> :copen<CR>
-nnoremap <C-c-c> :cclose<CR>
+" nnoremap <C-c-o> :copen<CR>
+" nnoremap <C-c-c> :cclose<CR>
 "配置tab快捷键
 "配置快捷键拷贝系统粘贴版
 vnoremap <Leader>y "+y
@@ -177,14 +177,14 @@ vnoremap <Leader>y "+y
 let g:airline#extensions#tabline#enabled=1
 let g:airline#extensions#tabline#left_sep = ' '
 let g:airline#extensions#tabline#left_alt_sep = '|'
-let g:airline#extensions#tabline#formatter = 'unique_tail_improved'
+" let g:airline#extensions#tabline#formatter = 'unique_tail_improved'
 "启用源码变化显示
 let g:airline#extensions#hunks#enabled=1
 let g:airline#extensions#hunks#non_zero_only = 1
 let g:airline#extensions#branch#enabled = 1
 let g:airline#extensions#branch#empty_message = '····'
 let g:airline#extensions#branch#displayed_head_limit = 10
-let g:airline#extensions#ale#enabled = 1
+" let g:airline#extensions#ale#enabled = 1
 " 支持 powerline 字体
 let g:airline_powerline_fonts = 1
 let g:airline_theme='powerlineish'  " murmur配色不错
@@ -219,7 +219,7 @@ let g:NERDDefaultAlign = 'left'
 "Set a language to use its alternate delimiters by default
 let g:NERDAltDelims_java = 1
 "Add your own custom formats or override the defaults
-let g:NERDCustomDelimiters = { 'c': { 'left': '//','right': '' } }
+let g:NERDCustomDelimiters = { 'c': { 'left': '/*','right': '*/' } }
 "Allow commenting and inverting empty lines (useful when commenting a region)
 let g:NERDCommentEmptyLines = 1
 "Enable trimming of trailing whitespace when uncommenting
@@ -297,35 +297,35 @@ let g:ycm_enable_diagnostic_higihtling=0
 let g:ycm_echo_current_diagnostic = 0
 "YouCompleteMe
 
-"配置ale
-"标志列始终打开
-let g:ale_sign_column_always = 1
-"自定义图标
-let g:ale_sign_error = 'E'
-let g:ale_sign_warning = 'W'
-"显示Linter名称,出错或警告等相关信息
-let g:ale_echo_msg_error_str = 'E'
-let g:ale_echo_msg_warning_str = 'W'
-let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
-"<Leader>s触发/关闭语法检查
-nmap <Leader>s :ALEToggle<CR>
-"<Leader>d查看错误或警告的详细信息
-nmap <Leader>d :ALEDetail<CR>
-"普通模式下，sp前往上一个错误或警告，sn前往下一个错误或警告
-nmap sp <Plug>(ale_previous_wrap)
-nmap sn <Plug>(ale_next_wrap)
-"使用clang对c和c++进行语法检查，对python使用pylint进行语法检查
-let g:ale_linters = {
-    \   'c++': ['clang'],
-    \   'c': ['clang'],
-    \   'python': ['pylint'],
-    \}
+" "配置ale
+" "标志列始终打开
+" let g:ale_sign_column_always = 1
+" "自定义图标
+" let g:ale_sign_error = 'E'
+" let g:ale_sign_warning = 'W'
+" "显示Linter名称,出错或警告等相关信息
+" let g:ale_echo_msg_error_str = 'E'
+" let g:ale_echo_msg_warning_str = 'W'
+" let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
+" "<Leader>s触发/关闭语法检查
+" nmap <Leader>s :ALEToggle<CR>
+" "<Leader>d查看错误或警告的详细信息
+" nmap <Leader>d :ALEDetail<CR>
+" "普通模式下，sp前往上一个错误或警告，sn前往下一个错误或警告
+" nmap sp <Plug>(ale_previous_wrap)
+" nmap sn <Plug>(ale_next_wrap)
+" "使用clang对c和c++进行语法检查，对python使用pylint进行语法检查
+" let g:ale_linters = {
+"     \   'c++': ['clang'],
+"     \   'c': ['clang'],
+"     \   'python': ['pylint'],
+"     \}
 
 "配置gitgutter
 "启用gitgutter
 let g:gitgutter_enabled = 1
 "适配背景色，0禁用，1启用
-let g:gitgutter_set_sign_backgrounds = 0
+let g:gitgutter_set_sign_backgrounds = 1
 "设置符号颜色
 highlight GitGutterAdd    guifg=#009900 ctermfg=2
 highlight GitGutterChange guifg=#bbbb00 ctermfg=3
@@ -359,6 +359,5 @@ endfunc
 "新建文件后，自动定位到文件末尾
 autocmd BufNewFile * normal G
 
-nnoremap <Leader>s :<C-u>call gitblame#echo()<CR>
 "显示已输入命令，需要放在最后一行才会生效
 set showcmd
