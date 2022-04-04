@@ -76,10 +76,14 @@ hi CursorLine term=bold cterm=bold ctermbg=237
 "快捷键
 nnoremap <Leader>q :q!<CR>
 nnoremap <Leader>w :w<CR>
-"设置n始终向后
+" 禁用方向键
+nnoremap <Up> <Nop>
+nnoremap <Down> <Nop>
+nnoremap <Left> <Nop>
+nnoremap <Right> <Nop>
+""设置n始终向后
 nnoremap <expr> n 'Nn'[v:searchforward]
 nnoremap <expr> N 'nN'[v:searchforward]
-
 
 ""插件安装配置
 filetype off
@@ -109,8 +113,8 @@ filetype plugin indent on
 "NERDTree配置
 "设置快捷键
 nnoremap <leader>n :NERDTreeFocus<CR>
-nnoremap <C-t> :NERDTreeToggle<CR>
-nnoremap <C-f> :NERDTreeFind<CR>
+nnoremap <F2> :NERDTreeToggle<CR>
+nnoremap <F3> :nERDTreeFind<CR>
 "打开vim时打开NERDTree
 "autocmd VimEnter * NERDTree | wincmd p
 "退出最后一个tab时同时退出NERDTree.
