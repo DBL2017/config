@@ -114,7 +114,7 @@ filetype plugin indent on
 "设置快捷键
 nnoremap <leader>n :NERDTreeFocus<CR>
 nnoremap <F2> :NERDTreeToggle<CR>
-nnoremap <F3> :nERDTreeFind<CR>
+nnoremap <F3> :NERDTreeFind<CR>
 "打开vim时打开NERDTree
 "autocmd VimEnter * NERDTree | wincmd p
 "退出最后一个tab时同时退出NERDTree.
