@@ -90,9 +90,11 @@ require("nvim-tree").setup(
        [ 绑定快捷键到树缓冲区 ]]
     on_attach = function(bufnr)
         local inject_node = require("nvim-tree.utils").inject_node
-        vim.keymap.set("n", "<leader>n", inject_node(function(node)
+        -- 绑定快捷键到内部缓冲区
+        vim.keymap.set("n", "<CR>", inject_node(function(node)
             if node then
                 print(node.absolute_path)
+                require("nvim-tree.api").node.open.tab()
             end
         end), { buffer = bufnr, noremap = true })
         vim.bo[bufnr].path = "/tmp"
