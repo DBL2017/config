@@ -41,7 +41,7 @@ return require('packer').startup({
             requires = { 'kyazdani42/nvim-web-devicons', opt = true }
         }
         -- using packer.nvim
-        use {'akinsho/bufferline.nvim', tag = "v2.*", requires = 'kyazdani42/nvim-web-devicons'}
+        -- use {'akinsho/bufferline.nvim', tag = "v2.*", requires = 'kyazdani42/nvim-web-devicons'}
 
         use {
             'kyazdani42/nvim-tree.lua',
@@ -50,6 +50,19 @@ return require('packer').startup({
             },
             tag = 'nightly' -- optional, updated every week. (see issue #1193)
         }
+
+        --[[ -- lspconfig
+        use {'neovim/nvim-lspconfig'}
+
+        -- lsp installer
+        use { "williamboman/mason.nvim" } ]]
+	use {
+	    'lewis6991/gitsigns.nvim',
+	    -- tag = 'release' -- To use the latest release (do not use this if you run Neovim nightly or dev builds!)
+	}
+
+        -- comment
+        use {"numToStr/Comment.nvim"}
 
         if packer_bootstrap then
             require('packer' ).sync()
