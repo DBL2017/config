@@ -115,38 +115,38 @@ require('lualine').setup {
         lualine_z = {}
     },
 
-    tabline = {
-        lualine_a = {'buffers'},
-        lualine_b = {},
-        lualine_c = {
-            {
-                'filename',
-                -- Displays file status (readonly status, modified status)
-                file_status = true,
-                -- Display new file status (new file means no write after created)
-                newfile_status = true,
-                -- 0: Just the filename 1: Relative path 2: Absolute path 3: Absolute path, with tilde as the home directory
-                path = 2,
+    --tabline = {
+    --    lualine_a = {'buffers'},
+    --    lualine_b = {},
+    --    lualine_c = {
+    --        {
+    --            'filename',
+    --            -- Displays file status (readonly status, modified status)
+    --            file_status = true,
+    --            -- Display new file status (new file means no write after created)
+    --            newfile_status = true,
+    --            -- 0: Just the filename 1: Relative path 2: Absolute path 3: Absolute path, with tilde as the home directory
+    --            path = 2,
 
-                -- Shortens path to leave 40 spaces in the window
-                shorting_target = 40,
-                -- for other components. (terrible name, any suggestions?)
-                symbols = {
-                    -- Text to show when the file is modified.
-                    modified = '[+]',
-                    -- Text to show when the file is non-modifiable or readonly.
-                    readonly = '[-]',
-                    -- Text to show for unnamed buffers.
-                    unnamed = '[No Name]',
-                    -- Text to show for new created file before first writting
-                    newfile = '[New]'
-                }
-            }
-        },
-        lualine_x = {"os.date('%c')"},
-        lualine_y = {},
-        lualine_z = {'tabs'}
-    },
+    --            -- Shortens path to leave 40 spaces in the window
+    --            shorting_target = 40,
+    --            -- for other components. (terrible name, any suggestions?)
+    --            symbols = {
+    --                -- Text to show when the file is modified.
+    --                modified = '[+]',
+    --                -- Text to show when the file is non-modifiable or readonly.
+    --                readonly = '[-]',
+    --                -- Text to show for unnamed buffers.
+    --                unnamed = '[No Name]',
+    --                -- Text to show for new created file before first writting
+    --                newfile = '[New]'
+    --            }
+    --        }
+    --    },
+    --    lualine_x = {"os.date('%c')"},
+    --    lualine_y = {},
+    --    lualine_z = {'tabs'}
+    --},
 
     winbar = {},
     inactive_winbar = {},

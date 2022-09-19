@@ -96,3 +96,8 @@ vim.opt.clipboard = "unnamedplus"
 
 -- 启用高亮
 vim.opt.termguicolors = true
+
+-- 开启 Folding
+vim.wo.foldmethod = 'expr'
+-- 默认全部折叠
+vim.wo.foldlevel = 0

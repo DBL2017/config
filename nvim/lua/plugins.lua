@@ -59,7 +59,7 @@ return require('packer').startup({
         max_jobs = 3,
 
         -- The default print log level. One of: "trace", "debug", "info", "warn", "error", "fatal".
-        log = { level = 'trace' }, 
+        log = { level = 'info' },
         
         clone_timeout = 300,
 
