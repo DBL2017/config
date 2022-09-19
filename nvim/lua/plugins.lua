@@ -61,6 +61,13 @@ return require('packer').startup({
 	    -- tag = 'release' -- To use the latest release (do not use this if you run Neovim nightly or dev builds!)
 	}
 
+        -- telescope 模糊查找
+        use {
+            'nvim-telescope/telescope.nvim', tag = '0.1.0',
+            -- or                            , branch = '0.1.x',
+            requires = { {'nvim-lua/plenary.nvim'} }
+        }
+
         -- comment
         use {"numToStr/Comment.nvim"}
 
