@@ -51,13 +51,6 @@ return require('packer').startup({
             tag = 'nightly' -- optional, updated every week. (see issue #1193)
         }
 
-	--LSP
-	use {
-	    "williamboman/mason.nvim",
-	    "williamboman/mason-lspconfig.nvim",
-	    "neovim/nvim-lspconfig",
-	}
-
 	use {
 	    'lewis6991/gitsigns.nvim',
 	    -- tag = 'release' -- To use the latest release (do not use this if you run Neovim nightly or dev builds!)
@@ -73,6 +66,33 @@ return require('packer').startup({
         -- comment
         use {"numToStr/Comment.nvim"}
 
+	--LSP
+	use {
+	    "williamboman/mason.nvim",
+	    "williamboman/mason-lspconfig.nvim",
+	    "neovim/nvim-lspconfig",
+	}
+        -- complete
+        use{"hrsh7th/cmp-nvim-lua"}
+        -- sources
+        use {
+            "hrsh7th/cmp-calc",
+            "hrsh7th/cmp-buffer",
+            "hrsh7th/cmp-path",
+            "hrsh7th/cmp-cmdline",
+            "hrsh7th/nvim-cmp",
+            "hrsh7th/cmp-vsnip",
+            "hrsh7th/cmp-omni",
+            "hrsh7th/cmp-emoji",
+            "hrsh7th/cmp-nvim-lua",
+            "hrsh7th/cmp-nvim-lsp",
+            "f3fora/cmp-spell",
+            "hrsh7th/cmp-nvim-lsp-document-symbol",
+            "hrsh7th/cmp-nvim-lsp-signature-help",
+            "ray-x/cmp-treesitter"
+        }
+
+
         if packer_bootstrap then
             require('packer' ).sync()
         end
@@ -82,15 +102,15 @@ return require('packer').startup({
 
         -- The default print log level. One of: "trace", "debug", "info", "warn", "error", "fatal".
         log = { level = 'info' },
-        
+
         clone_timeout = 300,
 
         -- Lua format string used for "aaa/bbb" style plugins
         default_url_format = 'https://github.com/%s',
         disable_commands = false,
-        --[[ display = {
-           [     open_fn = require('packer.util').float
-           [ }, ]]
+         display = {
+             open_fn = require('packer.util').float
+         },
         profile = {
             enable = true,
             threshold = 1
