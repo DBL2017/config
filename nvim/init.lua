@@ -15,6 +15,7 @@ require("plugin-config.nvim-tree")
 require("plugin-config.Comment")
 require("plugin-config.gitsigns")
 require("plugin-config.telescope")
+require("plugin-config.formatter")
 -- lsp
 require("lsp.mason")
 require("lsp.mason-lspconfig")

@@ -29,10 +29,10 @@ return require('packer').startup({
 
         use {
             'nvim-treesitter/nvim-treesitter',
-            run = function() 
-                require('nvim-treesitter.install')
-                .update({ with_sync = true }) 
-            end
+            -- run = function()
+            --     require('nvim-treesitter.install')
+            --     .update({ with_sync = true })
+            -- end
         }
 
         -- statusline
@@ -99,6 +99,9 @@ return require('packer').startup({
         -- If you are using Packer
         use {'marko-cerovac/material.nvim'}
 
+        -- formatter
+        use { 'mhartington/formatter.nvim' }
+
         if packer_bootstrap then
             require('packer' ).sync()
         end
@@ -107,7 +110,7 @@ return require('packer').startup({
         max_jobs = 10,
 
         -- The default print log level. One of: "trace", "debug", "info", "warn", "error", "fatal".
-        log = { level = 'warn' },
+        log = { level = 'info' },
 
         clone_timeout = 60,
 
@@ -117,7 +120,6 @@ return require('packer').startup({
         display = {
             open_fn = function()
                 return require('packer.util').float({
-                    -- relative = 'win',
                     border = 'rounded'
                 })
             end

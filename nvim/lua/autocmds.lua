@@ -22,3 +22,17 @@ autocmd({
         -- vim.opt.formatoptions = vim.opt.formatoptions - { "c", "r", "o" }
     end
 })
+
+
+-- 写入代码自动格式化
+autocmd(
+    {
+	'BufWritePost',
+    },
+    {
+	pattern = "*",
+	callback = function()
+	    vim.cmd("FormatWrite")
+	end
+    }
+)

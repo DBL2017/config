@@ -69,4 +69,4 @@ require('material').setup({
 -- oceanic
 -- palenight
 -- deep ocean
-require('material.functions').change_style("palenight")
+require('material.functions').change_style("darker")

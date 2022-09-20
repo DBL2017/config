@@ -23,3 +23,6 @@ map("n", "<leader>ff", ":Telescope find_files<CR>", opt)
 map("n", "<leader>fg", ":Telescope live_grep<CR>", opt)
 map("n", "<leader>fb", ":Telescope buffers<CR>", opt)
 map("n", "<leader>fh", ":Telescope help_tags<CR>", opt)
+
+-- formatter
+map('n', "<leader>cf", ":FormatWrite<CR>", opt)
