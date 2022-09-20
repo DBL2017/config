@@ -19,6 +19,6 @@ autocmd({
 },{
     pattern = "*",
     callback = function()
-        vim.opt.formatoptions = vim.opt.formatoptions - { "c", "r", "o" }
+        -- vim.opt.formatoptions = vim.opt.formatoptions - { "c", "r", "o" }
     end
 })

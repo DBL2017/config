@@ -64,10 +64,10 @@ require("nvim-tree").setup(
 	    --[[ 事件和更新时间 ]]
 	    debounce_delay = 50,
 	    icons = {
-		hint = "",
-		info = "",
-		warning = "",
-		error = "",
+		hint = "H",
+		info = "I",
+		warning = "W",
+		error = "E",
 	    },
 	},
 
@@ -220,10 +220,10 @@ require("nvim-tree").setup(
 
 	actions = {
 	    use_system_clipboard = true,
---[[ 打开文件时的行为配置 ]]
-open_file = {
-    --[[ 打开文件时关闭nvim-tree window ]]
-quit_on_open = true,
+	    --[[ 打开文件时的行为配置 ]]
+	    open_file = {
+		--[[ 打开文件时关闭nvim-tree window ]]
+		quit_on_open = true,
 
 		--[[ 打开文件时调整nvim-tree window的大小 ]]
 		resize_window = true,

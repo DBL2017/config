@@ -8,7 +8,7 @@ require('lualine').setup {
 
         --[[ 设置lualine主题
         [ 仅支持https://github.com/nvim-lualine/lualine.nvim/blob/master/THEMES.md中定义的值 ]]
-        theme = 'solarized_dark',
+        theme = 'auto',
 
         --[[ A|B|C为左侧3个section. X|Y|Z为右侧3个section
         [ section_separators为section之间的分隔符 ]]
@@ -66,7 +66,7 @@ require('lualine').setup {
                 --   'nvim_lsp', 'nvim_diagnostic', 'nvim_workspace_diagnostic', 'coc', 'ale', 'vim_lsp'.
                 -- or a function that returns a table as such:
                 --   { error=error_cnt, warn=warn_cnt, info=info_cnt, hint=hint_cnt }
-                sources = { 'nvim_diagnostic', 'nvim_lsp' },
+                sources = { 'nvim_diagnostic', 'nvim_lsp', 'nvim_workspace_diagnostic' },
 
                 -- Displays diagnostics for the defined severity types
                 sections = { 'error', 'warn', 'info', 'hint' },

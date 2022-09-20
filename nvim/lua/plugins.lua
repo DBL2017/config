@@ -73,14 +73,13 @@ return require('packer').startup({
 	    "neovim/nvim-lspconfig",
 	}
         -- complete
-        use{"hrsh7th/cmp-nvim-lua"}
+        use{"hrsh7th/nvim-cmp"}
         -- sources
         use {
             "hrsh7th/cmp-calc",
             "hrsh7th/cmp-buffer",
             "hrsh7th/cmp-path",
             "hrsh7th/cmp-cmdline",
-            "hrsh7th/nvim-cmp",
             "hrsh7th/cmp-vsnip",
             "hrsh7th/cmp-omni",
             "hrsh7th/cmp-emoji",
@@ -92,25 +91,38 @@ return require('packer').startup({
             "ray-x/cmp-treesitter"
         }
 
+        -- theme
+        use {
+            'shaunsingh/nord.nvim'
+        }
+
+        -- If you are using Packer
+        use {'marko-cerovac/material.nvim'}
 
         if packer_bootstrap then
             require('packer' ).sync()
         end
     end,
     config = {
-        max_jobs = 3,
+        max_jobs = 10,
 
         -- The default print log level. One of: "trace", "debug", "info", "warn", "error", "fatal".
-        log = { level = 'info' },
+        log = { level = 'warn' },
 
-        clone_timeout = 300,
+        clone_timeout = 60,
 
         -- Lua format string used for "aaa/bbb" style plugins
         default_url_format = 'https://github.com/%s',
         disable_commands = false,
-         display = {
-             open_fn = require('packer.util').float
-         },
+        display = {
+            open_fn = function()
+                return require('packer.util').float({
+                    -- relative = 'win',
+                    border = 'rounded'
+                })
+            end
+        },
+        prompt_border = 'single',
         profile = {
             enable = true,
             threshold = 1
