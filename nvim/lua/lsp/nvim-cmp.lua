@@ -37,10 +37,30 @@ cmp.setup({
         -- { name = 'snippy' },
     }, { { name = "path" } }),
 
-    --[[ -- 快捷键
-    mapping = require("keybindings").cmp(cmp),
+    -- 快捷键
+    mapping = cmp.mapping.preset.insert({
+        ["<Tab>"] = function(fallback)
+            if cmp.visible() then
+                cmp.select_next_item()
+            else
+                fallback()
+            end
+        end,
+        ["<S-Tab>"] = function(fallback)
+            if cmp.visible() then
+                cmp.select_pre_item()
+            else
+                fallback()
+            end
+        end,
+        ["<CR>"] = cmp.mapping.confirm({ select = true }),
+        ["<Esc>"] = cmp.mapping.close(),
+        ["<C-e>"] = cmp.mapping.close(),
+        ["<C-d>"] = cmp.mapping.scroll_docs(-4),
+        ["<C-f>"] = cmp.mapping.scroll_docs(4),
+    }),
     -- 使用lspkind-nvim显示类型图标
-    formatting = require("lsp.ui").formatting, ]]
+    -- formatting = require("lsp.ui").formatting,
 })
 
 -- Use buffer source for `/`.

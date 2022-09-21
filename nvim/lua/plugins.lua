@@ -26,9 +26,7 @@ return require("packer").startup({
 
         use({
             "nvim-treesitter/nvim-treesitter",
-            run = function()
-                require("nvim-treesitter.install").update({ with_sync = true })
-            end,
+            run = function() require("nvim-treesitter.install").update({ with_sync = true }) end,
         })
         use("nvim-treesitter/nvim-treesitter-context")
 
@@ -76,11 +74,11 @@ return require("packer").startup({
         use({ "hrsh7th/nvim-cmp" })
         -- sources
         use({
+            "hrsh7th/cmp-vsnip",
             "hrsh7th/cmp-calc",
             "hrsh7th/cmp-buffer",
             "hrsh7th/cmp-path",
             "hrsh7th/cmp-cmdline",
-            "hrsh7th/cmp-vsnip",
             "hrsh7th/cmp-omni",
             "hrsh7th/cmp-emoji",
             "hrsh7th/cmp-nvim-lua",
@@ -107,9 +105,7 @@ return require("packer").startup({
         -- formatter
         use({ "mhartington/formatter.nvim" })
 
-        if packer_bootstrap then
-            require("packer").sync()
-        end
+        if packer_bootstrap then require("packer").sync() end
     end,
     config = {
         max_jobs = 10,
