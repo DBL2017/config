@@ -6,7 +6,8 @@ require("formatter").setup({
     -- Enable or disable logging
     logging = true,
     -- Set the log level
-    log_level = vim.log.levels.DEBUG,
+    log_level = vim.log.levels.INFO,
+
     -- All formatter configurations are opt-in
     filetype = {
         -- Formatter configurations for filetype "lua" go here
@@ -67,9 +68,8 @@ require("formatter").setup({
                         "Unix",
                         "--quote-style",
                         "AutoPreferDouble",
-                        util.escape_path(util.get_current_buffer_file_path()),
                     },
-                    stdin = true,
+                    stdin = false,
                 }
             end,
         },

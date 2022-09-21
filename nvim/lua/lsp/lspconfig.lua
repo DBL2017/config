@@ -12,6 +12,10 @@ local on_attach = function(client, bufnr)
     -- Enable completion triggered by <c-x><c-o>
     vim.api.nvim_buf_set_option(bufnr, "omnifunc", "v:lua.vim.lsp.omnifunc")
 
+    -- disable formatting
+    client.resolved_capabilities.document_formatting = false
+    client.resolved_capabilities.document_range_formatting = false
+
     -- Mappings.
     -- See `:help vim.lsp.*` for documentation on any of the below functions
     local bufopts = { noremap = true, silent = true, buffer = bufnr }
