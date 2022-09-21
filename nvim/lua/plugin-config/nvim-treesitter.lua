@@ -1,4 +1,4 @@
-require'nvim-treesitter.configs'.setup {
+require("nvim-treesitter.configs").setup({
     -- A list of parser names, or "all"
     ensure_installed = { "c", "lua", "python" },
 
@@ -41,8 +41,8 @@ require'nvim-treesitter.configs'.setup {
         },
     },
     indent = {
-	enable = true
-    }
-}
+        enable = true,
+    },
+})
 -- 开启 Folding
-vim.wo.foldexpr = 'nvim_treesitter#foldexpr()'
+vim.wo.foldexpr = "nvim_treesitter#foldexpr()"

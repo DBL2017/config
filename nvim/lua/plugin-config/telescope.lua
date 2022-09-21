@@ -1,4 +1,4 @@
-require('telescope').setup{
+require("telescope").setup({
     defaults = {
         -- 打开弹窗后进入的初始模式，默认为 insert，也可以是 normal
         initial_mode = "insert",
@@ -8,19 +8,19 @@ require('telescope').setup{
         -- mappings = require("keybindings").telescopeList,
         mappings = {
             i = {
-                ["<esc>"] = require('telescope.actions').close,
+                ["<esc>"] = require("telescope.actions").close,
             },
         },
 
         layout_config = {
-            vertical = { width = 0.5, height = 0.85},
+            vertical = { width = 0.5, height = 0.85 },
             -- cursor = {width = 0.7, height = 0.55}
-        }
+        },
     },
     pickers = {
         find_files = {
             -- theme = "dropdown", -- 可选参数： dropdown, cursor, ivy
         },
     },
-    extensions = {}
-}
+    extensions = {},
+})
