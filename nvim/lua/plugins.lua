@@ -24,18 +24,16 @@ return require("packer").startup({
         -- Packer can manage itself
         use("wbthomason/packer.nvim")
 
-        --[[ -- Post-install/update hook with neovim command
-           [ use { 'nvim-treesitter/nvim-treesitter', run = ':TSUpdate' } ]]
-
         use({
             "nvim-treesitter/nvim-treesitter",
-            -- run = function()
-            --     require('nvim-treesitter.install')
-            --     .update({ with_sync = true })
-            -- end
+            run = function()
+                require("nvim-treesitter.install").update({ with_sync = true })
+            end,
         })
+        use("nvim-treesitter/nvim-treesitter-context")
 
         -- statusline
+        use("kyazdani42/nvim-web-devicons")
         use({
             "nvim-lualine/lualine.nvim",
             requires = { "kyazdani42/nvim-web-devicons", opt = true },
@@ -43,6 +41,7 @@ return require("packer").startup({
         -- using packer.nvim
         -- use {'akinsho/bufferline.nvim', tag = "v2.*", requires = 'kyazdani42/nvim-web-devicons'}
 
+        -- file explorer
         use({
             "kyazdani42/nvim-tree.lua",
             requires = {
@@ -92,6 +91,11 @@ return require("packer").startup({
             "ray-x/cmp-treesitter",
         })
 
+        -- diagnostics show
+        use({
+            "folke/trouble.nvim",
+            requires = "kyazdani42/nvim-web-devicons",
+        })
         -- theme
         use({
             "shaunsingh/nord.nvim",

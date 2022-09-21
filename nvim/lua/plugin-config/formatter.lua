@@ -19,9 +19,7 @@ require("formatter").setup({
             -- You can also define your own configuration
             function()
                 -- Supports conditional formatting
-                if util.get_current_buffer_file_name() == "special.lua" then
-                    return nil
-                end
+                if util.get_current_buffer_file_name() == "special.lua" then return nil end
 
                 -- Full specification of configurations is down below and in Vim help
                 -- files
@@ -63,6 +61,8 @@ require("formatter").setup({
                         "120",
                         "--indent-type",
                         "Spaces",
+                        "--indent-width",
+                        "4",
                         "--line-endings",
                         "Unix",
                         "--quote-style",
