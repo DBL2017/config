@@ -11,8 +11,10 @@ map("v","<S-Left>",":tabp<CR>",opt)
 map("v","<S-Right>",":tabn<CR>",opt)
 
 -- 重定向退出键
-map("n", "<leader>q", ":qa!<CR>", opt)
-map("v", "<leader>q", ":qa!<CR>", opt)
+map("n", "<leader>q", ":q!<CR>", opt)
+map("v", "<leader>q", ":q!<CR>", opt)
+map("n", "<leader>qa", ":qa!<CR>", opt)
+map("v", "<leader>qa", ":qa!<CR>", opt)
 
 -- nvim-tree
 map("n","<F2>",":NvimTreeToggle<CR>",opt)
