@@ -1,6 +1,9 @@
 local installStatus = pcall(require, "nvim-treesitter")
 
-if installStatus == false then return installStatus end
+if not installStatus then
+    vim.notify("没有找到nvim-treesitter")
+    return
+end
 
 require("nvim-treesitter.configs").setup({
     -- A list of parser names, or "all"

@@ -1,6 +1,9 @@
 local installStatus = pcall(require, "nvim-tree")
 
-if installStatus == false then return installStatus end
+if not installStatus then
+    vim.notify("没有找到nvim-tree")
+    return
+end
 
 vim.g.loaded = 1
 vim.g.loaded_netrwPlugin = 1

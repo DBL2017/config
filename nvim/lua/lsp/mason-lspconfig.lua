@@ -1,6 +1,15 @@
+local masonInstallStatus = pcall(require, "mason")
+if not masonInstallStatus then
+    vim.notify("没有找到mason")
+    return
+end
+
 local installStatus = pcall(require, "mason-lspconfig")
 
-if installStatus == false then return installStatus end
+if not installStatus then
+    vim.notify("没有找到mason-lspconfig")
+    return
+end
 
 require("mason-lspconfig").setup({
     -- A list of servers to automatically install if they're not already installed. Example: { "rust_analyzer@nightly", "sumneko_lua" }

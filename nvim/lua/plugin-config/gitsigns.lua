@@ -1,6 +1,9 @@
 local installStatus = pcall(require, "gitsigns")
 
-if installStatus == false then return installStatus end
+if installStatus == false then
+    vim.notify("没有找到gitsigns")
+    return
+end
 
 require("gitsigns").setup({
     signs = {

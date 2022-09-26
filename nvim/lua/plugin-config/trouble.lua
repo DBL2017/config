@@ -1,6 +1,9 @@
 local installStatus = pcall(require, "trouble")
 
-if installStatus == false then return installStatus end
+if not installStatus then
+    vim.notify("没有找到trouble")
+    return
+end
 
 require("trouble").setup({
     -- your configuration comes here

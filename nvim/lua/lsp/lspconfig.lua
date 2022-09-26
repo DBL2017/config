@@ -1,6 +1,9 @@
 local installStatus = pcall(require, "lspconfig")
 
-if installStatus == false then return installStatus end
+if installStatus == false then
+    vim.notify("没有找到lspconfig")
+    return
+end
 -- Mappings.
 -- See `:help vim.diagnostic.*` for documentation on any of the below functions
 local opts = { noremap = true, silent = true }

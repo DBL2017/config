@@ -5,7 +5,10 @@
 --local lspkind = require("lspkind")
 local installStatus = pcall(require, "cmp")
 
-if installStatus == false then return installStatus end
+if installStatus == false then
+    vim.notify("没有找到cmp")
+    return
+end
 
 local cmp = require("cmp")
 

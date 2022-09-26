@@ -1,6 +1,9 @@
 local installStatus = pcall(require, "material")
 
-if installStatus == false then return installStatus end
+if not installStatus then
+    vim.notify("没有找到material")
+    return
+end
 
 require("material").setup({
     contrast = {

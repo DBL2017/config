@@ -1,6 +1,9 @@
 local installStatus = pcall(require, "lualine")
 
-if installStatus == false then return installStatus end
+if not installStatus then
+    vim.notify("没有找到lualine")
+    return
+end
 
 --[[ +-------------------------------------------------+
 [ | A | B | C                             X | Y | Z |

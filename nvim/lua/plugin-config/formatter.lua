@@ -1,6 +1,9 @@
 local installStatus = pcall(require, "formatter")
 
-if installStatus == false then return installStatus end
+if installStatus == false then
+    vim.notify("没有找到formatter")
+    return
+end
 
 -- Utilities for creating configurations
 local util = require("formatter.util")

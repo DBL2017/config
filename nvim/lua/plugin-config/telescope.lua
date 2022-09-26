@@ -1,6 +1,9 @@
 local installStatus = pcall(require, "telescope")
 
-if installStatus == false then return installStatus end
+if not installStatus then
+    vim.notify("没有找到telescope")
+    return
+end
 
 require("telescope").setup({
     defaults = {

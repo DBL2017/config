@@ -1,7 +1,10 @@
 -- 判断Comment插件是否被安装
 local installStatus = pcall(require, "Comment")
 
-if installStatus == false then return installStatus end
+if installStatus == false then
+    vim.notify("没有找到Comment")
+    return
+end
 
 require("Comment").setup({
     ---Add a space b/w comment and the line
