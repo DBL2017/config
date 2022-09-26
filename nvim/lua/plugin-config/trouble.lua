@@ -1,3 +1,7 @@
+local installStatus = pcall(require, "trouble")
+
+if installStatus == false then return installStatus end
+
 require("trouble").setup({
     -- your configuration comes here
     -- or leave it empty to use the default settings

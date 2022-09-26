@@ -1,3 +1,7 @@
+local installStatus = pcall(require, "lualine")
+
+if installStatus == false then return installStatus end
+
 --[[ +-------------------------------------------------+
 [ | A | B | C                             X | Y | Z |
 [ +-------------------------------------------------+ ]]

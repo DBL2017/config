@@ -3,6 +3,10 @@
 -- https://github.com/onsails/lspkind-nvim
 
 --local lspkind = require("lspkind")
+local installStatus = pcall(require, "cmp")
+
+if installStatus == false then return installStatus end
+
 local cmp = require("cmp")
 
 cmp.setup({

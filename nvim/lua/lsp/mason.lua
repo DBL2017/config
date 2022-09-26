@@ -1,3 +1,7 @@
+local installStatus = pcall(require, "mason")
+
+if installStatus == false then return installStatus end
+
 require("mason").setup({
     ui = {
         -- Whether to automatically check for new versions when opening the :Mason window.

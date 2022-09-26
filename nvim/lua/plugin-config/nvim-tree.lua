@@ -1,3 +1,7 @@
+local installStatus = pcall(require, "nvim-tree")
+
+if installStatus == false then return installStatus end
+
 vim.g.loaded = 1
 vim.g.loaded_netrwPlugin = 1
 --[[ https://github.com/kyazdani42/nvim-web-devicons is optional and used to display file icons. It requires a patched font: https://www.nerdfonts.com ]]

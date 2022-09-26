@@ -1,3 +1,7 @@
+local installStatus = pcall(require, "gitsigns")
+
+if installStatus == false then return installStatus end
+
 require("gitsigns").setup({
     signs = {
         add = { hl = "GitSignsAdd", text = "+", numhl = "GitSignsAddNr", linehl = "GitSignsAddLn" },

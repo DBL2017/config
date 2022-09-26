@@ -1,3 +1,7 @@
+local installStatus = pcall(require, "telescope")
+
+if installStatus == false then return installStatus end
+
 require("telescope").setup({
     defaults = {
         -- 打开弹窗后进入的初始模式，默认为 insert，也可以是 normal

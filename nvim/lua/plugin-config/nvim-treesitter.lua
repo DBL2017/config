@@ -1,3 +1,7 @@
+local installStatus = pcall(require, "nvim-treesitter")
+
+if installStatus == false then return installStatus end
+
 require("nvim-treesitter.configs").setup({
     -- A list of parser names, or "all"
     ensure_installed = { "c", "lua", "python" },

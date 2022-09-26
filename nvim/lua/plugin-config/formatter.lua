@@ -1,3 +1,7 @@
+local installStatus = pcall(require, "formatter")
+
+if installStatus == false then return installStatus end
+
 -- Utilities for creating configurations
 local util = require("formatter.util")
 

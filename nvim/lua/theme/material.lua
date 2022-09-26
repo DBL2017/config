@@ -1,3 +1,7 @@
+local installStatus = pcall(require, "material")
+
+if installStatus == false then return installStatus end
+
 require("material").setup({
     contrast = {
         sidebars = true, -- Enable contrast for sidebar-like windows ( for example Nvim-Tree )

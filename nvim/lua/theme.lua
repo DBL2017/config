@@ -2,4 +2,8 @@
 -- vim.cmd[[colorscheme nord]]
 --------------------------------
 -- theme material
-vim.cmd([[colorscheme material]])
+local installStatus = pcall(require, 'material')
+
+if installStatus then
+    vim.cmd([[colorscheme material]])
+end
