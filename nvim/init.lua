@@ -17,6 +17,7 @@ require("plugin-config.gitsigns")
 require("plugin-config.telescope")
 require("plugin-config.formatter")
 require("plugin-config.trouble")
+require("plugin-config.autopairs")
 -- lsp
 require("lsp.mason")
 require("lsp.mason-lspconfig")

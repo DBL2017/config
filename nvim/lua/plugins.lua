@@ -105,6 +105,11 @@ return require("packer").startup({
         -- formatter
         use({ "mhartington/formatter.nvim" })
 
+        -- autopairs
+        use({
+            "windwp/nvim-autopairs",
+        })
+
         if packer_bootstrap then require("packer").sync() end
     end,
     config = {
