@@ -110,6 +110,9 @@ return require("packer").startup({
             "windwp/nvim-autopairs",
         })
 
+        -- tex
+        use("lervag/vimtex")
+
         if packer_bootstrap then require("packer").sync() end
     end,
     config = {

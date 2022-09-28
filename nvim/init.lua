@@ -18,6 +18,7 @@ require("plugin-config.telescope")
 require("plugin-config.formatter")
 require("plugin-config.trouble")
 require("plugin-config.autopairs")
+require("plugin-config.vimtex")
 -- lsp
 require("lsp.mason")
 require("lsp.mason-lspconfig")

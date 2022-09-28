@@ -101,3 +101,6 @@ vim.opt.termguicolors = true
 vim.wo.foldmethod = "expr"
 -- 默认全部折叠
 vim.wo.foldlevel = 0
+
+-- 禁用mouse
+vim.opt.mouse = ""

@@ -36,6 +36,7 @@ cmp.setup({
         -- For vsnip users.
         { name = "vsnip" },
         { name = "buffer" },
+        { name = "omni" },
         -- For luasnip users.
         -- { name = 'luasnip' },
         --For ultisnips users.
