@@ -104,6 +104,22 @@ if installStatus then
                 -- "formatter.filetypes.any" defines default configurations for any
                 -- filetype
                 require("formatter.filetypes.any").remove_trailing_whitespace,
+                function()
+                    -- vim.notify(util.get_current_buffer_file_name())
+                    -- 格式化C语言头文件
+                    if util.get_current_buffer_file_name().find(util.get_current_buffer_file_name(), ".h") then
+                        -- vim.notify(util.get_current_buffer_file_name())
+                        return {
+                            exe = "clang-format",
+                            args = {
+                                -- clang_format_option,
+                                "--assume-filename=" .. vim.api.nvim_buf_get_name(0),
+                            },
+                            stdin = true,
+                            cwd = vim.fn.expand("%:p:h"),
+                        }
+                    end
+                end,
             },
         },
     })
