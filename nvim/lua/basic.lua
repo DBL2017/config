@@ -47,7 +47,7 @@ vim.g.hlsearch = true
 -- 增量查找
 vim.g.incsearch = true
 -- 循环查找
-vim.g.wrapscan = false
+vim.o.wrapscan = false
 
 -- quitfix命令打开新buffer时的行为
 vim.o.switchbuf = "newtab"
@@ -104,3 +104,4 @@ vim.wo.foldlevel = 0
 
 -- 禁用mouse
 vim.opt.mouse = ""
+vim.go.mouse = ""

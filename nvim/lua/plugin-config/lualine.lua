@@ -118,8 +118,8 @@ if installStatus then
         },
 
         tabline = {
-            lualine_a = { "buffers" },
-            lualine_b = {},
+            lualine_a = { "tabs" },
+            lualine_b = { "buffers" },
             lualine_c = {
                 {
                     "filename",
@@ -147,7 +147,7 @@ if installStatus then
             },
             lualine_x = { "os.date('%c')" },
             lualine_y = {},
-            lualine_z = { "tabs" },
+            lualine_z = { "location" },
         },
 
         winbar = {},

@@ -13,20 +13,13 @@ if installStatus then
 
         -- All formatter configurations are opt-in
         filetype = {
-            -- Formatter configurations for filetype "lua" go here
-            -- and will be executed in order
+            -- 将stylua可执行文件拷贝到/usr/bin下
             lua = {
-                -- "formatter.filetypes.lua" defines default configurations for the
-                -- "lua" filetype
                 require("formatter.filetypes.lua").stylua,
 
-                -- You can also define your own configuration
                 function()
-                    -- Supports conditional formatting
                     if util.get_current_buffer_file_name() == "special.lua" then return nil end
 
-                    -- Full specification of configurations is down below and in Vim help
-                    -- files
                     return {
                         exe = "stylua",
                         --[[ FORMATTING OPTIONS:
@@ -76,6 +69,7 @@ if installStatus then
                     }
                 end,
             },
+            -- 安装外部工具clang-format, sudo apt install clang-format
             c = {
                 function()
                     return {
@@ -83,6 +77,21 @@ if installStatus then
                         args = {
                             -- clang_format_option,
                             "--assume-filename=" .. vim.api.nvim_buf_get_name(0),
+                        },
+                        stdin = true,
+                        cwd = vim.fn.expand("%:p:h"),
+                    }
+                end,
+            },
+            -- 需要安装外部json格式化工具，安装命令如下：
+            -- sudo apt install jq
+            json = {
+                function()
+                    return {
+                        exe = "jq",
+                        args = {
+                            -- clang_format_option,
+                            -- "--assume-filename=" .. vim.api.nvim_buf_get_name(0),
                         },
                         stdin = true,
                         cwd = vim.fn.expand("%:p:h"),
