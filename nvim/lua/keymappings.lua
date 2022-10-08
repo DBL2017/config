@@ -4,6 +4,12 @@ local opt = {
 }
 local map = vim.api.nvim_set_keymap
 
+-- 禁用方向键
+map("n", "<Left>", "<NOP>", opt)
+map("n", "<Right>", "<NOP>", opt)
+map("n", "<Up>", "<NOP>", opt)
+map("n", "<Down>", "<NOP>", opt)
+
 -- 切换标签页
 map("n", "<S-Left>", ":tabp<CR>", opt)
 map("n", "<S-Right>", ":tabn<CR>", opt)
