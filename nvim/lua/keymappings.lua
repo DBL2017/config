@@ -19,6 +19,8 @@ map("v", "<S-Right>", ":tabn<CR>", opt)
 -- 重定向退出键
 map("n", "<leader>q", ":q!<CR>", opt)
 map("v", "<leader>q", ":q!<CR>", opt)
+map("n", "<leader>w", ":w<CR>", opt)
+map("v", "<leader>w", ":w<CR>", opt)
 map("n", "<leader>qa", ":qa!<CR>", opt)
 map("v", "<leader>qa", ":qa!<CR>", opt)
 
@@ -37,9 +39,9 @@ map("n", "<leader>cf", ":FormatWrite<CR>", opt)
 
 -- trouble
 -- Lua
-vim.keymap.set("n", "<leader>xx", "<cmd>TroubleToggle<cr>", { silent = true, noremap = true })
-vim.keymap.set("n", "<leader>xw", "<cmd>TroubleToggle workspace_diagnostics<cr>", { silent = true, noremap = true })
-vim.keymap.set("n", "<leader>xd", "<cmd>TroubleToggle document_diagnostics<cr>", { silent = true, noremap = true })
-vim.keymap.set("n", "<leader>xl", "<cmd>TroubleToggle loclist<cr>", { silent = true, noremap = true })
-vim.keymap.set("n", "<leader>xq", "<cmd>TroubleToggle quickfix<cr>", { silent = true, noremap = true })
-vim.keymap.set("n", "gR", "<cmd>TroubleToggle lsp_references<cr>", { silent = true, noremap = true })
+map("n", "<leader>xx", "<cmd>TroubleToggle<cr>", { silent = true, noremap = true })
+map("n", "<leader>xw", "<cmd>TroubleToggle workspace_diagnostics<cr>", { silent = true, noremap = true })
+map("n", "<leader>xd", "<cmd>TroubleToggle document_diagnostics<cr>", { silent = true, noremap = true })
+map("n", "<leader>xl", "<cmd>TroubleToggle loclist<cr>", { silent = true, noremap = true })
+map("n", "<leader>xq", "<cmd>TroubleToggle quickfix<cr>", { silent = true, noremap = true })
+map("n", "gR", "<cmd>TroubleToggle lsp_references<cr>", { silent = true, noremap = true })

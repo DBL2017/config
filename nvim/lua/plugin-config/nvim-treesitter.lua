@@ -44,7 +44,7 @@ if installStatus then
             },
         },
         indent = {
-            enable = true,
+            enable = false,
         },
     })
     -- 开启 Folding
