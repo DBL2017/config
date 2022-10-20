@@ -12,12 +12,21 @@ if installStatus then
             popup_menu = true, -- Enable lighter background for the popup menu
         },
 
-        italics = {
-            comments = true, -- Enable italic comments
-            keywords = false, -- Enable italic keywords
-            functions = false, -- Enable italic functions
-            strings = false, -- Enable italic strings
-            variables = false, -- Enable italic variables
+        styles = { -- Give comments style such as bold, italic, underline etc.
+            comments = {
+                italic = true,--[[ italic = true ]]
+            },
+            strings = { --[[ bold = true ]]
+            },
+            keywords = {
+                bold = true,
+                --[[ underline = true ]]
+            },
+            functions = { --[[ bold = true, undercurl = true ]]
+            },
+            variables = {},
+            operators = {},
+            types = {},
         },
 
         contrast_filetypes = { -- Specify which filetypes get the contrasted (darker) background
