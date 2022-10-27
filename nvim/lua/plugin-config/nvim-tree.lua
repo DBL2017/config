@@ -101,7 +101,7 @@ if installStatus then
                 inject_node(function(node)
                     if node then
                         print(node.absolute_path)
-                        require("nvim-tree.api").node.open.tab()
+                        require("nvim-tree.api").node.open.vertical()
                     end
                 end),
                 { buffer = bufnr, noremap = true }
