@@ -94,32 +94,6 @@ if installStatus then
                     always_visible = false,
                 },
             },
-            lualine_c = { "filename" },
-            lualine_x = { "encoding", "fileformat", "filetype" },
-            lualine_y = { "progress" },
-            lualine_z = { "location" },
-        },
-
-        disabled_filetypes = {
-            --[[ 禁用statyskube的文件类型如下 ]]
-            statusline = {},
-            --[[ 禁用winbar的文件类型如下 ]]
-            winbar = {},
-        },
-
-        --[[ 不活跃的信息 ]]
-        inactive_sections = {
-            lualine_a = {},
-            lualine_b = { "branch" },
-            lualine_c = { "filename" },
-            lualine_x = { "location" },
-            lualine_y = {},
-            lualine_z = {},
-        },
-
-        tabline = {
-            lualine_a = { "tabs" },
-            lualine_b = { "buffers" },
             lualine_c = {
                 {
                     "filename",
@@ -145,6 +119,32 @@ if installStatus then
                     },
                 },
             },
+            lualine_x = { "encoding", "fileformat", "filetype" },
+            lualine_y = { "progress" },
+            lualine_z = { "location" },
+        },
+
+        disabled_filetypes = {
+            --[[ 禁用statyskube的文件类型如下 ]]
+            statusline = {},
+            --[[ 禁用winbar的文件类型如下 ]]
+            winbar = {},
+        },
+
+        --[[ 不活跃的信息 ]]
+        inactive_sections = {
+            lualine_a = {},
+            lualine_b = { "branch" },
+            lualine_c = { "filename" },
+            lualine_x = { "location" },
+            lualine_y = {},
+            lualine_z = {},
+        },
+
+        tabline = {
+            lualine_a = { "tabs" },
+            lualine_b = { "buffers" },
+            lualine_c = {},
             lualine_x = { "os.date('%c')" },
             lualine_y = {},
             lualine_z = { "location" },
