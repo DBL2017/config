@@ -106,6 +106,17 @@ if installStatus then
                 end),
                 { buffer = bufnr, noremap = true }
             )
+            vim.keymap.set(
+                "n",
+                "<Tab>",
+                inject_node(function(node)
+                    if node then
+                        print(node.absolute_path)
+                        require("nvim-tree.api").node.open.tab()
+                    end
+                end),
+                { buffer = bufnr, noremap = true }
+            )
             vim.bo[bufnr].path = "/tmp"
         end,
 
