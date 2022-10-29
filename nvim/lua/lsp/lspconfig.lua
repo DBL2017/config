@@ -63,7 +63,27 @@ require("lspconfig")["sumneko_lua"].setup({
         },
     },
 })
--- require('lspconfig')['marksman'].setup{
---     on_attach = on_attach,
---     flags = lsp_flags,
--- }
+require("lspconfig")["tsserver"].setup({
+    on_attach = on_attach,
+    flags = lsp_flags,
+})
+
+require("lspconfig")["marksman"].setup({
+    on_attach = on_attach,
+    flags = lsp_flags,
+})
+
+require("lspconfig")["jsonls"].setup({
+    on_attach = on_attach,
+    flags = lsp_flags,
+})
+
+require("lspconfig")["eslint"].setup({
+    on_attach = on_attach,
+    flags = lsp_flags,
+})
+
+require("lspconfig")["bashls"].setup({
+    on_attach = on_attach,
+    flags = lsp_flags,
+})

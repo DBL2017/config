@@ -126,7 +126,7 @@ if installStatus then
         --[[ 窗口或缓冲区设置 ]]
         view = {
             --[[ 根据最长文件名设置窗口宽度
-	   [ side为left或right时生效 ]]
+	        side为left或right时生效 ]]
             adaptive_size = false,
 
             --[[ 重新进入nvim-tree窗口时，使当前位置处于中间，类似于zz ]]
@@ -136,8 +136,6 @@ if installStatus then
             hide_root_folder = false,
 
             width = 30,
-            height = 30,
-
             --[[ option: left,right,top,bottom ]]
             side = "left",
 
