@@ -70,6 +70,8 @@ return require("packer").startup({
             "williamboman/mason-lspconfig.nvim",
             "neovim/nvim-lspconfig",
         })
+        -- Linter
+        use("mfussenegger/nvim-lint")
         -- complete
         use({ "hrsh7th/nvim-cmp" })
         -- sources

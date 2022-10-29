@@ -30,3 +30,11 @@ autocmd({
     pattern = "*",
     callback = function() vim.cmd("FormatWrite") end,
 })
+
+-- 写入代码自动格式化
+autocmd({
+    "InsertLeave",
+}, {
+    pattern = "*",
+    callback = function() require("lint").try_lint() end,
+})

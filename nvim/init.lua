@@ -19,6 +19,7 @@ require("plugin-config.formatter")
 require("plugin-config.trouble")
 require("plugin-config.autopairs")
 require("plugin-config.vimtex")
+require("plugin-config.nvim-lint")
 -- lsp
 require("lsp.mason")
 require("lsp.mason-lspconfig")
