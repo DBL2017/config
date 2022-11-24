@@ -26,9 +26,13 @@ local on_attach = function(client, bufnr)
     -- See `:help vim.lsp.*` for documentation on any of the below functions
     local bufopts = { noremap = true, silent = true, buffer = bufnr }
     vim.keymap.set("n", "gD", vim.lsp.buf.declaration, bufopts)
+
     vim.keymap.set("n", "gd", vim.lsp.buf.definition, bufopts)
     vim.keymap.set("n", "K", vim.lsp.buf.hover, bufopts)
-    vim.keymap.set("n", "gi", vim.lsp.buf.implementation, bufopts)
+    if client.server_capabilities.implementationProvider then
+        vim.keymap.set("n", "gi", vim.lsp.buf.implementation, bufopts)
+    end
+
     vim.keymap.set("n", "<C-k>", vim.lsp.buf.signature_help, bufopts)
     vim.keymap.set("n", "<space>wa", vim.lsp.buf.add_workspace_folder, bufopts)
     vim.keymap.set("n", "<space>wr", vim.lsp.buf.remove_workspace_folder, bufopts)
@@ -37,18 +41,23 @@ local on_attach = function(client, bufnr)
     vim.keymap.set("n", "<space>rn", vim.lsp.buf.rename, bufopts)
     vim.keymap.set("n", "<space>ca", vim.lsp.buf.code_action, bufopts)
     vim.keymap.set("n", "gr", vim.lsp.buf.references, bufopts)
-    vim.keymap.set('n', '<space>f', function() vim.lsp.buf.format { async = true } end, bufopts)
+
+    vim.keymap.set("n", "<space>f", function() vim.lsp.buf.format({ async = true }) end, bufopts)
 end
+
+local root_dirs = function() return vim.fs.dirname(vim.fs.find({ ".clang-format", ".git" }, { upward = true })[1]) end
 
 local lsp_flags = {
     -- This is the default in Nvim 0.7+
     debounce_text_changes = 150,
 }
-require("lspconfig")["pyright"].setup({
+require("lspconfig")["clangd"].setup({
+    single_file_support = true,
+    root_dir = root_dirs,
     on_attach = on_attach,
     flags = lsp_flags,
 })
-require("lspconfig")["clangd"].setup({
+require("lspconfig")["pyright"].setup({
     on_attach = on_attach,
     flags = lsp_flags,
 })
