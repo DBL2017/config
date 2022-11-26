@@ -6,7 +6,6 @@ require("basic")
 require("plugins")
 require("keymappings")
 require("autocmds")
-require("theme")
 require("diagnostic")
 
 -- plugins
@@ -30,4 +29,5 @@ require("lsp.nvim-cmp")
 require("lsp.cmp.cmp-npm")
 -- theme
 require("theme.material")
+-- require("theme.neon")
 -- require("plugin-config.bufferline")

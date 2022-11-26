@@ -1,5 +1,7 @@
 local installStatus = pcall(require, "material")
 
+vim.cmd({ cmd = "colorscheme", args = { "material" } })
+
 if installStatus then
     require("material").setup({
         contrast = {

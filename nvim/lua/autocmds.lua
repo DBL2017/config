@@ -24,20 +24,20 @@ autocmd({
 })
 
 -- 写入代码自动格式化
-autocmd({
-    "BufWritePost",
-}, {
-    pattern = "*",
-    callback = function() vim.cmd("FormatWrite") end,
-})
+-- autocmd({
+--     "BufWritePost",
+-- }, {
+--     pattern = "*",
+--     callback = function() vim.cmd({ cmd = "FormatWrite" }) end,
+-- })
 
 --[[ -- 写入代码自动格式化
-autocmd({
-    "InsertLeave",
-}, {
-    pattern = "*",
-    callback = function() require("lint").try_lint() end,
-}) ]]
+-- autocmd({
+--     "InsertLeave",
+-- }, {
+--     pattern = "*",
+--     callback = function() require("lint").try_lint() end,
+-- }) ]]
 
 -- 支持输入法切换
 if vim.fn.has("linux") == 1 then

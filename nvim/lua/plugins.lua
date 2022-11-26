@@ -127,6 +127,7 @@ return require("packer").startup({
         use({
             "shaunsingh/nord.nvim",
         })
+        use("rafamadriz/neon")
 
         -- If you are using Packer
         use({ "marko-cerovac/material.nvim" })
