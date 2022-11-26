@@ -3,7 +3,8 @@ local installStatus = pcall(require, "nvim-treesitter")
 if installStatus then
     require("nvim-treesitter.configs").setup({
         -- A list of parser names, or "all"
-        ensure_installed = { "c", "lua", "python" },
+        -- ensure_installed = { "c", "lua", "python" },
+        ensure_installed = {},
 
         -- Install parsers synchronously (only applied to `ensure_installed`)
         sync_install = true,

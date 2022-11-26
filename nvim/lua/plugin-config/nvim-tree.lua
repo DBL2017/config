@@ -66,10 +66,16 @@ if installStatus then
             --[[ 事件和更新时间 ]]
             debounce_delay = 50,
             icons = {
-                hint = "H",
-                info = "I",
-                warning = "W",
-                error = "E",
+                -- icons / text used for a diagnostic
+                error = "",
+                warning = "",
+                hint = "",
+                info = "",
+                -- other = "﫠",
+                -- hint = "H",
+                -- info = "I",
+                -- warning = "W",
+                -- error = "E",
             },
         },
 

@@ -1,28 +1,27 @@
 local installStatus = pcall(require, "lspconfig")
+local cmplspStatus = pcall(require, "cmp_nvim_lsp")
 
 if installStatus == false then
     vim.notify("没有找到lspconfig")
     return
 end
--- Mappings.
--- See `:help vim.diagnostic.*` for documentation on any of the below functions
-local opts = { noremap = true, silent = true }
-vim.keymap.set("n", "<space>e", vim.diagnostic.open_float, opts)
-vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, opts)
-vim.keymap.set("n", "]d", vim.diagnostic.goto_next, opts)
-vim.keymap.set("n", "<space>q", vim.diagnostic.setloclist, opts)
+
+if cmplspStatus == false then
+    vim.notify("没有找到cmp_nvim_lsp")
+    return
+end
 
 -- Use an on_attach function to only map the following keys
 -- after the language server attaches to the current buffer
 local on_attach = function(client, bufnr)
-    -- Enable completion triggered by <c-x><c-o>
-    vim.api.nvim_buf_set_option(bufnr, "omnifunc", "v:lua.vim.lsp.omnifunc")
+    -- 是否启用手动触发代码完成
+    -- vim.api.nvim_buf_set_option(bufnr, "omnifunc", "v:lua.vim.lsp.omnifunc")
 
     -- disable formatting
     client.server_capabilities.document_formatting = false
     client.server_capabilities.document_range_formatting = false
 
-    -- Mappings.
+    -- 自定义绑定到vim.lsp.buf的键映射
     -- See `:help vim.lsp.*` for documentation on any of the below functions
     local bufopts = { noremap = true, silent = true, buffer = bufnr }
     vim.keymap.set("n", "gD", vim.lsp.buf.declaration, bufopts)
@@ -45,7 +44,9 @@ local on_attach = function(client, bufnr)
     vim.keymap.set("n", "<space>f", function() vim.lsp.buf.format({ async = true }) end, bufopts)
 end
 
-local root_dirs = function() return vim.fs.dirname(vim.fs.find({ ".clang-format", ".git" }, { upward = true })[1]) end
+-- 增加nvim-cmp支持的额外的capabilities
+-- 为了增强nvim默认的omnifunc的候选菜单
+local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
 local lsp_flags = {
     -- This is the default in Nvim 0.7+
@@ -53,8 +54,8 @@ local lsp_flags = {
 }
 require("lspconfig")["clangd"].setup({
     single_file_support = true,
-    root_dir = root_dirs,
     on_attach = on_attach,
+    capabilities = capabilities,
     flags = lsp_flags,
 })
 require("lspconfig")["pyright"].setup({

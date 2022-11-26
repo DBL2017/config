@@ -2,18 +2,22 @@ local installStatus = pcall(require, "trouble")
 
 if installStatus then
     require("trouble").setup({
-        -- your configuration comes here
-        -- or leave it empty to use the default settings
-        -- refer to the configuration section below
-        position = "bottom", -- position of the list can be: bottom, top, left, right
-        height = 10, -- height of the trouble list when position is top or bottom
-        width = 50, -- width of the list when position is left or right
-        icons = true, -- use devicons for filenames
-        mode = "workspace_diagnostics", -- "workspace_diagnostics", "document_diagnostics", "quickfix", "lsp_references", "loclist"
-        fold_open = "", -- icon used for open folds
-        fold_closed = "", -- icon used for closed folds
-        group = true, -- group results by file
-        padding = true, -- add an extra new line on top of the list
+        -- position of the list can be: bottom, top, left, right
+        position = "bottom",
+        -- height of the trouble list when position is top or bottom
+        height = 10,
+        -- width of the list when position is left or right
+        width = 50,
+        -- use devicons for filenames
+        icons = false,
+        -- "workspace_diagnostics", "document_diagnostics", "quickfix", "lsp_references", "loclist"
+        mode = "workspace_diagnostics",
+        fold_open = "",
+        fold_closed = "",
+        -- group results by file
+        group = true,
+        -- add an extra new line on top of the list
+        padding = false,
         action_keys = { -- key mappings for actions in the trouble list
             -- map to {} to remove a mapping, for example:
             -- close = {},
@@ -49,23 +53,22 @@ if installStatus then
             information = "",
             other = "﫠",
         },
-        use_diagnostic_signs = true, -- enabling this will use the signs defined in your lsp client
+        -- 是否使用lsp client中的sign
+        use_diagnostic_signs = false,
+        -- -- settings without a patched font or icons
+        -- icons = false,
+        -- fold_open = "v", -- icon used for open folds
+        -- fold_closed = ">", -- icon used for closed folds
+        -- indent_lines = false, -- add an indent guide below the fold icons
+        -- signs = {
+        --     -- icons / text used for a diagnostic
+        --     error = "error",
+        --     warning = "warn",
+        --     hint = "hint",
+        --     information = "info",
+        -- },
+        -- use_diagnostic_signs = false, -- enabling this will use the signs defined in your lsp client
     })
--- settings without a patched font or icons
---[[ {
-    icons = false,
-    fold_open = "v", -- icon used for open folds
-    fold_closed = ">", -- icon used for closed folds
-    indent_lines = false, -- add an indent guide below the fold icons
-    signs = {
-	-- icons / text used for a diagnostic
-	error = "error",
-	warning = "warn",
-	hint = "hint",
-	information = "info"
-    },
-    use_diagnostic_signs = false -- enabling this will use the signs defined in your lsp client
-} ]]
 else
     vim.notify("没有找到trouble")
     return

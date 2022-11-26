@@ -30,6 +30,7 @@ map("n", "<F2>", ":NvimTreeToggle<CR>", opt)
 -- telescope
 -- " Find files using Telescope command-line sugar.
 map("n", "<leader>ff", ":Telescope find_files<CR>", opt)
+-- live-grep 依赖于外部工具ripgrep， sudo apt install ripgrep
 map("n", "<leader>fg", ":Telescope live_grep<CR>", opt)
 map("n", "<leader>fb", ":Telescope buffers<CR>", opt)
 map("n", "<leader>fh", ":Telescope help_tags<CR>", opt)
@@ -38,10 +39,15 @@ map("n", "<leader>fh", ":Telescope help_tags<CR>", opt)
 map("n", "<leader>cf", ":FormatWrite<CR>", opt)
 
 -- trouble
--- Lua
-map("n", "<leader>xx", "<cmd>TroubleToggle<cr>", { silent = true, noremap = true })
-map("n", "<leader>xw", "<cmd>TroubleToggle workspace_diagnostics<cr>", { silent = true, noremap = true })
-map("n", "<leader>xd", "<cmd>TroubleToggle document_diagnostics<cr>", { silent = true, noremap = true })
-map("n", "<leader>xl", "<cmd>TroubleToggle loclist<cr>", { silent = true, noremap = true })
-map("n", "<leader>xq", "<cmd>TroubleToggle quickfix<cr>", { silent = true, noremap = true })
-map("n", "gR", "<cmd>TroubleToggle lsp_references<cr>", { silent = true, noremap = true })
+-- diagnostic键映射
+map("n", "<leader>xx", "<cmd>TroubleToggle<cr>", opt)
+map("n", "<leader>xw", "<cmd>TroubleToggle workspace_diagnostics<cr>", opt)
+map("n", "<leader>xd", "<cmd>TroubleToggle document_diagnostics<cr>", opt)
+map("n", "<leader>xl", "<cmd>TroubleToggle loclist<cr>", opt)
+map("n", "<leader>xq", "<cmd>TroubleToggle quickfix<cr>", opt)
+map("n", "gR", "<cmd>TroubleToggle lsp_references<cr>", opt)
+
+vim.keymap.set("n", "<space>e", vim.diagnostic.open_float, opt)
+vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, opt)
+vim.keymap.set("n", "]d", vim.diagnostic.goto_next, opt)
+-- vim.keymap.set("n", "<space>q", vim.diagnostic.setloclist, opt)

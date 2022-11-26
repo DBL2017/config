@@ -11,7 +11,7 @@ require("mason").setup({
         check_outdated_packages_on_open = true,
 
         -- The border to use for the UI window. Accepts same border values as |nvim_open_win()|.
-        border = "none",
+        border = "rounded",
 
         icons = {
             -- The list icon to use for installed packages.
@@ -57,7 +57,7 @@ require("mason").setup({
 
     -- Controls to which degree logs are written to the log file. It's useful to set this to vim.log.levels.DEBUG when
     -- debugging issues with package installations.
-    log_level = vim.log.levels.INFO,
+    log_level = vim.log.levels.WARN,
 
     -- Limit for the maximum amount of packages to be installed at the same time. Once this limit is reached, any further
     -- packages that are requested to be installed will be put in a queue.

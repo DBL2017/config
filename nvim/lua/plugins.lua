@@ -72,23 +72,50 @@ return require("packer").startup({
         })
         -- Linter
         use("mfussenegger/nvim-lint")
+
         -- complete
         use({ "hrsh7th/nvim-cmp" })
+        use("lukas-reineke/cmp-under-comparator")
+
+        --snip engine
+        use({ "L3MON4D3/LuaSnip" })
+        use("saadparwaiz1/cmp_luasnip")
+
         -- sources
         use({
-            "hrsh7th/cmp-vsnip",
-            "hrsh7th/cmp-calc",
+            -- Buffer / Vim-builtin functionality
             "hrsh7th/cmp-buffer",
-            "hrsh7th/cmp-path",
-            "hrsh7th/cmp-cmdline",
+            "amarakon/nvim-cmp-buffer-lines",
             "hrsh7th/cmp-omni",
-            "hrsh7th/cmp-emoji",
-            "hrsh7th/cmp-nvim-lua",
+
+            -- LSP
             "hrsh7th/cmp-nvim-lsp",
-            "f3fora/cmp-spell",
             "hrsh7th/cmp-nvim-lsp-document-symbol",
             "hrsh7th/cmp-nvim-lsp-signature-help",
+
+            -- Filesystem paths
+            "hrsh7th/cmp-path",
+            -- Command line
+            "hrsh7th/cmp-cmdline",
+            -- Markdown emojis
+            "hrsh7th/cmp-emoji",
+            -- Neovim's Lua API
+            "hrsh7th/cmp-nvim-lua",
+            -- Using all treesitter highlight nodes as completion candicates. LRU cache is used to improve performance.
             "ray-x/cmp-treesitter",
+            -- nerdfont icon
+            "chrisgrieser/cmp-nerdfont",
+            -- latex
+            "amarakon/nvim-cmp-lua-latex-symbols",
+            -- look Command
+            "octaltree/cmp-look",
+        })
+
+        use({
+            "David-Kunz/cmp-npm",
+            requires = {
+                "nvim-lua/plenary.nvim",
+            },
         })
 
         -- diagnostics show

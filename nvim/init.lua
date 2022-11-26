@@ -7,6 +7,7 @@ require("plugins")
 require("keymappings")
 require("autocmds")
 require("theme")
+require("diagnostic")
 
 -- plugins
 require("plugin-config.lualine")
@@ -24,7 +25,9 @@ require("plugin-config.nvim-lint")
 require("lsp.mason")
 require("lsp.mason-lspconfig")
 require("lsp.lspconfig")
+-- cmp
 require("lsp.nvim-cmp")
+require("lsp.cmp.cmp-npm")
 -- theme
 require("theme.material")
 -- require("plugin-config.bufferline")
