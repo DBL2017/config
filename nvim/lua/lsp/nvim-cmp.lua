@@ -282,10 +282,10 @@ cmp.setup.filetype({ "c", "cpp" }, {
             },
         },
 
-        -- 它为当前缓冲区中的所有行提供源
-        { name = "buffer-lines", option = {
-            max_indents = 1,
-        } },
+        -- -- 它为当前缓冲区中的所有行提供源
+        -- { name = "buffer-lines", option = {
+        --     max_indents = 1,
+        -- } },
 
         -- nvim-cmp source for omnifunc.
         { name = "omni" },
