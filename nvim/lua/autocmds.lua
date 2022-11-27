@@ -8,7 +8,6 @@ autocmd("BufReadPost", {
     callback = function()
         if vim.fn.line("'\"") > 0 and vim.fn.line("'\"") <= vim.fn.line("$") then
             vim.fn.setpos(".", vim.fn.getpos("'\""))
-            vim.cmd("silent! foldopen")
         end
     end,
 })
@@ -23,36 +22,28 @@ autocmd({
     end,
 })
 
--- 写入代码自动格式化
--- autocmd({
---     "BufWritePost",
--- }, {
---     pattern = "*",
---     callback = function() vim.cmd({ cmd = "FormatWrite" }) end,
--- })
-
---[[ -- 写入代码自动格式化
--- autocmd({
---     "InsertLeave",
--- }, {
---     pattern = "*",
---     callback = function() require("lint").try_lint() end,
--- }) ]]
-
 -- 支持输入法切换
 if vim.fn.has("linux") == 1 then
     local reservedIM1 = "xkb:us::eng"
     local reservedIM2 = "xkb:us::eng"
-    autocmd({ "InsertEnter", "VimLeave" }, {
+    autocmd({ "InsertEnter" }, {
+        pattern = "*",
         callback = function()
             reservedIM1 = vim.trim(vim.fn.system("ibus engine"))
-            if reservedIM2 then vim.trim(vim.fn.system("ibus engine " .. reservedIM2)) end
+            -- print(reservedIM1,reservedIM2)
+            if reservedIM2 then
+                vim.trim(vim.fn.system("ibus engine " .. reservedIM2))
+            end
         end,
     })
-    autocmd({ "InsertLeave", "VimEnter" }, {
+    autocmd({ "InsertLeave" }, {
+        pattern = "*",
         callback = function()
             reservedIM2 = vim.trim(vim.fn.system("ibus engine"))
-            if reservedIM1 then vim.trim(vim.fn.system("ibus engine " .. reservedIM1)) end
+            -- print(reservedIM1,reservedIM2)
+            if reservedIM1 then
+                vim.trim(vim.fn.system("ibus engine " .. reservedIM1))
+            end
         end,
     })
 end

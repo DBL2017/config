@@ -26,7 +26,9 @@ return require("packer").startup({
 
         use({
             "nvim-treesitter/nvim-treesitter",
-            run = function() require("nvim-treesitter.install").update({ with_sync = true }) end,
+            run = function()
+                require("nvim-treesitter.install").update({ with_sync = true })
+            end,
         })
         use("nvim-treesitter/nvim-treesitter-context")
 
@@ -133,7 +135,7 @@ return require("packer").startup({
         use({ "marko-cerovac/material.nvim" })
 
         -- formatter
-        use({ "mhartington/formatter.nvim" })
+        -- use({ "mhartington/formatter.nvim" })
 
         -- autopairs
         use({
@@ -143,13 +145,21 @@ return require("packer").startup({
         -- tex
         use("lervag/vimtex")
 
-        if packer_bootstrap then require("packer").sync() end
+        -- null-ls
+        use({
+            "jose-elias-alvarez/null-ls.nvim",
+            requires = { "nvim-lua/plenary.nvim" },
+        })
+
+        if packer_bootstrap then
+            require("packer").sync()
+        end
     end,
     config = {
         max_jobs = 10,
 
         -- The default print log level. One of: "trace", "debug", "info", "warn", "error", "fatal".
-        log = { level = "info" },
+        log = { level = "warn" },
 
         clone_timeout = 60,
 

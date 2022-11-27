@@ -149,7 +149,9 @@ cmp.setup({
             cmp.config.compare.exact,
             cmp.config.compare.score,
             cmp_under_comparator.under,
-            function(...) cmp_buffer:compare_locality(...) end,
+            function(...)
+                cmp_buffer:compare_locality(...)
+            end,
             cmp.config.compare.kind,
             cmp.config.compare.sort_text,
             cmp.config.compare.length,
@@ -177,10 +179,10 @@ cmp.setup({
             },
         },
 
-        -- 它为当前缓冲区中的所有行提供源
-        { name = "buffer-lines", option = {
-            max_indents = 1,
-        } },
+        -- 它为当前缓冲区中的所有行提供源，该source有重大问题，会导致nvim卡死
+        -- { name = "buffer-lines", option = {
+        --     max_indents = 1,
+        -- } },
 
         -- nvim-cmp source for omnifunc.
         { name = "omni" },
