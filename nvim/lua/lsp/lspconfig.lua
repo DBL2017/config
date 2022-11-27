@@ -50,7 +50,10 @@ end
 
 -- 增加nvim-cmp支持的额外的capabilities
 -- 为了增强nvim默认的omnifunc的候选菜单
+
 local capabilities = require("cmp_nvim_lsp").default_capabilities()
+local clangd_capabilities = require("cmp_nvim_lsp").default_capabilities()
+clangd_capabilities.offsetEncoding = "utf-8"
 
 local lsp_flags = {
     -- This is the default in Nvim 0.7+
@@ -59,15 +62,17 @@ local lsp_flags = {
 require("lspconfig")["clangd"].setup({
     single_file_support = true,
     on_attach = on_attach,
-    capabilities = capabilities,
+    capabilities = clangd_capabilities,
     flags = lsp_flags,
 })
 require("lspconfig")["pyright"].setup({
     on_attach = on_attach,
+    capabilities = capabilities,
     flags = lsp_flags,
 })
 require("lspconfig")["sumneko_lua"].setup({
     on_attach = on_attach,
+    capabilities = capabilities,
     flags = lsp_flags,
     settings = {
         Lua = {
