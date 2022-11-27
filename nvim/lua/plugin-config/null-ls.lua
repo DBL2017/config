@@ -34,14 +34,15 @@ null_ls.setup({
                 "scss",
                 "less",
                 "html",
-                "json",
-                "jsonc",
                 "yaml",
                 "markdown",
                 "markdown.mdx",
                 "graphql",
                 "handlebars",
             },
+        }),
+        null_ls.builtins.formatting.jq.with({
+            filetypes = { "json" },
         }),
         -- python format
         null_ls.builtins.formatting.yapf.with({
@@ -65,6 +66,8 @@ null_ls.setup({
             },
             extra_args = { "--disable", "MD013" },
         }),
+
+        null_ls.builtins.diagnostics.jsonlint,
         -- null_ls.builtins.diagnostics.eslint,
 
         null_ls.builtins.code_actions.shellcheck,

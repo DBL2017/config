@@ -87,7 +87,6 @@ return require("packer").startup({
         use({
             -- Buffer / Vim-builtin functionality
             "hrsh7th/cmp-buffer",
-            "amarakon/nvim-cmp-buffer-lines",
             "hrsh7th/cmp-omni",
 
             -- LSP
@@ -103,14 +102,8 @@ return require("packer").startup({
             "hrsh7th/cmp-emoji",
             -- Neovim's Lua API
             "hrsh7th/cmp-nvim-lua",
-            -- Using all treesitter highlight nodes as completion candicates. LRU cache is used to improve performance.
-            "ray-x/cmp-treesitter",
-            -- nerdfont icon
-            "chrisgrieser/cmp-nerdfont",
             -- latex
             "amarakon/nvim-cmp-lua-latex-symbols",
-            -- look Command
-            "octaltree/cmp-look",
         })
 
         use({

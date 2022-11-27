@@ -167,54 +167,9 @@ cmp.setup({
 
         {
             name = "buffer",
-            option = {
-                keyword_pattern = [[\k\+]],
-                get_bufnrs = function()
-                    local bufs = {}
-                    for _, win in ipairs(vim.api.nvim_list_wins()) do
-                        bufs[vim.api.nvim_win_get_buf(win)] = true
-                    end
-                    return vim.tbl_keys(bufs)
-                end,
-            },
         },
-
-        -- 它为当前缓冲区中的所有行提供源，该source有重大问题，会导致nvim卡死
-        -- { name = "buffer-lines", option = {
-        --     max_indents = 1,
-        -- } },
-
         -- nvim-cmp source for omnifunc.
         { name = "omni" },
-
-        --for displaying function signatures with the current parameter emphasized:
-        { name = "nvim_lsp_signature_help" },
-        -- allows you to autocomplete npm packages and its versions.
-        -- The source is only active if you're in a package.json file.
-        { name = "npm", keyword_length = 4 },
-
-        -- nvim-cmp source for emojis.
-        { name = "emoji" },
-
-        -- nvim-cmp source for nerdfont icons.
-        { name = "nerdfont" },
-
-        -- Add latex symbol support for nvim-cmp.
-        { name = "lua-latex-symbols", option = { cache = true } },
-
-        -- look command source for nvim-cmp
-        {
-            name = "look",
-            keyword_length = 2,
-            option = {
-                convert_case = true,
-                loud = true,
-                --dict = '/usr/share/dict/words'
-            },
-        },
-
-        -- Using all treesitter highlight nodes as completion candicates. LRU cache is used to improve performance.
-        { name = "treesitter" },
     }, {
         --nvim-cmp source for filesystem paths.
         {
@@ -282,15 +237,42 @@ cmp.setup.filetype({ "c", "cpp" }, {
             },
         },
 
-        -- -- 它为当前缓冲区中的所有行提供源
-        -- { name = "buffer-lines", option = {
-        --     max_indents = 1,
-        -- } },
+        -- nvim-cmp source for omnifunc.
+        { name = "omni" },
+    },
+})
+cmp.setup.filetype({ "markdown", "latex" }, {
+    sources = {
+        -- lsp的数据源
+        { name = "nvim_lsp" },
+        -- For luasnip users.
+        { name = "luasnip" },
+
+        {
+            name = "buffer",
+        },
 
         -- nvim-cmp source for omnifunc.
         { name = "omni" },
 
-        --for displaying function signatures with the current parameter emphasized:
-        { name = "nvim_lsp_signature_help" },
+        -- nvim-cmp source for emojis.
+        { name = "emoji" },
+
+        -- nvim-cmp source for nerdfont icons.
+        { name = "nerdfont" },
+
+        -- Add latex symbol support for nvim-cmp.
+        { name = "lua-latex-symbols", option = { cache = true } },
+    },
+    {
+        --nvim-cmp source for filesystem paths.
+        {
+            name = "path",
+            option = {
+                -- 选中目录后是否追加/
+                trailing_slash = true,
+                label_trailing_slash = true,
+            },
+        },
     },
 })
