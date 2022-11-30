@@ -21,6 +21,7 @@ require("plugin-config.autopairs")
 require("plugin-config.vimtex")
 require("plugin-config.nvim-lint")
 require("plugin-config.null-ls")
+require("plugin-config.autotag")
 -- lsp
 require("lsp.mason")
 require("lsp.mason-lspconfig")

@@ -134,6 +134,7 @@ return require("packer").startup({
         use({
             "windwp/nvim-autopairs",
         })
+        use("windwp/nvim-ts-autotag")
 
         -- tex
         use("lervag/vimtex")
