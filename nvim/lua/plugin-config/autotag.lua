@@ -3,7 +3,7 @@ local installStatus = pcall(require, "nvim-ts-autotag")
 
 if installStatus then
 	require("nvim-ts-autotag").setup({
-		filetypes = { "html", "xml" },
+		filetypes = { "html", "xml", "javascript" },
 	})
 else
 	vim.notify("没有找到nvim-ts-autotag")

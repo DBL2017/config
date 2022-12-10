@@ -23,27 +23,27 @@ autocmd({
 })
 
 -- 支持输入法切换
-if vim.fn.has("linux") == 1 then
-    local reservedIM1 = "xkb:us::eng"
-    local reservedIM2 = "xkb:us::eng"
-    autocmd({ "InsertEnter" }, {
-        pattern = "*",
-        callback = function()
-            reservedIM1 = vim.trim(vim.fn.system("ibus engine"))
-            -- print(reservedIM1,reservedIM2)
-            if reservedIM2 then
-                vim.trim(vim.fn.system("ibus engine " .. reservedIM2))
-            end
-        end,
-    })
-    autocmd({ "InsertLeave" }, {
-        pattern = "*",
-        callback = function()
-            reservedIM2 = vim.trim(vim.fn.system("ibus engine"))
-            -- print(reservedIM1,reservedIM2)
-            if reservedIM1 then
-                vim.trim(vim.fn.system("ibus engine " .. reservedIM1))
-            end
-        end,
-    })
-end
+-- if vim.fn.has("linux") == 1 then
+--     local reservedIM1 = "xkb:us::eng"
+--     local reservedIM2 = "xkb:us::eng"
+--     autocmd({ "InsertEnter" }, {
+--         pattern = "*",
+--         callback = function()
+--             reservedIM1 = vim.trim(vim.fn.system("ibus engine"))
+--             -- print(reservedIM1,reservedIM2)
+--             if reservedIM2 then
+--                 vim.trim(vim.fn.system("ibus engine " .. reservedIM2))
+--             end
+--         end,
+--     })
+--     autocmd({ "InsertLeave" }, {
+--         pattern = "*",
+--         callback = function()
+--             reservedIM2 = vim.trim(vim.fn.system("ibus engine"))
+--             -- print(reservedIM1,reservedIM2)
+--             if reservedIM1 then
+--                 vim.trim(vim.fn.system("ibus engine " .. reservedIM1))
+--             end
+--         end,
+--     })
+-- end
