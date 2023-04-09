@@ -1,0 +1,14 @@
+{
+  "promptDelete": false,
+  "readableLineLength": false,
+  "strictLineBreaks": true,
+  "showFrontmatter": false,
+  "showLineNumber": true,
+  "useTab": false,
+  "trashOption": "none",
+  "alwaysUpdateLinks": true,
+  "newFileLocation": "current",
+  "newLinkFormat": "relative",
+  "useMarkdownLinks": true,
+  "attachmentFolderPath": "./"
+}
