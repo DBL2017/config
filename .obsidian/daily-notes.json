@@ -1,3 +1,5 @@
 {
-  "autorun": false
+  "autorun": false,
+  "folder": "个人日记",
+  "template": "Template/日记"
 }
