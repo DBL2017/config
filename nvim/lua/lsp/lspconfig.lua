@@ -70,7 +70,7 @@ require("lspconfig")["pyright"].setup({
     capabilities = capabilities,
     flags = lsp_flags,
 })
-require("lspconfig")["sumneko_lua"].setup({
+require("lspconfig")["lua_ls"].setup({
     on_attach = on_attach,
     capabilities = capabilities,
     flags = lsp_flags,

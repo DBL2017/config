@@ -150,7 +150,7 @@ return require("packer").startup({
         end
     end,
     config = {
-        max_jobs = 10,
+        max_jobs = 1,
 
         -- The default print log level. One of: "trace", "debug", "info", "warn", "error", "fatal".
         log = { level = "warn" },
