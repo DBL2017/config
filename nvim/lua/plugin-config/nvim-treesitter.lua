@@ -10,7 +10,8 @@ if installStatus then
         sync_install = true,
 
         -- Automatically install missing parsers when entering buffer
-        auto_install = true,
+        -- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
+        auto_install = false,
 
         -- List of parsers to ignore installing (for "all")
         ignore_install = {},
