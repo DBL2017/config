@@ -1,11 +1,11 @@
 {
   "accentColor": "",
   "theme": "obsidian",
-  "cssTheme": "Minimal",
+  "cssTheme": "Things",
   "textFontFamily": "FiraCode NFM",
   "interfaceFontFamily": "FiraCode NFM",
   "monospaceFontFamily": "FiraCode NFM",
-  "baseFontSize": 15,
+  "baseFontSize": 16,
   "nativeMenus": true,
   "translucency": false
 }
