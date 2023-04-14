@@ -2,5 +2,8 @@
   "templater-obsidian",
   "cm-editor-syntax-highlight-obsidian",
   "obsidian-paste-image-rename",
-  "table-editor-obsidian"
+  "table-editor-obsidian",
+  "obsidian-mind-map",
+  "obsidian-hider",
+  "obsidian-footnotes"
 ]
