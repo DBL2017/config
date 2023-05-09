@@ -6,7 +6,7 @@ if installStatus then
     --[[ https://github.com/kyazdani42/nvim-web-devicons is optional and used to display file icons. It requires a patched font: https://www.nerdfonts.com ]]
     require("nvim-tree").setup({
         --[[ 如果启动buffer是目录，或为空，或未命名，则打开nvim-tree窗口 ]]
-        open_on_setup = true,
+        -- open_on_setup = true,
 
         --[[ 如果启动buffer是一个文件，则打开nvim-tree窗口，但焦点在文件窗口
 	但如果update_focused_file is enabled，文件将被发现
