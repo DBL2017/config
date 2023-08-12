@@ -1,2 +1,2 @@
-git config --global http.proxy http://127.0.0.1:41091
-git config --global https.proxy https://127.0.0.1:41091
+git config --global http.proxy http://192.168.62.1:7890
+git config --global https.proxy https://192.168.62.1:7890
