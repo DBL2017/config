@@ -8,6 +8,11 @@ require("keymappings")
 require("autocmds")
 require("diagnostic")
 
+-- lsp
+require("lsp.mason")
+require("lsp.mason-lspconfig")
+require("lsp.mason-tool-installer")
+require("lsp.lspconfig")
 -- plugins
 require("plugin-config.lualine")
 require("plugin-config.nvim-treesitter")
@@ -22,10 +27,6 @@ require("plugin-config.vimtex")
 require("plugin-config.nvim-lint")
 require("plugin-config.null-ls")
 require("plugin-config.autotag")
--- lsp
-require("lsp.mason")
-require("lsp.mason-lspconfig")
-require("lsp.lspconfig")
 -- cmp
 require("lsp.nvim-cmp")
 require("lsp.cmp.cmp-npm")

@@ -71,6 +71,7 @@ return require("packer").startup({
             "williamboman/mason.nvim",
             "williamboman/mason-lspconfig.nvim",
             "neovim/nvim-lspconfig",
+            "WhoIsSethDaniel/mason-tool-installer.nvim",
         })
         -- Linter
         use("mfussenegger/nvim-lint")

@@ -14,11 +14,8 @@ require("mason").setup({
         border = "rounded",
 
         icons = {
-            -- The list icon to use for installed packages.
             package_installed = "✓",
-            -- The list icon to use for packages that are installing, or queued for installation.
             package_pending = "➜",
-            -- The list icon to use for packages that are not installed.
             package_uninstalled = "✗",
         },
 
@@ -48,19 +45,16 @@ require("mason").setup({
     -- install_root_dir = path.concat { vim.fn.stdpath "data", "mason" },
 
     pip = {
-        -- These args will be added to `pip install` calls. Note that setting extra args might impact intended behavior
-        -- and is not recommended.
-        --
+        -- 指定pip install的参数
         -- Example: { "--proxy", "https://proxyserver" }
-        install_args = {},
+        install_args = { "-i", "https://pypi.tuna.tsinghua.edu.cn/simple" },
     },
 
     -- Controls to which degree logs are written to the log file. It's useful to set this to vim.log.levels.DEBUG when
     -- debugging issues with package installations.
     log_level = vim.log.levels.WARN,
 
-    -- Limit for the maximum amount of packages to be installed at the same time. Once this limit is reached, any further
-    -- packages that are requested to be installed will be put in a queue.
+    -- 并发安装数目
     max_concurrent_installers = 4,
 
     github = {

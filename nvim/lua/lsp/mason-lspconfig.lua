@@ -4,6 +4,7 @@ if not masonInstallStatus then
     return
 end
 
+-- 该插件用于安装lsp server
 local installStatus = pcall(require, "mason-lspconfig")
 
 if not installStatus then
@@ -12,13 +13,11 @@ if not installStatus then
 end
 
 require("mason-lspconfig").setup({
-    -- A list of servers to automatically install if they're not already installed. Example: { "rust_analyzer@nightly", "sumneko_lua" }
-    -- This setting has no relation with the `automatic_installation` setting.
-    -- ensure_installed = { "markdownlint", "prettier", "shellcheck" },
-
-    -- Whether servers that are set up (via lspconfig) should be automatically installed if they're not already installed.
-    -- This setting has no relation with the `ensure_installed` setting.
-    -- Can either be:
+    -- 自动安装的server
+    --
+    ensure_installed = { "clangd" },
+    -- 决定是否安装已经通过lspconfig setup过的server
+    -- 取值如下：
     --   - false: Servers are not automatically installed.
     --   - true: All servers set up via lspconfig are automatically installed.
     --   - { exclude: string[] }: All servers set up via lspconfig, except the ones provided in the list, are automatically installed.
