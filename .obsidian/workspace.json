@@ -1,0 +1,200 @@
+{
+  "main": {
+    "id": "68dfa827ba7910ae",
+    "type": "split",
+    "children": [
+      {
+        "id": "395f31ae8e945d09",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "96b8cc1b5ac3d0c5",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Linux书单.md",
+                "mode": "preview",
+                "source": false
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "cc9dd415915818d5",
+    "type": "split",
+    "children": [
+      {
+        "id": "313fecb12fbdcf76",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "daa3168d7dcdf168",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "byModifiedTime"
+              }
+            }
+          },
+          {
+            "id": "b5d6290d5a441df1",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "b8bb7244e883ebe9",
+            "type": "leaf",
+            "state": {
+              "type": "starred",
+              "state": {}
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 261.5,
+    "collapsed": true
+  },
+  "right": {
+    "id": "045543e74e9e2844",
+    "type": "split",
+    "children": [
+      {
+        "id": "0e4238708fd47691",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "f181e24bbfe813b5",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Linux书单.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "24f1a3cb5c3e54de",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "Linux书单.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "6b89460bbf907d17",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true
+              }
+            }
+          },
+          {
+            "id": "5a4d4ee98dd5e853",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "Linux书单.md"
+              }
+            }
+          },
+          {
+            "id": "4fbe45d41f4ccf18",
+            "type": "leaf",
+            "state": {
+              "type": "advanced-tables-toolbar",
+              "state": {}
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:打开快速切换": false,
+      "graph:查看关系图谱": false,
+      "canvas:新建白板": false,
+      "daily-notes:打开/创建今天的日记": false,
+      "command-palette:打开命令面板": false,
+      "templater-obsidian:Templater": false,
+      "obsidian-paste-image-rename:Batch rename embeded files": true,
+      "obsidian-paste-image-rename:Batch rename all images instantly (in the current file)": true,
+      "table-editor-obsidian:Advanced Tables Toolbar": false
+    }
+  },
+  "active": "96b8cc1b5ac3d0c5",
+  "lastOpenFiles": [
+    "个人日记/2023-04-11.md",
+    "Template/日记.md",
+    "Linux书单.md",
+    "Template/default.md",
+    "Template/日记",
+    "个人日记",
+    "Excalidraw/Drawing 2023-04-11 10.38.04.excalidraw.md",
+    "Excalidraw/Drawing 2023-04-11 10.37.55.excalidraw.md",
+    "Excalidraw",
+    "Excalidraw/Drawing 2023-04-11 10.37.01.excalidraw.md",
+    "Excalidraw/Drawing 2023-04-11 10.37.01.excalidraw.png",
+    "2023-04-11.md",
+    "数字安全/openssl的简单实用说明.md",
+    "未命名看板.md",
+    "未命名aa.md",
+    "数字安全/openssl的简单实用说明/test/test.png",
+    "数字安全/openssl的简单实用说明/test",
+    "数字安全/openssl的简单实用说明",
+    "数字安全/Pasted image 20230410092111.png",
+    "读书笔记/APUE/进程环境.md",
+    "2023-04-09.md",
+    "模板测试.md",
+    "数字安全/openssl的基础用法.md",
+    "Template/文本编辑.md",
+    "Template/数字安全.md",
+    "Template/数据结构和算法.md",
+    "Template/开源三方.md",
+    "Template/构建工具.md",
+    "Template/工具使用.md",
+    "Template/读书笔记.md",
+    "Template/操作系统.md",
+    "Template/编程语言.md",
+    "编程语言/Lua/Lua循环语法.md",
+    "编程语言/Lua/Lua变量类型.md",
+    "Template",
+    "新建文件夹"
+  ]
+}

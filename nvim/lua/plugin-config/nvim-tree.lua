@@ -6,7 +6,7 @@ if installStatus then
     --[[ https://github.com/kyazdani42/nvim-web-devicons is optional and used to display file icons. It requires a patched font: https://www.nerdfonts.com ]]
     require("nvim-tree").setup({
         --[[ 如果启动buffer是目录，或为空，或未命名，则打开nvim-tree窗口 ]]
-        open_on_setup = true,
+        -- open_on_setup = true,
 
         --[[ 如果启动buffer是一个文件，则打开nvim-tree窗口，但焦点在文件窗口
 	但如果update_focused_file is enabled，文件将被发现
@@ -36,7 +36,7 @@ if installStatus then
         auto_reload_on_write = true,
 
         --[[ 当光标位于已经关闭的文件夹上创建文件在其内部，否则是同级 ]]
-        create_in_closed_folder = true,
+        -- create_in_closed_folder = true,
 
         --[[ 同级目录下的文件排序方式，分别可取值为name,case_sensitive,modification_time,extension或自定义function ]]
         sort_by = "case_sensitive",

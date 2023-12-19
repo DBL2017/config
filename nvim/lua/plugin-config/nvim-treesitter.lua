@@ -4,13 +4,14 @@ if installStatus then
     require("nvim-treesitter.configs").setup({
         -- A list of parser names, or "all"
         -- ensure_installed = { "c", "lua", "python" },
-        ensure_installed = {},
+        ensure_installed = { "c" },
 
         -- Install parsers synchronously (only applied to `ensure_installed`)
         sync_install = true,
 
         -- Automatically install missing parsers when entering buffer
-        auto_install = true,
+        -- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
+        auto_install = false,
 
         -- List of parsers to ignore installing (for "all")
         ignore_install = {},

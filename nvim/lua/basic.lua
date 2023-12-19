@@ -105,3 +105,6 @@ vim.wo.foldlevel = 0
 -- 禁用mouse
 vim.opt.mouse = ""
 vim.go.mouse = ""
+
+-- 增添此项原因是为了解决在不选择提示的情况，nvim-cmp会将第一条选项插入到当前位置
+vim.opt.completeopt = "menu,menuone,noselect,noinsert"
