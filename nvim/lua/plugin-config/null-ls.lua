@@ -45,7 +45,7 @@ null_ls.setup({
             filetypes = { "json" },
         }),
         -- python format
-        null_ls.builtins.formatting.yapf.with({
+        null_ls.builtins.formatting.black.with({
             filetypes = { "python" },
         }),
         -- Filetypes: { "bash", "csh", "ksh", "sh", "zsh" }
