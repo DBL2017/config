@@ -64,6 +64,11 @@ require("lspconfig")["clangd"].setup({
     on_attach = on_attach,
     capabilities = clangd_capabilities,
     flags = lsp_flags,
+    settings = {
+        C = {
+            diagnostics = false,
+        },
+    },
 })
 require("lspconfig")["pyright"].setup({
     on_attach = on_attach,
@@ -86,10 +91,6 @@ require("lspconfig")["tsserver"].setup({
     on_attach = on_attach,
     flags = lsp_flags,
 })
-require("lspconfig")["tailwindcss"].setup({
-    on_attach = on_attach,
-    flags = lsp_flags,
-})
 
 -- require("lspconfig")["marksman"].setup({
 --     on_attach = on_attach,
@@ -107,6 +108,10 @@ require("lspconfig")["tailwindcss"].setup({
 -- })
 
 require("lspconfig")["bashls"].setup({
+    on_attach = on_attach,
+    flags = lsp_flags,
+})
+require("lspconfig")["cmake"].setup({
     on_attach = on_attach,
     flags = lsp_flags,
 })

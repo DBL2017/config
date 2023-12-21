@@ -47,7 +47,7 @@ return require("packer").startup({
             requires = {
                 "kyazdani42/nvim-web-devicons", -- optional, for file icons
             },
-            tag = "nightly", -- optional, updated every week. (see issue #1193)
+            tag = "nightly",                    -- optional, updated every week. (see issue #1193)
         })
 
         use({
@@ -58,7 +58,7 @@ return require("packer").startup({
         -- telescope 模糊查找
         use({
             "nvim-telescope/telescope.nvim",
-            tag = "0.1.0",
+            tag = "0.1.5",
             -- or                            , branch = '0.1.x',
             requires = { { "nvim-lua/plenary.nvim" } },
         })
