@@ -22,8 +22,8 @@ autocmd({
     end,
 })
 
--- 进入term自动切换为insert mode
--- autocmd({ "TermOpen" }, { command = "startinsert" })
+-- 进入term时设置快捷键
+autocmd({ "TermOpen" }, { command = "lua set_terminal_keymaps()" })
 
 -- 支持输入法切换
 -- if vim.fn.has("linux") == 1 then

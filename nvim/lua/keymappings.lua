@@ -4,6 +4,20 @@ local opt = {
 }
 local map = vim.api.nvim_set_keymap
 
+-- 设置toggleterm的快捷键，使其能够在打开终端的情况下切换到其他窗口
+function _G.set_terminal_keymaps()
+    vim.keymap.set("t", "<esc>", [[<C-\><C-n>]], { buffer = 0 })
+    vim.keymap.set("t", "jk", [[<C-\><C-n>]], { buffer = 0 })
+    vim.keymap.set("t", "<C-h>", [[<Cmd>wincmd h<CR>]], { buffer = 0 })
+    vim.keymap.set("t", "<C-j>", [[<Cmd>wincmd j<CR>]], { buffer = 0 })
+    vim.keymap.set("t", "<C-k>", [[<Cmd>wincmd k<CR>]], { buffer = 0 })
+    vim.keymap.set("t", "<C-l>", [[<Cmd>wincmd l<CR>]], { buffer = 0 })
+    vim.keymap.set("t", "<C-w>", [[<C-\><C-n><C-w>]], { buffer = 0 })
+end
+
+-- 指定类型终端
+map("n", "<C-G>", ":TermExec cmd='git status ./' name=GIT<CR>", opt)
+
 -- 禁用方向键
 map("n", "<Left>", "<NOP>", opt)
 map("n", "<Right>", "<NOP>", opt)
