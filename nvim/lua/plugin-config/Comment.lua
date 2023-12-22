@@ -48,21 +48,19 @@ if installStatus then
         post_hook = nil,
     })
 
-    require("Comment.ft")
-        .set({
-            "c",
-            "c++",
-            "javascript",
-        }, {
-            "// %s",
-            "/* %s */",
-        })
-        .set({
-            "lua",
-        }, {
-            "-- %s",
-            "--[[%s]]",
-        })
+    require("Comment.ft").set({
+        "c",
+        "c++",
+        "javascript",
+    }, {
+        "// %s",
+        "/* %s */",
+    }).set({
+        "lua",
+    }, {
+        "-- %s",
+        "--[[%s]]",
+    })
 else
     vim.notify("没有找到Comment")
     return

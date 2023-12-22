@@ -146,6 +146,8 @@ return require("packer").startup({
             requires = { "nvim-lua/plenary.nvim" },
         })
 
+        use("simrat39/symbols-outline.nvim")
+
         if packer_bootstrap then
             require("packer").sync()
         end

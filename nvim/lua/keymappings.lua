@@ -31,6 +31,7 @@ map("v", "<leader>qa", ":qa!<CR>", opt)
 
 -- nvim-tree
 map("n", "<F2>", ":NvimTreeToggle<CR>", opt)
+map("n", "<F12>", ":SymbolsOutline<CR>", opt)
 
 -- telescope
 -- " Find files using Telescope command-line sugar.

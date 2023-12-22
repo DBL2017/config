@@ -13,6 +13,22 @@ null_ls.setup({
         -- format lua
         null_ls.builtins.formatting.stylua.with({
             filetypes = { "lua" },
+            extra_args = {
+                "--call-parentheses",
+                "Always",
+                "--collapse-simple-statement",
+                "Always",
+                "--column-width",
+                "120",
+                "--indent-type",
+                "Spaces",
+                "--indent-width",
+                "4",
+                "--line-endings",
+                "Unix",
+                "--quote-style",
+                "AutoPreferDouble",
+            },
         }),
         -- c,object c,c++ format
         null_ls.builtins.formatting.clang_format.with({
