@@ -10,10 +10,11 @@ map("n", "<Right>", "<NOP>", opt)
 map("n", "<Up>", "<NOP>", opt)
 map("n", "<Down>", "<NOP>", opt)
 
+-- 调整窗口小
 map("n", "<C-Up>", ":resize -1<CR>", opt)
 map("n", "<C-Down>", ":resize +1<CR>", opt)
-map("n", "<C-Left>", ":vertical resize -1<CR>", opt)
-map("n", "<C-Right>", ":vertical resize +1<CR>", opt)
+map("n", "<C-Left>", ":vertical resize -3<CR>", opt)
+map("n", "<C-Right>", ":vertical resize +3<CR>", opt)
 
 -- 切换标签页
 map("n", "<S-Left>", ":tabp<CR>", opt)

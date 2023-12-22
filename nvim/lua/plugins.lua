@@ -148,6 +148,8 @@ return require("packer").startup({
 
         use("simrat39/symbols-outline.nvim")
 
+        use { "akinsho/toggleterm.nvim", tag = '*' }
+
         if packer_bootstrap then
             require("packer").sync()
         end

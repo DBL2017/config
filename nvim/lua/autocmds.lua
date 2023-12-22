@@ -22,6 +22,9 @@ autocmd({
     end,
 })
 
+-- 进入term自动切换为insert mode
+-- autocmd({ "TermOpen" }, { command = "startinsert" })
+
 -- 支持输入法切换
 -- if vim.fn.has("linux") == 1 then
 --     local reservedIM1 = "xkb:us::eng"
