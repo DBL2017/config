@@ -70,7 +70,7 @@ cmp.setup({
         format = function(entry, vim_item)
             -- print(vim.inspect(vim_item, { newline = "", indent = "" }))
             -- Kind icons
-            ---- This concatonates the icons with the name of the item kind
+            ---- This concatenates the icons with the name of the item kind
             vim_item.kind = string.format("%s %s", kind_icons[vim_item.kind], vim_item.kind)
             -- vim_item.kind = kind_icons[vim_item.kind]
             -- vim_item.abbr = global.trim(vim_item.abbr)
@@ -149,9 +149,7 @@ cmp.setup({
             cmp.config.compare.exact,
             cmp.config.compare.score,
             cmp_under_comparator.under,
-            function(...)
-                cmp_buffer:compare_locality(...)
-            end,
+            function(...) cmp_buffer:compare_locality(...) end,
             cmp.config.compare.kind,
             cmp.config.compare.sort_text,
             cmp.config.compare.length,
@@ -218,7 +216,6 @@ cmp.setup.filetype({ "lua", "Lua" }, {
 -- Only enable `buffer-lines` for C and C++
 cmp.setup.filetype({ "c", "cpp" }, {
     sources = {
-
         -- lsp的数据源
         { name = "nvim_lsp" },
         -- For luasnip users.

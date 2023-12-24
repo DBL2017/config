@@ -22,9 +22,13 @@ require("mason-tool-installer").setup({
         -- { 'bash-language-server', auto_update = true },
 
         "stylua",
-        "luacheck",
+        "jq",
+        "jsonlint",
+        -- "luacheck",
+        "cmakelang",
         "shellcheck",
         "black",
+        "codespell",
     },
 
     -- if set to true this will check each tool for updates. If updates
@@ -51,5 +55,5 @@ require("mason-tool-installer").setup({
     -- This is only relevant when you are using 'run_on_start'. It has no
     -- effect when running manually via ':MasonToolsInstall' etc....
     -- Default: nil
-    debounce_hours = 5, -- at least 5 hours between attempts to install/update
+    -- debounce_hours = 5, -- at least 5 hours between attempts to install/update
 })

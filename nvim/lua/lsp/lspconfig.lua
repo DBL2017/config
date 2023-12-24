@@ -87,10 +87,10 @@ require("lspconfig")["lua_ls"].setup({
         },
     },
 })
-require("lspconfig")["tsserver"].setup({
-    on_attach = on_attach,
-    flags = lsp_flags,
-})
+-- require("lspconfig")["tsserver"].setup({
+--     on_attach = on_attach,
+--     flags = lsp_flags,
+-- })
 
 -- require("lspconfig")["marksman"].setup({
 --     on_attach = on_attach,

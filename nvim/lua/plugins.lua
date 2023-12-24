@@ -45,7 +45,7 @@ return require("packer").startup({
             requires = {
                 "kyazdani42/nvim-web-devicons", -- optional, for file icons
             },
-            tag = "nightly", -- optional, updated every week. (see issue #1193)
+            tag = "nightly",                    -- optional, updated every week. (see issue #1193)
         })
 
         use({
@@ -150,6 +150,11 @@ return require("packer").startup({
 
         -- These optional plugins should be loaded directly because of a bug in Packer lazy loading
         use("romgrk/barbar.nvim")
+
+        use({
+            "stevearc/conform.nvim",
+        })
+        use({ "folke/tokyonight.nvim" })
 
         if packer_bootstrap then require("packer").sync() end
     end,
