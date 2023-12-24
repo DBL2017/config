@@ -29,10 +29,10 @@ require("plugin-config.vimtex")
 require("plugin-config.nvim-lint")
 require("plugin-config.null-ls")
 require("plugin-config.autotag")
+require("plugin-config.barbar")
 -- cmp
 require("lsp.nvim-cmp")
 require("lsp.cmp.cmp-npm")
 -- theme
 require("theme.material")
 -- require("theme.neon")
--- require("plugin-config.bufferline")

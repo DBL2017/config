@@ -1,24 +1,14 @@
 local installStatus = pcall(require, "lualine")
 
 if installStatus then
-    --[[ +-------------------------------------------------+
-[ | A | B | C                             X | Y | Z |
-[ +-------------------------------------------------+ ]]
     require("lualine").setup({
         options = {
-            --[[ 状态栏中显示图标 ]]
             icons_enabled = false,
 
-            --[[ 设置lualine主题
-        [ 仅支持https://github.com/nvim-lualine/lualine.nvim/blob/master/THEMES.md中定义的值 ]]
             theme = "auto",
 
-            --[[ A|B|C为左侧3个section. X|Y|Z为右侧3个section
-        [ section_separators为section之间的分隔符 ]]
             section_separators = { left = ">", right = "<" },
 
-            --[[ A、B、C分别为3个section，每个section中都包含1个或多个component
-        [ component之间的分隔符如下 ]]
             component_separators = { left = "|", right = "|" },
 
             ignore_focus = {},
@@ -141,14 +131,16 @@ if installStatus then
             lualine_z = {},
         },
 
-        tabline = {
-            lualine_a = { "tabs" },
-            lualine_b = { "buffers" },
-            lualine_c = {},
-            lualine_x = { "os.date('%c')" },
-            lualine_y = {},
-            lualine_z = { "location" },
-        },
+        -- 为了兼容barbar.nvim
+        tabline = {},
+        -- tabline = {
+        --     lualine_a = { "tabs" },
+        --     lualine_b = { "buffers" },
+        --     lualine_c = {},
+        --     lualine_x = { "os.date('%c')" },
+        --     lualine_y = {},
+        --     lualine_z = { "location" },
+        -- },
 
         winbar = {},
         inactive_winbar = {},

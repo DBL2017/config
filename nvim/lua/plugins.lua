@@ -26,9 +26,7 @@ return require("packer").startup({
 
         use({
             "nvim-treesitter/nvim-treesitter",
-            run = function()
-                require("nvim-treesitter.install").update({ with_sync = true })
-            end,
+            run = function() require("nvim-treesitter.install").update({ with_sync = true }) end,
         })
         use("nvim-treesitter/nvim-treesitter-context")
 
@@ -47,7 +45,7 @@ return require("packer").startup({
             requires = {
                 "kyazdani42/nvim-web-devicons", -- optional, for file icons
             },
-            tag = "nightly",                    -- optional, updated every week. (see issue #1193)
+            tag = "nightly", -- optional, updated every week. (see issue #1193)
         })
 
         use({
@@ -148,19 +146,20 @@ return require("packer").startup({
 
         use("simrat39/symbols-outline.nvim")
 
-        use { "akinsho/toggleterm.nvim", tag = '*' }
+        use({ "akinsho/toggleterm.nvim", tag = "*" })
 
-        if packer_bootstrap then
-            require("packer").sync()
-        end
+        -- These optional plugins should be loaded directly because of a bug in Packer lazy loading
+        use("romgrk/barbar.nvim")
+
+        if packer_bootstrap then require("packer").sync() end
     end,
     config = {
-        max_jobs = 1,
+        max_jobs = 10,
 
         -- The default print log level. One of: "trace", "debug", "info", "warn", "error", "fatal".
         log = { level = "warn" },
 
-        clone_timeout = 60,
+        clone_timeout = 180,
 
         -- Lua format string used for "aaa/bbb" style plugins
         default_url_format = "https://github.com/%s",
