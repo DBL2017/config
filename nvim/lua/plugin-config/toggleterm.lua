@@ -18,7 +18,7 @@ require("toggleterm").setup({
     start_in_insert = true,
     -- 在当前buffer的下方打开新终端
     direction = "horizontal",
-    shell = "/bin/bash",
+    -- shell = "/bin/bash",
 })
 
 -- local Terminal = require("toggleterm.terminal").Terminal

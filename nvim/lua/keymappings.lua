@@ -8,6 +8,7 @@ local map = vim.api.nvim_set_keymap
 function _G.set_terminal_keymaps()
     vim.keymap.set("t", "<esc>", [[<C-\><C-n>]], { buffer = 0 })
     vim.keymap.set("t", "jk", [[<C-\><C-n>]], { buffer = 0 })
+    -- 有些终端模拟器上，<Backspace>按键会发送0x08，与<C-h>一致，下面的映射就可能导致<BS>失效，需要修改终端模拟对<BS>的配置
     vim.keymap.set("t", "<C-h>", [[<Cmd>wincmd h<CR>]], { buffer = 0 })
     vim.keymap.set("t", "<C-j>", [[<Cmd>wincmd j<CR>]], { buffer = 0 })
     vim.keymap.set("t", "<C-k>", [[<Cmd>wincmd k<CR>]], { buffer = 0 })
