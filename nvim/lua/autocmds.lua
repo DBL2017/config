@@ -25,6 +25,26 @@ autocmd({
 -- 进入term时设置快捷键
 autocmd({ "TermOpen" }, { command = "lua set_terminal_keymaps()" })
 
+
+-- 光标设置
+local function hiCursor()
+    vim.api.nvim_set_hl(0, "Cursor", { fg = '#cc9900', bg = '#339966' })
+    vim.api.nvim_set_hl(0, "CursorReset", { fg = 'white', bg = 'white' })
+end
+
+autocmd("ColorScheme", {
+    pattern = "*",
+    callback = hiCursor,
+})
+local function resetHi()
+    vim.opt.guicursor = 'a:block-CursorReset,a:blinkon150' -- 退出时设置
+end
+
+autocmd({ "VimLeave" }, {
+    pattern = "*",
+    callback = resetHi
+})
+
 -- 支持输入法切换
 -- if vim.fn.has("linux") == 1 then
 --     local reservedIM1 = "xkb:us::eng"
