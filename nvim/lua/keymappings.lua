@@ -41,6 +41,7 @@ map("n", "<A-0>", "<Cmd>BufferLast<CR>", opts)
 map("n", "<A-p>", "<Cmd>BufferPin<CR>", opts)
 -- Close buffer
 map("n", "<A-c>", "<Cmd>BufferClose<CR>", opts)
+map("t", "<A-c>", "<Cmd>q!<CR>", opts)
 
 -- 禁用方向键
 map("n", "<Left>", "<NOP>", opts)
