@@ -76,8 +76,8 @@ vim.o.splitright = false
 vim.g.completeopt = "menu,menuone,noselect,noinsert"
 
 -- 样式
---[[ vim.o.termguicolors = true
-   [ vim.opt.termguicolors = true ]]
+-- vim.o.termguicolors = true
+-- vim.opt.termguicolors = true
 
 -- 补全增强
 vim.o.wildmenu = true
@@ -110,3 +110,10 @@ vim.go.mouse = ""
 vim.opt.completeopt = "menu,menuone,noselect,noinsert"
 -- neovim 对sql文件处理有问题 https://github.com/neovim/neovim/issues/14433
 vim.g.omni_sql_default_compl_type = "syntax"
+
+vim.g.backspace = "indent, eol, start"
+
+vim.o.exrc = true
+
+-- 设置swap文件位置
+vim.go.directory = "./.swap"
