@@ -8,12 +8,6 @@ if installStatus then
         --[[ 如果启动buffer是目录，或为空，或未命名，则打开nvim-tree窗口 ]]
         -- open_on_setup = true,
 
-        --[[ 如果启动buffer是一个文件，则打开nvim-tree窗口，但焦点在文件窗口
-	但如果update_focused_file is enabled，文件将被发现
-
-	如果设置为true，会导致lualine在第一次打开文件时git diff数据错误 ]]
-        open_on_setup_file = false,
-
         --[[ 更新BufEnter上的焦点文件，递归展开文件夹，直到找到该文件 ]]
         update_focused_file = {
             enable = true,
@@ -22,9 +16,6 @@ if installStatus then
             --[[ 不会更新下面设置的文件的BufEnter以及目录树 ]]
             ignore_list = {},
         },
-
-        --[[ 下面配置的文件类型，在打开对应文件时不会打开nvim-tree窗口 ]]
-        ignore_ft_on_setup = {},
 
         --[[ 当切换tab或打开新tab时打开nvim-tree窗口，前提是nvim-tree已经打开 ]]
         open_on_tab = true,
@@ -126,9 +117,6 @@ if installStatus then
             vim.bo[bufnr].path = "/tmp"
         end,
 
-        --[[ 移除默认快捷键 ]]
-        remove_keymaps = false,
-
         --[[ 窗口或缓冲区设置 ]]
         view = {
             --[[ 根据最长文件名设置窗口宽度
@@ -137,9 +125,6 @@ if installStatus then
 
             --[[ 重新进入nvim-tree窗口时，使当前位置处于中间，类似于zz ]]
             centralize_selection = true,
-
-            --[[ 在顶部隐藏根目录 ]]
-            hide_root_folder = false,
 
             width = 30,
             --[[ option: left,right,top,bottom ]]

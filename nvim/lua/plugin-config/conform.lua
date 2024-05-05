@@ -5,7 +5,7 @@ if installStatus then
     require("conform").setup({
         -- Map of filetype to formatters
         formatters_by_ft = {
-            -- lua = { "stylua" },
+            lua = { "stylua" },
             -- Conform will run multiple formatters sequentially
             -- go = { "goimports", "gofmt" },
             -- Use a sub-list to run only the first available formatter
