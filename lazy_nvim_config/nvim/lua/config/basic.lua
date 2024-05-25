@@ -95,7 +95,7 @@ vim.o.showmode = false
 vim.opt.clipboard = "unnamedplus"
 
 -- 启用高亮
-vim.opt.termguicolors = true
+-- vim.opt.termguicolors = true
 
 -- 开启 Folding
 vim.wo.foldmethod = "expr"
