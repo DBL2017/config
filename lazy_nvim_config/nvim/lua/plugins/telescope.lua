@@ -2,6 +2,7 @@ return {
 	'nvim-telescope/telescope.nvim',
 	tag = '0.1.6',
 	dependencies = { 'nvim-lua/plenary.nvim' },
+	pin = true,
 	config = function()
 		require("telescope").setup({
 			defaults = {
@@ -18,7 +19,7 @@ return {
 				},
 
 				layout_config = {
-					vertical = { width = 0.5, height = 0.85 },
+					vertical = { width = 0.8, height = 0.85 },
 					-- cursor = {width = 0.7, height = 0.55}
 				},
 			},

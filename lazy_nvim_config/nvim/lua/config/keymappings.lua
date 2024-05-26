@@ -42,6 +42,16 @@ map("n", "<A-p>", "<Cmd>BufferPin<CR>", opts)
 -- Close buffer
 map("n", "<A-c>", "<Cmd>BufferClose<CR>", opts)
 map("t", "<A-c>", "<Cmd>q!<CR>", opts)
+-- tab
+map("n", "<leader>ta", ":$tabnew<CR>", opts)
+map("n", "<leader>tc", ":tabclose<CR>", opts)
+map("n", "<leader>to", ":tabonly<CR>", opts)
+map("n", "<leader>tn", ":tabn<CR>", opts)
+map("n", "<leader>tp", ":tabp<CR>", opts)
+-- move current tab to previous position
+map("n", "<leader>tmp", ":-tabmove<CR>", opts)
+-- move current tab to next position
+map("n", "<leader>tmn", ":+tabmove<CR>", opts)
 
 -- 禁用方向键
 map("n", "<Left>", "<NOP>", opts)
@@ -65,7 +75,7 @@ map("v", "<leader>qa", ":qa!<CR>", opts)
 
 -- nvim-tree
 map("n", "<F2>", ":NvimTreeToggle<CR>", opts)
-map("n", "<F12>", ":SymbolsOutline<CR>", opts)
+map("n", "<F12>", ":Outline<CR>", opts)
 
 -- telescope
 -- " Find files using Telescope command-line sugar.

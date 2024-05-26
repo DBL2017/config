@@ -52,6 +52,7 @@ return {
         "hrsh7th/cmp-nvim-lsp-document-symbol",
         "hrsh7th/cmp-nvim-lsp-signature-help",
     },
+    event = "InsertEnter",
     config = function()
         -- 增加nvim-cmp支持的额外的capabilities
         -- 为了增强nvim默认的omnifunc的候选菜单

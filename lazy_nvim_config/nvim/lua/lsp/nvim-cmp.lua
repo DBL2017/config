@@ -21,6 +21,8 @@ return {
 		-- latex
 		"amarakon/nvim-cmp-lua-latex-symbols",
 	},
+	event = "InsertEnter",
+	pin = true, -- 锁定插件，不会被更新
 	config = function()
 		local cmp = require("cmp")
 		local cmp_under_comparator = require("cmp-under-comparator")
