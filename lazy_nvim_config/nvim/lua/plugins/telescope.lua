@@ -12,11 +12,11 @@ return {
 				layout_strategy = "horizontal",
 				-- 窗口内快捷键
 				-- mappings = require("keybindings").telescopeList,
-				mappings = {
-					i = {
-						["<esc>"] = require("telescope.actions").close,
-					},
-				},
+				-- mappings = {
+				-- 	i = {
+				-- 		["<esc>"] = require("telescope.actions").close,
+				-- 	},
+				-- },
 
 				layout_config = {
 					vertical = { width = 0.8, height = 0.85 },
