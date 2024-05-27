@@ -1,6 +1,6 @@
 -- 行号
 vim.wo.number = true
---[[ vim.wo.relativenumber = true ]]
+-- vim.wo.relativenumber = true
 
 -- 字符编码 终端显示编码
 vim.g.encoding = "UTF-8"

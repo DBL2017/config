@@ -19,7 +19,7 @@ return {
                         return { "isort", "black" }
                     end
                 end,
-                sh = function(bufnr)
+                sh = function()
                     return { "beautysh" }
                     -- if require("conform").get_formatter_info("shfmt", bufnr).available then
                     -- 	return { "shfmt" }
