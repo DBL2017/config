@@ -1,26 +1,26 @@
 local opts = {
-	noremap = true,
-	silent = true,
+    noremap = true,
+    silent = true,
 }
 local map = vim.api.nvim_set_keymap
 
 -- 设置toggleterm的快捷键，使其能够在打开终端的情况下切换到其他窗口
 function _G.set_terminal_keymaps()
-	vim.keymap.set("t", "<esc>", [[<C-\><C-n>]], { buffer = 0 })
-	vim.keymap.set("t", "jk", [[<C-\><C-n>]], { buffer = 0 })
-	-- 有些终端模拟器上，<Backspace>按键会发送0x08，与<C-h>一致，下面的映射就可能导致<BS>失效，需要修改终端模拟对<BS>的配置
-	vim.keymap.set("t", "<C-h>", [[<Cmd>wincmd h<CR>]], { buffer = 0 })
-	vim.keymap.set("t", "<C-j>", [[<Cmd>wincmd j<CR>]], { buffer = 0 })
-	vim.keymap.set("t", "<C-k>", [[<Cmd>wincmd k<CR>]], { buffer = 0 })
-	vim.keymap.set("t", "<C-l>", [[<Cmd>wincmd l<CR>]], { buffer = 0 })
-	vim.keymap.set("t", "<C-w>", [[<C-\><C-n><C-w>]], { buffer = 0 })
+    vim.keymap.set("t", "<esc>", [[<C-\><C-n>]], { buffer = 0 })
+    vim.keymap.set("t", "jk", [[<C-\><C-n>]], { buffer = 0 })
+    -- 有些终端模拟器上，<Backspace>按键会发送0x08，与<C-h>一致，下面的映射就可能导致<BS>失效，需要修改终端模拟对<BS>的配置
+    vim.keymap.set("t", "<C-h>", [[<Cmd>wincmd h<CR>]], { buffer = 0 })
+    vim.keymap.set("t", "<C-j>", [[<Cmd>wincmd j<CR>]], { buffer = 0 })
+    vim.keymap.set("t", "<C-k>", [[<Cmd>wincmd k<CR>]], { buffer = 0 })
+    vim.keymap.set("t", "<C-l>", [[<Cmd>wincmd l<CR>]], { buffer = 0 })
+    vim.keymap.set("t", "<C-w>", [[<C-\><C-n><C-w>]], { buffer = 0 })
 end
 
 function SaveAllAndQuit()
-	-- wirte all buffers first
-	vim.api.nvim_command("<cmd>wa")
-	-- quit all buffers
-	vim.api.nvim_command("<cmd>qa")
+    -- wirte all buffers first
+    vim.api.nvim_command(":wa")
+    -- quit all buffers
+    vim.api.nvim_command(":qa")
 end
 
 map('n', '<Leader>wq', "<Cmd>lua SaveAllAndQuit()<CR>", opts)
@@ -114,14 +114,14 @@ map("n", "<leader>fh", "<cmd>Telescope help_tags<CR>", opts)
 
 -- trouble
 -- diagnostic键映射
-map("n", "<leader>xx", "<cmd>TroubleToggle<cr>", opts)
-map("n", "<leader>xw", "<cmd>TroubleToggle workspace_diagnostics<cr>", opts)
-map("n", "<leader>xd", "<cmd>TroubleToggle document_diagnostics<cr>", opts)
-map("n", "<leader>xl", "<cmd>TroubleToggle loclist<cr>", opts)
-map("n", "<leader>xq", "<cmd>TroubleToggle quickfix<cr>", opts)
-map("n", "gR", "<cmd>TroubleToggle lsp_references<cr>", opts)
+map("n", "<leader>xx", "<cmd>Trouble diagnostics toggle<cr>", opts)
+map("n", "<leader>xw", "<cmd>Trouble workspace_diagnostics toggle<cr>", opts)
+map("n", "<leader>xd", "<cmd>Trouble document_diagnostics toggle<cr>", opts)
+map("n", "<leader>xl", "<cmd>Trouble loclist toggle<cr>", opts)
+map("n", "<leader>xq", "<cmd>Trouble quickfix toggle<cr>", opts)
+map("n", "gR", "<cmd>Trouble lsp_references toggle<cr>", opts)
 
 vim.keymap.set("n", "<space>e", vim.diagnostic.open_float, opts)
 vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, opts)
 vim.keymap.set("n", "]d", vim.diagnostic.goto_next, opts)
--- vim.keymap.set("n", "<space>q", vim.diagnostic.setloclist, opts)
+vim.keymap.set("n", "<space>q", vim.diagnostic.setloclist, opts)

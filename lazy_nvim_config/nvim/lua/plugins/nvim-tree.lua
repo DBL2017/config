@@ -57,7 +57,7 @@ local opts = {
 
     --[[ 在标志列显示LSP和COC的分析结果 ]]
     diagnostics = {
-        enable = true,
+        enable = false,
         --[[ 在父目录上显示图标 ]]
         show_on_dirs = true,
         --[[ 事件和更新时间 ]]

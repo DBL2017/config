@@ -73,6 +73,7 @@ local opts = {
                     hint = "DiagnosticHint",
                 },
                 symbols = { error = "E", warn = "W", info = "I", hint = "H" },
+                -- symbols = { error = "", warn = "", info = "", hint = "" },
                 -- Displays diagnostics status in color if set to true.
                 colored = true,
                 -- Update diagnostics in insert mode.
