@@ -16,7 +16,7 @@ local on_attach = function(client, bufnr)
     vim.keymap.set("n", "gD", vim.lsp.buf.declaration, bufopts)
 
     vim.keymap.set("n", "gd", vim.lsp.buf.definition, bufopts)
-    vim.keymap.set("n", "K", vim.lsp.buf.hover, bufopts)
+    -- vim.keymap.set("n", "K", vim.lsp.buf.hover, bufopts)
     if client.server_capabilities.implementationProvider then
         vim.keymap.set("n", "gi", vim.lsp.buf.implementation, bufopts)
     end
@@ -52,7 +52,6 @@ return {
         "hrsh7th/cmp-nvim-lsp-document-symbol",
         "hrsh7th/cmp-nvim-lsp-signature-help",
     },
-    event = "InsertEnter",
     config = function()
         -- 增加nvim-cmp支持的额外的capabilities
         -- 为了增强nvim默认的omnifunc的候选菜单
