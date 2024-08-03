@@ -9,9 +9,9 @@ return {
             -- a list of all tools you want to ensure are installed upon
             -- start
             ensure_installed = {
-                { "black",  version = "22.8.0" },
-                { "cmake",  version = "0.1.5" },
-                { "stylua", version = "v0.11.1" },
+                "black",
+                "cmake",
+                "stylua",
                 "jsonlint",
                 "jq",
                 "beautysh",
@@ -19,8 +19,8 @@ return {
                 "cmakelang",
                 "shellcheck",
                 "black",
-                { "codespell", version = "2.2.1" },
-                { "lua_ls",    version = "3.6.22" }
+                "codespell",
+                "lua_ls",
             },
 
             -- if set to true this will check each tool for updates. If updates

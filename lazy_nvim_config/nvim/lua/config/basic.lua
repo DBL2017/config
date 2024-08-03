@@ -116,4 +116,4 @@ vim.g.backspace = "indent, eol, start"
 vim.o.exrc = true
 
 -- 设置swap文件位置
-vim.go.directory = vim.fn.expand('~/.nvim/swapfiles//') .. ',!,'
+vim.go.directory = vim.fn.expand('~/.nvim/swapfiles//')
