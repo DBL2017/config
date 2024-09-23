@@ -2,10 +2,10 @@ return
 {
     'romgrk/barbar.nvim',
     dependencies = {
-        'lewis6991/gitsigns.nvim',     -- OPTIONAL: for git status
+        'lewis6991/gitsigns.nvim', -- OPTIONAL: for git status
         'nvim-tree/nvim-web-devicons', -- OPTIONAL: for file icons
     },
-    enabled = false,
+    enabled = true,
     init = function() vim.g.barbar_auto_setup = false end,
     opts = {
         -- lazy.nvim will automatically call setup for you. put your options here, anything missing will use the default:
@@ -14,6 +14,10 @@ return
         -- …etc.
         -- Enable/disable close button
         closable = true,
+        icons = {
+            -- buffer_number = true,
+            buffer_index = true,
+        }
     },
     -- version = '^1.0.0', -- optional: only update when a new 1.x version is released
 }

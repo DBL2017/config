@@ -40,7 +40,7 @@ return
                 highlight_clipboard = "name",
             },
             filters = {
-                dotfiles = true,
+                dotfiles = false,
             },
             update_focused_file = {
                 enable = true,

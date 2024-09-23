@@ -100,6 +100,8 @@ map("n", "flt", "<cmd>FzfLua lsp_typedefs<CR>", opts)
 
 map("n", "fgc", "<cmd>FzfLua git_commits<CR>", opts)
 
+map("n", "fgr", "<cmd>FzfLua grep_cword<CR>", opts)
+
 -- telescope
 -- " Find files using Telescope command-line sugar.
 map("n", "<leader>ff", "<cmd>Telescope find_files<CR>", opts)
