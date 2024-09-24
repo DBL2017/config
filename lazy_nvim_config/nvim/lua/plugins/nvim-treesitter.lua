@@ -8,7 +8,7 @@ return {
 		require("nvim-treesitter.configs").setup({
 			-- A list of parser names, or "all"
 			-- ensure_installed = { "c", "lua", "python" },
-			ensure_installed = { "c", "lua", "python", "bash", "make", "cmake", "cpp", "json", "markdown", "sql" },
+			ensure_installed = { "c", "lua", "python", "bash", "make", "cmake", "cpp", "json", "markdown", "sql", "markdown_inline" },
 
 			-- 是否同步安装,ensure_installed中列出的解析器
 			sync_install = false,
