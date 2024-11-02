@@ -7,52 +7,112 @@ Standard: Cpp11
 # 4 space indentation
 UseTab: Never
 TabWidth: 4
+# 缩进列数
 IndentWidth: 4
+# 延续缩进列数
 ContinuationIndentWidth: 4
 # Max column size
 ColumnLimit: 120
-# Don't align parameters to bracket
-# func(param1,
-#  param2)
-AlignAfterOpenBracket: false
+
+##################################对齐方式###########################################################
+# 开括号对齐
+# 可取值：
+# Align：所有参数在开括号处对齐
+# DontAlign：不对齐，使用ContinuationIndentWidth参数进行缩进
+# AlwaysBreak：总是在开括号处换行，前提是达到列数限制
+AlignAfterOpenBracket: AlwaysBreak
+# 数组元素对齐方式
+AlignArrayOfStructures: Right
+# 连续赋值运算的对齐方式
+AlignConsecutiveAssignments:
+  # 启用开关
+  Enabled: true
+  # 是否跨过空行
+  AcrossEmptyLines: true
+  # 是否跨过注释
+  AcrossComments: true
+  # 复合运算符对齐，类似于+=
+  AlignCompound: true
+  # 操作符填充
+  PadOperators: true
+
+# 连续位域对齐方式
+AlignConsecutiveBitFields:
+  Enabled: true
+  AcrossEmptyLines: true
+  AcrossComments: true
+  AlignCompound: true
+  AlignFunctionPointers: true
+  PadOperators: true
+
+# 连续声明对齐方式
+AlignConsecutiveDeclarations:
+  Enabled: true
+  AcrossEmptyLines: true
+  AcrossComments: true
+  AlignCompound: true
+  # AlignFunctionDeclarations: true
+  AlignFunctionPointers: true
+  PadOperators: true
+
+# 宏对齐
+AlignConsecutiveMacros:
+  Enabled: true
+  AcrossEmptyLines: true
+  AcrossComments: true
+  AlignCompound: true
+  AlignFunctionPointers: true
+  PadOperators: true
+
+# 短语句对齐
+AlignConsecutiveShortCaseStatements:
+  Enabled: true
+  AcrossEmptyLines: true
+  AcrossComments: true
+  # case语句在冒号上对齐
+  AlignCaseColons: true
+
+# 转义换行的对齐方式
+# 取值如下：
+# DontAlign: 不对齐
+# Left：尽可能向左对齐
+# Right：尽可能向右对齐，以列宽为限
+# LeftWithLastLine：尽可能向左对齐，如果最后一行最长，则以其为参考
+AlignEscapedNewlines: LeftWithLastLine
+# 对齐操作符
+AlignOperands: Align
+# 行尾注释对齐
+AlignTrailingComments:
+  Kind: Always
+  OverEmptyLines:  2
+##################################对齐方式###########################################################
+
 AllowAllParametersOfDeclarationOnNextLine: true
 BinPackArguments: true
 BinPackParameters: true
 ExperimentalAutoDetectBinPacking: true
-# Braces break like:
-# namespace a {
-# try
-# {
-#   foo();
-# }
-# catch ()
-# {
-# }
-# void foo() { bar(); }
-# class foo
-# {};
-# if (foo())
-# {
-# }
-# else
-# {
-# }
-# enum X : int
-# {
-#   A, B
-# };
-# }
+# 定义大括号之前是否需要换行
+# 可取值Attach：所有大括号都附加到附近上下文，Custom：所有大括号都自定义
 BreakBeforeBraces: Custom
 BraceWrapping:
+  AfterCaseLabel: true
   AfterClass: true
-  AfterControlStatement: true
+  AfterControlStatement: Always # if/for/while/switch
   AfterEnum: true
+  AfterExternBlock: false
   AfterFunction: true
   AfterNamespace: false
+  AfterObjCDeclaration: false
   AfterStruct: true
   AfterUnion: true
   BeforeCatch: true
   BeforeElse: true
+  BeforeLambdaBody: false
+  BeforeWhile:     false
+  IndentBraces:    false
+  SplitEmptyFunction: true
+  SplitEmptyRecord: true
+  SplitEmptyNamespace: true
 # includes order
 #  first match is applied
 IncludeCategories:
@@ -64,9 +124,15 @@ IncludeCategories:
     Priority: 1
 # No indentation for access modifiers (public/protected/private)
 AccessModifierOffset: -4
-# Align pointer to type
-DerivePointerAlignment: false
+
+# 指针*或引用&的对齐方式
+# true：学习已有的对齐方式，PointerAlignment做退避处理
+DerivePointerAlignment: true
+# 指针*或引用&的对齐方式
+# 可取值：Left，Right以及Middle
+# int* a; int *a; int * a;
 PointerAlignment: Left
+
 # Constructor initializer list like
 # A::A()
 #   : a(0)
@@ -86,4 +152,12 @@ AllowShortIfStatementsOnASingleLine: false
 AllowShortLoopsOnASingleLine: false
 # Do not allow short functions like 'int f() { return 0; }'
 AllowShortFunctionsOnASingleLine: false
+
+# 行尾
+# 可取值：
+# LF：\n
+# CRLF：\r\n
+# DeriveLF：使用\n除非输入中有更多的行使用\r\n
+# DeriveCRLF：使用\r\n除非输入中更多的行使用\n
+LineEnding: DeriveLF
 ...
