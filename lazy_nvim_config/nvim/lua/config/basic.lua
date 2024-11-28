@@ -3,9 +3,10 @@ vim.wo.number = true
 -- vim.wo.relativenumber = true
 
 -- 字符编码 终端显示编码
-vim.g.encoding = "UTF-8"
+-- vim.g.encoding = "UTF-8"
 -- 文件编码
-vim.o.fileencoding = "UTF-8"
+-- vim.o.fileencoding = "UTF-8"
+vim.o.fileencodings = "ucs-bom,utf-8,gb2312,gb18080,gbk"
 
 -- 切换工作目录
 -- vim.g.autchdir = true
@@ -17,7 +18,7 @@ vim.g.autoread = true
 vim.g.showmatch = false
 
 -- tab转空格
-vim.bo.expandtab = true
+vim.bo.expandtab = false
 
 -- tab占位符的宽度，不修改键入tab时的行为，可用来格式化对齐
 vim.o.tabstop = 4
@@ -99,8 +100,8 @@ vim.opt.clipboard = "unnamedplus"
 
 -- 开启 Folding
 vim.wo.foldmethod = "expr"
--- 默认全部折叠
-vim.wo.foldlevel = 0
+-- 展开1级
+vim.wo.foldlevel = 1
 
 -- 禁用mouse
 vim.opt.mouse = ""
@@ -116,4 +117,6 @@ vim.g.backspace = "indent, eol, start"
 vim.o.exrc = true
 
 -- 设置swap文件位置
-vim.go.directory = vim.fn.expand('~/.nvim/swapfiles//')
+vim.go.directory = vim.fn.expand("~/.nvim/swapfiles//")
+
+vim.go.showtabline = 2

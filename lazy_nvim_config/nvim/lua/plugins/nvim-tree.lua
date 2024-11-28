@@ -17,27 +17,33 @@ return
             select_prompts = true,
 
             sort = {
+				-- Can be one of `"name"`, `"case_sensitive"`, `"modification_time"`, `"extension"`,
                 sorter = "case_sensitive",
             },
             view = {
-                width = 30,
+				side = "left",
+                width = 40,
                 number = true,
             },
             renderer = {
                 group_empty = true,
-                --[[ 使用图标的前提是要修复相应字体中的图标，可以安装nerd-font ]]
-                icons = {
-                    --[[ git标志位置: after, before, signcolumn ]]
-                    git_placement = "signcolumn",
-                },
                 --[[ 浮动窗口显示全名 ]]
                 full_name = true,
+				-- root_folder_label = ":p",
                 highlight_git = "all",
                 highlight_diagnostics = "all",
                 highlight_opened_files = "all",
                 highlight_modified = "all",
                 highlight_bookmarks = "all",
                 highlight_clipboard = "name",
+				indent_markers = {
+					enable = true
+				},
+                --[[ 使用图标的前提是要修复相应字体中的图标，可以安装nerd-font ]]
+                icons = {
+                    --[[ git标志位置: after, before, signcolumn ]]
+                    git_placement = "signcolumn",
+                },
             },
             filters = {
                 dotfiles = false,

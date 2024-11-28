@@ -31,8 +31,8 @@ map("n", "<C-G>", "<cmd>TermExec cmd='git status ./' name=GIT<CR>", opts)
 
 -- barbar快捷键
 -- Move to previous/next
-map("n", "<A-,>", "<Cmd>BufferPrevious<CR>", opts)
-map("n", "<A-.>", "<Cmd>BufferNext<CR>", opts)
+map("n", "<A-,>", "<Cmd>tabprevious<CR>", opts)
+map("n", "<A-.>", "<Cmd>tabnext<CR>", opts)
 -- Re-order to previous/next
 map("n", "<A-<>", "<Cmd>BufferMovePrevious<CR>", opts)
 map("n", "<A->>", "<Cmd>BufferMoveNext<CR>", opts)
@@ -50,7 +50,7 @@ map("n", "<A-0>", "<Cmd>BufferLast<CR>", opts)
 -- Pin/unpin buffer
 map("n", "<A-p>", "<Cmd>BufferPin<CR>", opts)
 -- Close buffer
-map("n", "<A-c>", "<Cmd>BufferClose<CR>", opts)
+map("n", "<A-c>", "<Cmd>tabclose<CR>", opts)
 map("t", "<A-c>", "<Cmd>q!<CR>", opts)
 -- tab
 map("n", "<leader>ta", "<cmd>$tabnew<CR>", opts)
@@ -89,6 +89,7 @@ map("n", "<F2>", "<cmd>NvimTreeToggle<CR>", opts)
 map("n", "<F12>", "<cmd>Lspsaga outline<CR>", opts)
 map("n", "K", "<cmd>Lspsaga hover_doc<CR>", opts)
 map("n", "pd", "<cmd>Lspsaga peek_definition<CR>", opts)
+map("n", "<leader>ca", "<cmd>Lspsaga code_action<CR>", opts)
 
 -- FzfLua
 map("n", "fgd", "<cmd>FzfLua lsp_definitions<CR>", opts)
@@ -99,7 +100,6 @@ map("n", "fli", "<cmd>FzfLua lsp_implementations<CR>", opts)
 map("n", "flt", "<cmd>FzfLua lsp_typedefs<CR>", opts)
 
 map("n", "fgc", "<cmd>FzfLua git_commits<CR>", opts)
-
 map("n", "fgr", "<cmd>FzfLua grep_cword<CR>", opts)
 
 -- telescope

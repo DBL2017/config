@@ -85,6 +85,14 @@ AlignOperands: Align
 AlignTrailingComments:
   Kind: Always
   OverEmptyLines:  2
+
+# 指针*或引用&的对齐方式
+# true：学习已有的对齐方式，PointerAlignment做退避处理
+DerivePointerAlignment: true
+# 指针*或引用&的对齐方式
+# 可取值：Left，Right以及Middle
+# int* a; int *a; int * a;
+PointerAlignment: Left
 ##################################对齐方式###########################################################
 
 AllowAllParametersOfDeclarationOnNextLine: true
@@ -125,13 +133,6 @@ IncludeCategories:
 # No indentation for access modifiers (public/protected/private)
 AccessModifierOffset: -4
 
-# 指针*或引用&的对齐方式
-# true：学习已有的对齐方式，PointerAlignment做退避处理
-DerivePointerAlignment: true
-# 指针*或引用&的对齐方式
-# 可取值：Left，Right以及Middle
-# int* a; int *a; int * a;
-PointerAlignment: Left
 
 # Constructor initializer list like
 # A::A()

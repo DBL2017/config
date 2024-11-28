@@ -8,14 +8,14 @@ return {
 		require("nvim-treesitter.configs").setup({
 			-- A list of parser names, or "all"
 			-- ensure_installed = { "c", "lua", "python" },
-			ensure_installed = { "c", "lua", "python", "bash", "make", "cmake", "cpp", "json", "markdown", "sql", "markdown_inline" },
+			ensure_installed = { "c", "lua", "python", "bash", "make", "cmake", "cpp", "json", "markdown", "sql" },
 
 			-- 是否同步安装,ensure_installed中列出的解析器
 			sync_install = false,
 
 			-- Automatically install missing parsers when entering buffer
 			-- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
-			auto_install = true,
+			auto_install = false,
 
 			-- List of parsers to ignore installing (for "all")
 			ignore_install = {},
