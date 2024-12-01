@@ -5,6 +5,7 @@ return {
 		require("lspsaga").setup({
 			outline = {
 				close_after_jump = true,
+				detail = true,
 				win_width = 40,
 			},
 		})
