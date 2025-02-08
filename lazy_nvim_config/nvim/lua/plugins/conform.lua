@@ -50,7 +50,7 @@ return {
             --     lsp_fallback = true,
             -- },
             -- Set the log level. Use `:ConformInfo` to see the location of the log file.
-            log_level = vim.log.levels.ERROR,
+            log_level = vim.log.levels.DEBUG,
             -- Conform will notify you when a formatter errors
             notify_on_error = true,
         })
@@ -67,5 +67,5 @@ return {
             noremap = true,
             silent = true,
         })
-    end
+    end,
 }

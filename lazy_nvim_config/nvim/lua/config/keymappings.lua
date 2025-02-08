@@ -100,6 +100,7 @@ map("n", "fli", "<cmd>FzfLua lsp_implementations<CR>", opts)
 map("n", "flt", "<cmd>FzfLua lsp_typedefs<CR>", opts)
 
 map("n", "fgc", "<cmd>FzfLua git_commits<CR>", opts)
+map("n", "fgb", "<cmd>FzfLua git_bcommits<CR>", opts)
 map("n", "fgr", "<cmd>FzfLua grep_cword<CR>", opts)
 
 -- telescope
@@ -127,3 +128,11 @@ vim.keymap.set("n", "<space>e", vim.diagnostic.open_float, opts)
 vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, opts)
 vim.keymap.set("n", "]d", vim.diagnostic.goto_next, opts)
 vim.keymap.set("n", "<space>q", vim.diagnostic.setloclist, opts)
+
+-- 自动将查找到的字符串设置到屏幕中央
+map('n', 'n', 'nzz', { noremap = true, silent = true })
+map('n', 'N', 'Nzz', { noremap = true, silent = true })
+
+-- 自动跳转到修改位置
+function gitsigns_mapping(bufnr, gs)
+end

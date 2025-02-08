@@ -98,10 +98,13 @@ vim.opt.clipboard = "unnamedplus"
 -- 启用高亮
 -- vim.opt.termguicolors = true
 
--- 开启 Folding
-vim.wo.foldmethod = "expr"
--- 展开1级
-vim.wo.foldlevel = 1
+-- -- 开启 Folding
+-- vim.wo.foldmethod = "expr"
+-- -- 展开1级
+-- vim.wo.foldlevel = 1
+
+-- 设置折叠方法为手动
+vim.opt.foldmethod = "manual"
 
 -- 禁用mouse
 vim.opt.mouse = ""
@@ -119,4 +122,5 @@ vim.o.exrc = true
 -- 设置swap文件位置
 vim.go.directory = vim.fn.expand("~/.nvim/swapfiles//")
 
+-- 该值指定tab line是否被显示，2表示总是显示
 vim.go.showtabline = 2
