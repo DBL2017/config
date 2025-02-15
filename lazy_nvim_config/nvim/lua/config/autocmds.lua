@@ -44,8 +44,9 @@ autocmd("BufNewFile", {
     pattern = { "*.h", "*.c" },
     callback = function()
         local filename = vim.fn.expand("%:t")
-        local date = os.date("%Y-%m-%d")
-        local guard = vim.fn.expand("%:t:r"):upper() .. "_H"
+        -- local date = os.date("%Y-%m-%d")
+        local date = os.date("%d%b%y")
+        local guard = string.format("__%s_H_", vim.fn.expand("%:t:r"):upper())
         local header = filename:gsub("%.c$", ".h")
 
         local replacements = {
@@ -117,7 +118,6 @@ autocmd({ "VimLeave" }, {
 --     })
 -- end
 
--- 根据文档内容自动决定tab是否替换为空格
 autocmd("InsertEnter", {
     pattern = "*",
     callback = function()

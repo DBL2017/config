@@ -23,8 +23,8 @@ function SaveAllAndQuit()
     vim.api.nvim_command(":qa")
 end
 
-map('n', '<Leader>wq', "<Cmd>lua SaveAllAndQuit()<CR>", opts)
-map('v', '<Leader>wq', "<Cmd>lua SaveAllAndQuit()<CR>", opts)
+map("n", "<Leader>wq", "<Cmd>lua SaveAllAndQuit()<CR>", opts)
+map("v", "<Leader>wq", "<Cmd>lua SaveAllAndQuit()<CR>", opts)
 
 -- 指定类型终端
 map("n", "<C-G>", "<cmd>TermExec cmd='git status ./' name=GIT<CR>", opts)
@@ -130,9 +130,36 @@ vim.keymap.set("n", "]d", vim.diagnostic.goto_next, opts)
 vim.keymap.set("n", "<space>q", vim.diagnostic.setloclist, opts)
 
 -- 自动将查找到的字符串设置到屏幕中央
-map('n', 'n', 'nzz', { noremap = true, silent = true })
-map('n', 'N', 'Nzz', { noremap = true, silent = true })
+map("n", "n", "nzz", { noremap = true, silent = true })
+map("n", "N", "Nzz", { noremap = true, silent = true })
 
--- 自动跳转到修改位置
-function gitsigns_mapping(bufnr, gs)
+-- 将单行内选中的字符串当作文件打开
+local function get_visual_selection()
+    -- 获取当前选中的文本
+    local start_pos = vim.fn.getpos("'<")
+    local end_pos = vim.fn.getpos("'>")
+    local line = vim.fn.getline(start_pos[2])
+    if start_pos[2] ~= end_pos[2] then
+        vim.notify("Selection spans multiple lines, please select within a single line.")
+        return nil
+    end
+    return string.sub(line, start_pos[3], end_pos[3])
 end
+function open_selected_file()
+    local file = get_visual_selection() ~= nil and get_visual_selection() or ""
+    vim.cmd("tabnew " .. file)
+
+    -- 检查文件是否存在并可读
+    -- if vim.fn.filereadable(file) == 1 then
+    -- 	vim.cmd("vnew " .. file)
+    -- 	vim.cmd("tabnew " .. file)
+    -- else
+    -- 	vim.notify("File not found: " .. file)
+    -- end
+end
+-- 将函数映射到快捷键 <leader>gf
+map("v", "<leader>of", ":lua open_selected_file() <CR>", { noremap = true, silent = true })
+-- 将单行内选中的字符串当作文件打开
+--
+map("n", "<space>f", ':lua require("conform").format() <CR>', { noremap = true, silent = true })
+map("v", "<space>f", ':lua require("conform").format() <CR>', { noremap = true, silent = true })

@@ -53,8 +53,9 @@ vim.o.wrapscan = false
 -- quitfix命令打开新buffer时的行为
 vim.o.switchbuf = "newtab"
 
--- 高亮当前行
+-- 高亮当前行列
 vim.wo.cursorline = true
+vim.o.cursorcolumn = true
 
 -- 显示左侧图标指示列
 vim.wo.signcolumn = "yes"
@@ -124,3 +125,12 @@ vim.go.directory = vim.fn.expand("~/.nvim/swapfiles//")
 
 -- 该值指定tab line是否被显示，2表示总是显示
 vim.go.showtabline = 2
+
+-- diff
+-- filler：显示填充行，以两个窗口文本位置同步
+-- iwhiteeol：忽略尾部空白
+-- internal：使用内部比较器
+-- closeoff：当tab中仅剩一个启用了diff的窗口时自动关闭diff模式，相当于执行:diffoff
+-- iblank：忽略空白行的修改
+-- vertical：diff使用竖直分屏
+vim.go.diffopt = "internal,iwhiteeol,filler,closeoff,vertical,iblank"

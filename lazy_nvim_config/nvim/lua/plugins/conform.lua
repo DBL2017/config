@@ -1,11 +1,11 @@
 return {
-
     "stevearc/conform.nvim",
     config = function()
         require("conform").setup({
             -- Map of filetype to formatters
             formatters_by_ft = {
-                lua = { "stylua" },
+                lua = { "custom_stylua" },
+
                 -- Conform will run multiple formatters sequentially
                 -- go = { "goimports", "gofmt" },
                 -- Use a sub-list to run only the first available formatter
@@ -29,7 +29,7 @@ return {
                 end,
                 json = function(bufnr)
                     if require("conform").get_formatter_info("jq", bufnr).available then
-                        return { "jq" }
+                        return { "custom_json" }
                     end
                 end,
                 markdown = { "markdownlint" },
@@ -53,6 +53,35 @@ return {
             log_level = vim.log.levels.DEBUG,
             -- Conform will notify you when a formatter errors
             notify_on_error = true,
+            formatters = {
+                custom_stylua = {
+                    command = "stylua",
+                    args = {
+                        "--call-parentheses",
+                        "Always",
+                        "--column-width",
+                        "120",
+                        "--indent-type",
+                        "Spaces",
+                        "--indent-width",
+                        "4",
+                        "--line-endings",
+                        "Unix",
+                        "--quote-style",
+                        "AutoPreferDouble",
+                        "-",
+                    },
+                    stdin = true,
+                },
+                custom_json = {
+                    command = "jq",
+                    args = {
+                        "--indent",
+                        "4",
+                    },
+                    stdin = true,
+                },
+            },
         })
         -- 禁用自动格式化，采用手动触发
         -- vim.api.nvim_create_autocmd("BufWritePre", {
@@ -61,11 +90,6 @@ return {
         --         require("conform").format({ bufnr = args.buf })
         --     end,
         -- })
-        vim.keymap.set("n", "<space>f", function()
-            require("conform").format()
-        end, {
-            noremap = true,
-            silent = true,
-        })
+        --
     end,
 }
