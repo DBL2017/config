@@ -73,6 +73,10 @@ return {
                     end)
                     return "<Ignore>"
                 end, { expr = true })
+                -- stage buffer
+                map("n", "<leader>sb", function()
+                    gs.stage_hunk()
+                end, {})
                 -- hunk stage
                 map("n", "<leader>hs", function()
                     gs.stage_hunk()
