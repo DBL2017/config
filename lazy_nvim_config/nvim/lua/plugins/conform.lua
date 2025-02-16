@@ -32,7 +32,7 @@ return {
                         return { "custom_json" }
                     end
                 end,
-                markdown = { "markdownlint" },
+                -- markdown = { "markdownlint" },
                 -- Use the "*" filetype to run formatters on all filetypes.
                 -- ["*"] = { "codespell" },
                 -- Use the "_" filetype to run formatters on filetypes that don't

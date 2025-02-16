@@ -17,5 +17,12 @@ return {
             markdown = { "markdownlint" },
             -- sh = {"shellcheck"}
         }
+        -- 自定义 markdownlint 参数
+        require("lint").linters.markdownlint = {
+            cmd = "markdownlint", -- 命令
+            args = { "--disable", "MD013", "$FILENAME" }, -- 禁用 MD013（行长度限制）
+            stdin = false, -- 不使用 stdin
+            parser = require("lint.parser").from_errorformat(errorformat),
+        }
     end,
 }
