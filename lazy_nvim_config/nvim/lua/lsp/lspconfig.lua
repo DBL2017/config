@@ -25,6 +25,7 @@ return {
             -- disable formatting
             client.server_capabilities.document_formatting = false
             client.server_capabilities.document_range_formatting = false
+            client.server_capabilities.documentFormattingProvider = false
 
             -- 自定义绑定到vim.lsp.buf的键映射
             -- See `:help vim.lsp.*` for documentation on any of the below functions
@@ -48,9 +49,9 @@ return {
             vim.keymap.set("n", "<space>ca", vim.lsp.buf.code_action, bufopts)
             vim.keymap.set("n", "gr", vim.lsp.buf.references, bufopts)
 
-            vim.keymap.set("n", "<space>f", function()
-                vim.lsp.buf.format({ async = true })
-            end, bufopts)
+            -- vim.keymap.set("n", "<space>f", function()
+            --     vim.lsp.buf.format({ async = true })
+            -- end, bufopts)
         end
         -- 增加nvim-cmp支持的额外的capabilities
         -- 为了增强nvim默认的omnifunc的候选菜单
@@ -74,25 +75,25 @@ return {
             capabilities = capabilities,
             flags = lsp_flags,
         })
-        -- require("lspconfig")["lua_ls"].setup({
-        --     on_attach = on_attach,
-        --     capabilities = capabilities,
-        --     flags = lsp_flags,
-        --     settings = {
-        --         Lua = {
-        --             runtime = "LuaJIT",
-        --             diagnostics = {
-        --                 globals = { "vim" },
-        --             },
-        --             workspace = {
-        --                 library = vim.api.nvim_get_runtime_file("", true),
-        --             },
-        --             telemetry = {
-        --                 enable = false,
-        --             },
-        --         },
-        --     },
-        -- })
+        require("lspconfig")["lua_ls"].setup({
+            on_attach = on_attach,
+            -- capabilities = capabilities,
+            flags = lsp_flags,
+            settings = {
+                Lua = {
+                    runtime = "LuaJIT",
+                    diagnostics = {
+                        globals = { "vim" },
+                    },
+                    workspace = {
+                        library = vim.api.nvim_get_runtime_file("", true),
+                    },
+                    telemetry = {
+                        enable = false,
+                    },
+                },
+            },
+        })
         -- require("lspconfig")["tsserver"].setup({
         --     on_attach = on_attach,
         --     flags = lsp_flags,

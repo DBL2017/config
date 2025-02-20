@@ -6,6 +6,8 @@ return {
             formatters_by_ft = {
                 lua = { "custom_stylua" },
 
+                c = { "clang-format" },
+
                 -- Conform will run multiple formatters sequentially
                 -- go = { "goimports", "gofmt" },
                 -- Use a sub-list to run only the first available formatter
