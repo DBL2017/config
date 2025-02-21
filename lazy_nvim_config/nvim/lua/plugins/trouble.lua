@@ -1,10 +1,7 @@
 return {
     "folke/trouble.nvim",
-    branch = "main",
-    dependencies = {
-        "nvim-tree/nvim-web-devicons",
-    },
-    config = function()
-        require("trouble").setup()
-    end,
+    opts = {
+        focus = true, -- Focus the window when opened
+    }, -- for default options, refer to the configuration section for custom setup.
+    cmd = "Trouble",
 }

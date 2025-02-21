@@ -1,62 +1,63 @@
 return {
-    'nanozuki/tabby.nvim',
-    event = 'VimEnter',
-    dependencies = 'nvim-tree/nvim-web-devicons',
+    "nanozuki/tabby.nvim",
+    event = "VimEnter",
+    dependencies = "nvim-tree/nvim-web-devicons",
     config = function()
         -- configs...
         local theme = {
-			-- Also you can do this: fill = { fg='#f2e9de', bg='#907aa9', style='italic' }
-            fill = 'TabLineFill',
-            head = 'TabLine',
-            current_tab = 'TabLineSel',
-            tab = 'TabLine',
-            win = 'TabLine',
-			current_win = 'TabLineSel',
-            tail = 'TabLine',
+            -- Also you can do this: fill = { fg='#f2e9de', bg='#907aa9', style='italic' }
+            fill = "TabLineFill",
+            head = "TabLine",
+            current_tab = "TabLineSel",
+            tab = "TabLine",
+            win = "TabLine",
+            current_win = "TabLineSel",
+            tail = "TabLine",
         }
-        require('tabby.tabline').set(function(line)
+        require("tabby.tabline").set(function(line)
             return {
                 {
-                    { '  ', hl = theme.head },
+                    { "  ", hl = theme.head },
                     -- line.sep('', theme.head, theme.fill),
-                    line.sep('>', theme.head, theme.fill),
+                    line.sep(">", theme.head, theme.fill),
                 },
                 line.tabs().foreach(function(tab)
                     local hl = tab.is_current() and theme.current_tab or theme.tab
                     return {
                         -- line.sep('', hl, theme.fill),
-                        line.sep(' ', hl, theme.fill),
-                        tab.is_current() and '' or '',
-                        tab.number(),
+                        line.sep(" ", hl, theme.fill),
+                        tab.is_current() and "" or "",
+                        tab.number() - 1,
                         tab.name(),
-                        tab.is_current() and '~' or '',
+                        tab.is_current() and "~" or "",
                         -- tab.close_btn(''),
                         -- line.sep('', hl, theme.fill),
-                        line.sep(' ', hl, theme.fill),
+                        line.sep(" ", hl, theme.fill),
                         hl = hl,
-                        margin = ' ',
+                        margin = " ",
                     }
                 end),
                 line.spacer(),
                 line.wins_in_tab(line.api.get_current_tab()).foreach(function(win)
                     return {
-                        line.sep(' ', theme.win, theme.fill),
-                        win.is_current() and '' or '',
+                        line.sep(" ", theme.win, theme.fill),
+                        win.is_current() and "" or "",
+                        win.tab().number() - 1,
                         win.buf_name(),
-                        line.sep(' ', theme.win, theme.fill),
+                        line.sep(" ", theme.win, theme.fill),
                         -- line.sep('', theme.win, theme.fill),
                         hl = win.is_current() and theme.current_win or theme.win,
-                        margin = ' ',
+                        margin = " ",
                     }
                 end),
                 {
                     -- line.sep('', theme.tail, theme.fill),
-                    line.sep(' ', theme.tail, theme.fill),
-                    { os.date(), hl = theme.fill},
-                    line.sep(' ', theme.tail, theme.fill),
+                    line.sep(" ", theme.tail, theme.fill),
+                    { os.date(), hl = theme.fill },
+                    line.sep(" ", theme.tail, theme.fill),
                     -- { '  ', hl = theme.tail },
-                    line.sep('<', theme.head, theme.fill),
-                    { '  ', hl = theme.head },
+                    line.sep("<", theme.head, theme.fill),
+                    { "  ", hl = theme.head },
                 },
                 hl = theme.fill,
             }

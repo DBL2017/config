@@ -14,7 +14,7 @@ local opts = {
         always_divide_middle = false,
 
         --[[ 是否所有窗口都使用同一个状态栏 >0.7]]
-        globalstatus = true,
+        globalstatus = false,
 
         --[[ 根据内容刷新状态栏的最低时间 ]]
         refresh = {
@@ -56,7 +56,8 @@ local opts = {
                 --   'nvim_lsp', 'nvim_diagnostic', 'nvim_workspace_diagnostic', 'coc', 'ale', 'vim_lsp'.
                 -- or a function that returns a table as such:
                 --   { error=error_cnt, warn=warn_cnt, info=info_cnt, hint=hint_cnt }
-                sources = { "nvim_diagnostic", "nvim_lsp", "nvim_workspace_diagnostic" },
+                -- sources = { "nvim_diagnostic", "nvim_lsp", "nvim_workspace_diagnostic" },
+                sources = { "nvim_diagnostic" },
 
                 -- Displays diagnostics for the defined severity types
                 sections = { "error", "warn", "info", "hint" },
@@ -146,9 +147,9 @@ local opts = {
 }
 return {
     {
-        'nvim-lualine/lualine.nvim',
+        "nvim-lualine/lualine.nvim",
         config = function()
-            require('lualine').setup(opts)
-        end
-    }
+            require("lualine").setup(opts)
+        end,
+    },
 }
