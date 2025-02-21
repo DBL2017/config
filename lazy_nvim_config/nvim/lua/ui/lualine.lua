@@ -149,6 +149,7 @@ local opts = {
 return {
     {
         "nvim-lualine/lualine.nvim",
+        enabled = true,
         config = function()
             require("lualine").setup(opts)
         end,

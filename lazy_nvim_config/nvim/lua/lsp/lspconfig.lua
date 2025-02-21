@@ -1,6 +1,7 @@
 -- 该插件用于配置使用mason-lspconfig安装的lsp server
 return {
     "neovim/nvim-lspconfig",
+    enabled = true,
     dependencies = {
         "williamboman/mason.nvim",
         "hrsh7th/nvim-cmp",

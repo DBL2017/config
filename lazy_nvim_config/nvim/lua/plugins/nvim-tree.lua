@@ -6,6 +6,7 @@ return {
     dependencies = {
         "nvim-tree/nvim-web-devicons",
     },
+    enabled = true,
     config = function()
         require("nvim-tree").setup({
             -- 激活buf时重新加载文件树
