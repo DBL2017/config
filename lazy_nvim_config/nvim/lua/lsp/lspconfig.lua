@@ -1,7 +1,6 @@
 -- 该插件用于配置使用mason-lspconfig安装的lsp server
 return {
     "neovim/nvim-lspconfig",
-    enabled = true,
     dependencies = {
         "williamboman/mason.nvim",
         "hrsh7th/nvim-cmp",
@@ -26,29 +25,28 @@ return {
             -- disable formatting
             client.server_capabilities.document_formatting = false
             client.server_capabilities.document_range_formatting = false
-            client.server_capabilities.documentFormattingProvider = false
 
             -- 自定义绑定到vim.lsp.buf的键映射
             -- See `:help vim.lsp.*` for documentation on any of the below functions
             local bufopts = { noremap = true, silent = true, buffer = bufnr }
-            vim.keymap.set("n", "gD", vim.lsp.buf.declaration, bufopts)
+            -- vim.keymap.set("n", "gD", vim.lsp.buf.declaration, bufopts)
 
-            vim.keymap.set("n", "gd", vim.lsp.buf.definition, bufopts)
+            -- vim.keymap.set("n", "gd", vim.lsp.buf.definition, bufopts)
             -- vim.keymap.set("n", "K", vim.lsp.buf.hover, bufopts)
-            if client.server_capabilities.implementationProvider then
-                vim.keymap.set("n", "gi", vim.lsp.buf.implementation, bufopts)
-            end
+            -- if client.server_capabilities.implementationProvider then
+            --     vim.keymap.set("n", "gi", vim.lsp.buf.implementation, bufopts)
+            -- end
 
-            vim.keymap.set("n", "<C-k>", vim.lsp.buf.signature_help, bufopts)
-            vim.keymap.set("n", "<space>wa", vim.lsp.buf.add_workspace_folder, bufopts)
-            vim.keymap.set("n", "<space>wr", vim.lsp.buf.remove_workspace_folder, bufopts)
-            vim.keymap.set("n", "<space>wl", function()
-                print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-            end, bufopts)
-            vim.keymap.set("n", "<space>D", vim.lsp.buf.type_definition, bufopts)
-            vim.keymap.set("n", "<space>rn", vim.lsp.buf.rename, bufopts)
-            vim.keymap.set("n", "<space>ca", vim.lsp.buf.code_action, bufopts)
-            vim.keymap.set("n", "gr", vim.lsp.buf.references, bufopts)
+            -- vim.keymap.set("n", "<C-k>", vim.lsp.buf.signature_help, bufopts)
+            -- vim.keymap.set("n", "<space>wa", vim.lsp.buf.add_workspace_folder, bufopts)
+            -- vim.keymap.set("n", "<space>wr", vim.lsp.buf.remove_workspace_folder, bufopts)
+            -- vim.keymap.set("n", "<space>wl", function()
+            -- print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+            -- end, bufopts)
+            -- vim.keymap.set("n", "<space>D", vim.lsp.buf.type_definition, bufopts)
+            -- vim.keymap.set("n", "<space>rn", vim.lsp.buf.rename, bufopts)
+            -- vim.keymap.set("n", "<space>ca", vim.lsp.buf.code_action, bufopts)
+            -- vim.keymap.set("n", "gr", vim.lsp.buf.references, bufopts)
 
             -- vim.keymap.set("n", "<space>f", function()
             --     vim.lsp.buf.format({ async = true })
@@ -78,7 +76,7 @@ return {
         })
         require("lspconfig")["lua_ls"].setup({
             on_attach = on_attach,
-            -- capabilities = capabilities,
+            capabilities = capabilities,
             flags = lsp_flags,
             settings = {
                 Lua = {

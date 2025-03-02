@@ -26,7 +26,7 @@ return {
                 -- can be sent individually to any provider to set the win title
                 -- title         = "Title",
                 -- title_pos     = "center",    -- 'left', 'center' or 'right'
-                fullscreen = false, -- start fullscreen?
+                fullscreen = true, -- start fullscreen?
                 preview = {
                     -- default     = 'bat',           -- override the default previewer?
                     -- default uses the 'builtin' previewer
@@ -69,6 +69,9 @@ return {
                 end,
                 -- called once *after* the fzf interface is closed
                 -- on_close = function() ... end
+            },
+            lsp = {
+                jump1 = false, -- skip the UI when result is a single entry
             },
         })
     end,
