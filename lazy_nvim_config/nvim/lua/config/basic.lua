@@ -21,7 +21,7 @@ vim.g.showmatch = false
 vim.bo.expandtab = false
 
 -- tab占位符的宽度，不修改键入tab时的行为，可用来格式化对齐
-vim.o.tabstop = 4
+vim.o.tabstop = 8
 
 -- 键入tab时插入的空格数
 vim.o.softtabstop = 4
