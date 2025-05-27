@@ -13,16 +13,17 @@ return {
                 -- Use a sub-list to run only the first available formatter
                 javascript = { "prettierd", "prettier" },
                 html = { "prettierd", "prettier" },
-                -- You can use a function here to determine the formatters dynamically
-                python = function(bufnr)
-                    if require("conform").get_formatter_info("ruff_format", bufnr).available then
-                        return { "ruff_format" }
-                    else
-                        return { "isort", "black" }
-                    end
-                end,
                 sh = function()
                     return { "beautysh" }
+                    -- if require("conform").get_formatter_info("shfmt", bufnr).available then
+                    -- 	return { "shfmt" }
+                    -- else
+                    -- 	return { "beautysh" }
+                    -- end
+                end,
+                tex = { "latexindent" },
+                python = function()
+                    return { "black" }
                     -- if require("conform").get_formatter_info("shfmt", bufnr).available then
                     -- 	return { "shfmt" }
                     -- else

@@ -21,6 +21,7 @@ return {
                 "checkmake",
                 "black",
                 "codespell",
+		"latexindent"
                 -- "lua_ls",
             },
 
