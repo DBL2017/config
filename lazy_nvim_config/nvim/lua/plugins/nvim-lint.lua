@@ -21,6 +21,7 @@ return {
         }
         require("lint").linters_by_ft = {
             markdown = { "markdownlint" },
+            cmake = { "cmakelint" },
             -- sh = {"shellcheck"}
         }
     end,
