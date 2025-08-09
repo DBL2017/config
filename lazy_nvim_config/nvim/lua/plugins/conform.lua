@@ -5,25 +5,23 @@ return {
             -- Map of filetype to formatters
             formatters_by_ft = {
                 lua = { "custom_stylua" },
-
                 c = { "clang-format" },
+                cpp = { "clang-format" },
 
                 -- Conform will run multiple formatters sequentially
                 -- go = { "goimports", "gofmt" },
                 -- Use a sub-list to run only the first available formatter
                 javascript = { "prettierd", "prettier" },
                 html = { "prettierd", "prettier" },
-                sh = function()
-                    return { "beautysh" }
-                    -- if require("conform").get_formatter_info("shfmt", bufnr).available then
-                    -- 	return { "shfmt" }
-                    -- else
-                    -- 	return { "beautysh" }
-                    -- end
-                end,
-                tex = { "latexindent" },
-                python = function()
+                -- You can use a function here to determine the formatters dynamically
+                python = function(bufnr)
                     return { "black" }
+                end,
+                sh = function()
+                    if require("conform").get_formatter_info("beautysh", bufnr).available then
+                        return { "custom_sh" }
+                    end
+                    -- return { "beautysh" }
                     -- if require("conform").get_formatter_info("shfmt", bufnr).available then
                     -- 	return { "shfmt" }
                     -- else
@@ -35,7 +33,8 @@ return {
                         return { "custom_json" }
                     end
                 end,
-                -- markdown = { "markdownlint" },
+                markdown = { "markdownlint" },
+                tex = { "latexindent" },
                 -- Use the "*" filetype to run formatters on all filetypes.
                 -- ["*"] = { "codespell" },
                 -- Use the "_" filetype to run formatters on filetypes that don't
@@ -56,6 +55,7 @@ return {
             log_level = vim.log.levels.DEBUG,
             -- Conform will notify you when a formatter errors
             notify_on_error = true,
+            timeout = 5000,
             formatters = {
                 custom_stylua = {
                     command = "stylua",
@@ -75,12 +75,23 @@ return {
                         "-",
                     },
                     stdin = true,
+                    timeout = 5000,
                 },
                 custom_json = {
                     command = "jq",
                     args = {
                         "--indent",
                         "4",
+                    },
+                    stdin = true,
+                },
+                custom_sh = {
+                    command = "beautysh",
+                    args = {
+                        "--indent-size",
+                        "8",
+                        "--tab",
+                        "-",
                     },
                     stdin = true,
                 },

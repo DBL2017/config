@@ -60,10 +60,10 @@ map("n", "<A-8>", "<cmd>tabnext 8<CR>", opts)
 map("n", "<A-9>", "<cmd>tabnext 9<CR>", opts)
 
 -- 禁用方向键
-map("n", "<Left>", "<NOP>", opts)
-map("n", "<Right>", "<NOP>", opts)
-map("n", "<Up>", "<NOP>", opts)
-map("n", "<Down>", "<NOP>", opts)
+-- map("n", "<Left>", "<NOP>", opts)
+-- map("n", "<Right>", "<NOP>", opts)
+-- map("n", "<Up>", "<NOP>", opts)
+-- map("n", "<Down>", "<NOP>", opts)
 
 -- 调整窗口小
 map("n", "<C-Up>", "<cmd>resize -1<CR>", opts)
@@ -121,7 +121,17 @@ map("n", "<leader>xl", "<cmd>Trouble loclist toggle<cr>", opts)
 map("n", "<leader>xq", "<cmd>Trouble quickfix toggle<cr>", opts)
 map("n", "gR", "<cmd>Trouble lsp_references toggle<cr>", opts)
 
-vim.keymap.set("n", "<space>e", vim.diagnostic.open_float, opts)
+-- 2. 优化 float 窗口打开行为（通过自定义函数封装）
+local function open_optimized_diagnostic_float()
+    vim.diagnostic.open_float({
+        -- 可选：限制窗口最大宽度/高度
+        max_width = math.floor(vim.o.columns * 0.5), -- 最大宽度为屏幕50%
+        max_height = math.floor(vim.o.lines * 0.4), -- 最大高度为屏幕40%
+    })
+end
+
+-- 3. 绑定快捷键（例如 <leader>d 打开优化后的诊断窗口）
+vim.keymap.set("n", "<space>e", open_optimized_diagnostic_float, { desc = "Open optimized diagnostics" })
 vim.keymap.set("n", "[d", custom.diagnostic_goto_prev, opts)
 vim.keymap.set("n", "]d", custom.diagnostic_goto_next, opts)
 vim.keymap.set("n", "<space>q", vim.diagnostic.setloclist, opts)
@@ -144,6 +154,11 @@ vim.keymap.set({ "n", "x" }, "<space>f", conform.format, { desc = "Format curren
 vim.keymap.set({ "n", "x" }, "<Leader>yy", custom.copy_with_metadata, {
     desc = "复制带文件名和行号的内容",
 })
+vim.keymap.set({ "n", "x" }, "<Leader>yf", function()
+    custom.copy_with_metadata(true)
+end, {
+    desc = "复制带文件名和行号的内容",
+})
 -- 拷贝当前行的commit sha
 vim.keymap.set("n", "<Leader>yc", custom.get_line_commit, { desc = "Get line commit SHA" })
 -- 对比当前行的commit与当前buffer的文件差异
@@ -154,3 +169,23 @@ vim.keymap.set("n", "<Leader>gd", custom.git_diff_with_commit_sha, {
 vim.keymap.set("n", "<Leader>yp", custom.copy_current_filepath, {
     desc = "Copy current file path",
 })
+
+-- 普通模式下在当前位置插入时间
+vim.keymap.set("n", "<leader>ti", "i<C-R>=strftime('%Y-%m-%d %H:%M:%S')<CR><ESC>", {
+    silent = true,
+    desc = "插入本地化时间",
+})
+-- 普通模式下在下一行插入时间
+vim.keymap.set("n", "<leader>to", "o<C-R>=strftime('%Y-%m-%d %H:%M:%S')<CR><ESC>", {
+    silent = true,
+    desc = "插入本地化时间",
+})
+-- 普通模式下在上一行插入时间
+vim.keymap.set("n", "<leader>tO", "O<C-R>=strftime('%Y-%m-%d %H:%M:%S')<CR><ESC>", {
+    silent = true,
+    desc = "插入本地化时间",
+})
+
+-- Using ufo provider need remap `zR` and `zM`. If Neovim is 0.6.1, remap yourself
+vim.keymap.set("n", "zR", require("ufo").openAllFolds)
+vim.keymap.set("n", "zM", require("ufo").closeAllFolds)

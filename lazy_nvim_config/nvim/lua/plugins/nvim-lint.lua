@@ -19,10 +19,15 @@ return {
             "MD013",
             "--stdin",
         }
+        require("lint").linters.shellcheck.args = { "-x", "-e", "SC3043" }
         require("lint").linters_by_ft = {
             markdown = { "markdownlint" },
+            sh = { "shellcheck" },
+            make = { "checkmake" },
+            json = { "jsonlint" },
+	    -- nvim-lint不支持cmakelang的cmake-lint工具
+            -- cmake = { "cmake-lint" },
             cmake = { "cmakelint" },
-            -- sh = {"shellcheck"}
         }
     end,
 }

@@ -78,8 +78,8 @@ end
 M.git_diff_with_commit_sha = git_diff_with_commit_sha
 
 -- 复制内容并附加文件名与行号
-local function copy_with_metadata()
-    local buf_name = vim.fn.expand("%:t") -- 获取当前文件名（不含路径）
+local function copy_with_metadata(is_full_path)
+    local buf_name = is_full_path and vim.fn.expand("%:p") or vim.fn.expand("%:t") -- 获取当前文件名（不含路径）
     local lines = {}
 
     -- 获取选区行号范围
@@ -145,7 +145,7 @@ local function open_selected_file()
     local filename = get_visual_selection()
     if filename ~= nil and #filename > 0 then
         vim.cmd("tabnew " .. filename)
-        vim.notify("Open "..filename)
+        vim.notify("Open " .. filename)
     end
 end
 

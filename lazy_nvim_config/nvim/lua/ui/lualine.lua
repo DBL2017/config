@@ -1,3 +1,46 @@
+-- 定义视觉宽度计算函数
+-- 实时显示字符数，中文字符以2计数
+local function str_width()
+    local line_text = vim.api.nvim_get_current_line()
+    local cursor_pos = vim.api.nvim_win_get_cursor(0) -- 获取光标位置 [行, 列]
+    local col_index = cursor_pos[2] -- 列索引（从0开始）
+    local partial_line = string.sub(line_text, 1, col_index + 1) -- 截取到光标位置
+
+    local total_len = 0
+    local i = 1
+    while i <= #line_text do
+        local b = line_text:byte(i)
+        if b >= 224 and b < 240 then -- 覆盖绝大多数中文
+            total_len = total_len + 2
+            i = i + 3
+        elseif b >= 240 then -- 处理4字节字符
+            total_len = total_len + 1
+            i = i + 4
+        else
+            total_len = total_len + 1
+            i = i + 1
+        end
+    end
+
+    -- 截至到当前光标的字符数
+    local partial_len = 0
+    i = 1
+    while i <= #partial_line do
+        local b = partial_line:byte(i)
+        if b >= 224 and b < 240 then -- 覆盖绝大多数中文
+            partial_len = partial_len + 2
+            i = i + 3
+        elseif b >= 240 then -- 处理4字节字符
+            partial_len = partial_len + 1
+            i = i + 4
+        else
+            partial_len = partial_len + 1
+            i = i + 1
+        end
+    end
+    return string.format([[%d:%d]], partial_len, total_len)
+end
+
 local opts = {
     options = {
         icons_enabled = false,
@@ -109,8 +152,11 @@ local opts = {
             },
         },
         lualine_x = { "encoding", "fileformat", "filetype" },
-        lualine_y = { "selectioncount", "searchcount", "progress" },
-        lualine_z = { "location" },
+        lualine_y = { "searchcount", "selectioncount", "progress" },
+        lualine_z = {
+            "location",
+            str_width,
+        },
     },
 
     disabled_filetypes = {
@@ -142,14 +188,12 @@ local opts = {
     -- },
 
     winbar = {},
-
     inactive_winbar = {},
     extensions = { "quickfix" },
 }
 return {
     {
         "nvim-lualine/lualine.nvim",
-        enabled = true,
         config = function()
             require("lualine").setup(opts)
         end,

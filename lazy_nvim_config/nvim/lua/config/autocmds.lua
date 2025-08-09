@@ -37,30 +37,58 @@ local function fill_template(template_path, replacements)
     end
 
     -- 插入到新文件中
-    vim.api.nvim_buf_set_lines(0, 0, 0, false, vim.split(template, "\n"))
+    -- nvim_buf_set_lines(buffer, start_line, end_line, strict_indexing, replacement_lines)
+    -- strict_indexing	布尔值	若为 true，行号越界时报错；若为 false，自动调整行号到有效范围。
+    vim.api.nvim_buf_set_lines(vim.api.nvim_get_current_buf(), 0, 0, false, vim.split(template, "\n"))
+
+    local filetype = vim.bo.filetype
+    if filetype == "cpp" or filetype == "c" then
+        -- 从开始位置查询brief并跳转到该位置，进入插入模式
+        vim.fn.cursor(1, 1)
+        local ok, result = pcall(vim.fn.search, "brief", "n") -- "n" 表示仅返回行号，不移动光标
+        if ok then
+            -- vim.notify("brief" .. result)
+            local brief_line = result
+            if brief_line > 0 then
+                local win = vim.api.nvim_get_current_win()
+                local line_text =
+                    vim.api.nvim_buf_get_lines(vim.api.nvim_get_current_buf(), brief_line - 1, brief_line, false)[1]
+                -- vim.notify("line_text" .. line_text)
+                vim.api.nvim_win_set_cursor(win, { 4, #line_text + 1 })
+                vim.api.nvim_feedkeys("a", "n", false) -- 进入插入模式
+            end
+        end
+    else
+        -- 直接跳转到末尾
+        vim.api.nvim_feedkeys("a", "n", false) -- 进入插入模式
+        return
+    end
 end
 -- 创建.h文件时根据模板填充
 autocmd("BufNewFile", {
-    pattern = { "*.h", "*.c" },
+    pattern = { "*" },
     callback = function()
         local filename = vim.fn.expand("%:t")
+        local filetype = vim.bo.filetype
         -- local date = os.date("%Y-%m-%d")
         local date = os.date("%d%b%y")
-        local guard = string.format("__%s_H_", vim.fn.expand("%:t:r"):upper())
-        local header = filename:gsub("%.c$", ".h")
 
         local replacements = {
             ["%%FILE%%"] = filename,
             ["%%DATE%%"] = date,
-            ["%%GUARD%%"] = guard,
-            ["%%HEADER%%"] = header,
         }
 
         local template_path
-        if vim.fn.expand("%:e") == "h" then
-            template_path = vim.fn.expand("~/.config/nvim/templates/c_header")
-        elseif vim.fn.expand("%:e") == "c" then
-            template_path = vim.fn.expand("~/.config/nvim/templates/c_source")
+        if filetype == "cpp" then
+            local guard = string.format("__%s_H_", vim.fn.expand("%:t:r"):upper())
+            replacements["%%GUARD%%"] = guard
+            template_path = vim.fn.expand("~/.config/nvim/templates/c/c_header")
+        elseif filetype == "c" then
+            local header = filename:gsub("%.c$", ".h")
+            replacements["%%HEADER%%"] = header
+            template_path = vim.fn.expand("~/.config/nvim/templates/c/c_source")
+        elseif filetype == "make" then
+            template_path = vim.fn.expand("~/.config/nvim/templates/makefile")
         else
             vim.notify("不支持的文件类型", vim.log.levels.INFO)
             return
@@ -155,3 +183,4 @@ autocmd("InsertEnter", {
         -- end
     end,
 })
+

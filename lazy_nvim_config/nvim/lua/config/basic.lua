@@ -104,9 +104,19 @@ vim.opt.clipboard = "unnamedplus"
 -- -- 展开1级
 -- vim.wo.foldlevel = 1
 
+-- 折叠功能结合nvim-ufo插件一起使用
 -- 设置折叠方法为手动
+-- 可取值为manual、indent（缩进）、expr（）、marker（标记）、syntax（基于语法折叠）、diff（折叠未改变的文本）等
 vim.opt.foldmethod = "manual"
-
+-- 为了规避save buffer之后会重新折叠的问题，这是由使用tresitter折叠导致的问题 https://github.com/kevinhwang91/nvim-ufo/issues/30
+-- 折叠等级，执行zM之后的折叠等级
+vim.opt.foldlevel = 99
+-- 指定第一次打开buf时的折叠等级，0表示所有折叠关闭，99表示不关闭任何折叠
+vim.opt.foldlevelstart = -1
+-- 折叠标记栏宽度
+vim.opt.foldcolumn = "0"
+-- 是否启用折叠功能
+vim.opt.foldenable = true
 -- 禁用mouse
 vim.opt.mouse = ""
 vim.go.mouse = ""
