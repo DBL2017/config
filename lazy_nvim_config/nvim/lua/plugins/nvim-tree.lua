@@ -6,7 +6,7 @@ return {
     dependencies = {
         "nvim-tree/nvim-web-devicons",
     },
-    enabled = true,
+    tag = "v1.14.0",
     config = function()
         require("nvim-tree").setup({
             -- 激活buf时重新加载文件树
@@ -29,6 +29,7 @@ return {
                 group_empty = true,
                 --[[ 浮动窗口显示全名 ]]
                 full_name = true,
+                hidden_display = "none",
                 -- root_folder_label = ":p",
                 highlight_git = "all",
                 highlight_diagnostics = "all",
@@ -46,8 +47,16 @@ return {
                 },
             },
             filters = {
+                enable = true,
+                git_ignored = false,
                 dotfiles = false,
+                git_clean = false,
+                no_buffer = false,
+                no_bookmark = false,
+                custom = {},
+                exclude = {},
             },
+
             update_focused_file = {
                 enable = true,
                 update_root = {

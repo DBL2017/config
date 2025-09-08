@@ -35,6 +35,7 @@ return {
                 end,
                 markdown = { "markdownlint" },
                 tex = { "latexindent" },
+                xml = { "custom_xml" },
                 -- Use the "*" filetype to run formatters on all filetypes.
                 -- ["*"] = { "codespell" },
                 -- Use the "_" filetype to run formatters on filetypes that don't
@@ -91,6 +92,17 @@ return {
                         "--indent-size",
                         "8",
                         "--tab",
+                        "--force-function-style",
+                        "paronly",
+                        "-",
+                    },
+                    stdin = true,
+                },
+                custom_xml = {
+                    command = "xmlformat",
+                    args = {
+                        "--indent",
+                        "4",
                         "-",
                     },
                     stdin = true,

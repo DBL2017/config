@@ -94,7 +94,33 @@ vim.o.pumheight = 10
 vim.o.showmode = false
 
 -- 配置剪切板
-vim.opt.clipboard = "unnamedplus"
+vim.opt.clipboard = "unnamed,unnamedplus"
+-- 和OSC52类似，不过是通过xclip和X11 Server(由MobaXterm提供)进行交互，
+-- neovim将复制的内容传递给xclip（系统剪贴板工具），
+-- xclip传递给宿主机的X11 Server，宿主机的X11 Server再写入宿主机的剪贴板
+-- 但由于windows terminal不支持x11 server，因此采用mobaxterm的x11 server，需要在~/.bashrc中配置export DISPLAY=192.168.100.1:0.0
+vim.g.clipboard = {
+    name = "xclip",
+    copy = { ["+"] = "xclip -selection clipboard", ["*"] = "xclip -selection primary" },
+    paste = { ["+"] = "xclip -selection clipboard -o", ["*"] = "xclip -selection primary -o" },
+}
+vim.g.clipboard_timeout = 3000 -- 将超时时间从 10 秒改为 3 秒
+-- vim.g.clipboard = "osc52" -- 这种方式不生效
+-- 启用OSC 52，此时neovim可以与支持OSC52的远程终端进行通信，通信原理如下
+-- 1. neovim复制后会将内容转换为OSC52格式，发送给本地的伪终端
+-- 2. 伪终端通过SSH Server与宿主机的SSH Client通信
+-- 3. 宿主机的本地终端软件支持OSC52时会解析数据，并写入系统剪贴板
+-- vim.g.clipboard = {
+--     name = "OSC 52",
+--     copy = {
+--         ["+"] = require("vim.ui.clipboard.osc52").copy("+"),
+--         ["*"] = require("vim.ui.clipboard.osc52").copy("*"),
+--     },
+--     paste = {
+--         ["+"] = require("vim.ui.clipboard.osc52").paste("+"),
+--         ["*"] = require("vim.ui.clipboard.osc52").paste("*"),
+--     },
+-- }
 
 -- 启用高亮
 -- vim.opt.termguicolors = true

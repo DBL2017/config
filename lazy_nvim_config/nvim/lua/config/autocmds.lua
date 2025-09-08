@@ -24,7 +24,7 @@ autocmd({
 local function fill_template(template_path, replacements)
     -- 检查模板文件是否存在
     if vim.fn.filereadable(template_path) == 0 then
-        vim.notify("模板文件不存在: " .. template_path, vim.log.levels.WARN)
+        vim.notify("Template file isn't existent." .. template_path, vim.log.levels.WARN)
         return
     end
 
@@ -90,7 +90,7 @@ autocmd("BufNewFile", {
         elseif filetype == "make" then
             template_path = vim.fn.expand("~/.config/nvim/templates/makefile")
         else
-            vim.notify("不支持的文件类型", vim.log.levels.INFO)
+            vim.notify("No avaliable template!", vim.log.levels.INFO)
             return
         end
 

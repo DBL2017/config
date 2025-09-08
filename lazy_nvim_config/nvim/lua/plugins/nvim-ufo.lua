@@ -50,7 +50,7 @@ return {
             },
             close_fold_current_line_for_ft = {
                 default = true,
-                c = false,
+                c = true,
             },
             preview = {
                 win_config = {

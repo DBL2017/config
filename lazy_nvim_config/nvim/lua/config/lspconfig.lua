@@ -1,10 +1,20 @@
--- diagnostic
+-- diagnostic配置
 vim.diagnostic.config({
+    -- virtual_lines = {
+    --     severity = { min = vim.diagnostic.severity.WARN },
+    --     current_line = true,
+    --     format = function(diag)
+    --         local severity_map = { [1] = "ERROR", [2] = "WARN", [3] = "INFO", [4] = "HINT" }
+    --         return string.format("%s [%s] %s", diag.source, severity_map[diag.severity], diag.message)
+    --     end,
+    -- },
+    virtual_lines = false,
+    severity_sort = true,
     float = {
         scope = "line",
         severity_sort = true,
         header = "Diagnostics",
-        source = "if_many",
+        source = true,
         format = function(diag)
             local severity_map = { [1] = "ERROR", [2] = "WARN", [3] = "INFO", [4] = "HINT" }
             return string.format("[%s] %s", severity_map[diag.severity], diag.message)
@@ -12,8 +22,9 @@ vim.diagnostic.config({
         border = "rounded", -- 使用内置圆角边框（直接生效）
     },
 })
+
 -- lsp全局配置
-vim.lsp.set_log_level("debug")
+vim.lsp.set_log_level("warn")
 local capabilities = require("cmp_nvim_lsp").default_capabilities()
 local lsp_flags = {
     -- This is the default in Nvim 0.7+
@@ -76,7 +87,7 @@ vim.lsp.config("lua_ls", {
         },
     },
 })
-vim.lsp.enable("lua_ls", true)
+vim.lsp.enable("lua_ls", false)
 
 -- clangd
 local clangd_capabilities = require("cmp_nvim_lsp").default_capabilities()
@@ -93,4 +104,5 @@ vim.lsp.config("clangd", {
 vim.lsp.enable("clangd", true)
 
 -- vim.lsp.enable({ "pyright", "tsserver", "marksman", "jsonls", "eslint", "bashls", "cmake" }, true)
-vim.lsp.enable({ "pyright", "cmake", "jsonls", "bashls" })
+vim.lsp.enable({ "pyright", "cmake", "jsonls" })
+vim.lsp.enable("bashls", true)

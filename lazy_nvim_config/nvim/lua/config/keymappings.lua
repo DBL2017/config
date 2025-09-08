@@ -1,4 +1,5 @@
-local custom = require("config.custom_function")
+local custom_function = require("config.custom_function")
+local custom_comment = require("config.custom_comment")
 local conform = require("conform")
 
 local opts = {
@@ -12,10 +13,10 @@ function _G.set_terminal_keymaps()
     vim.keymap.set("t", "<esc>", [[<C-\><C-n>]], { buffer = 0 })
     vim.keymap.set("t", "jk", [[<C-\><C-n>]], { buffer = 0 })
     -- 有些终端模拟器上，<Backspace>按键会发送0x08，与<C-h>一致，下面的映射就可能导致<BS>失效，需要修改终端模拟对<BS>的配置
-    vim.keymap.set("t", "<C-h>", [[<Cmd>wincmd h<CR>]], { buffer = 0 })
-    vim.keymap.set("t", "<C-j>", [[<Cmd>wincmd j<CR>]], { buffer = 0 })
-    vim.keymap.set("t", "<C-k>", [[<Cmd>wincmd k<CR>]], { buffer = 0 })
-    vim.keymap.set("t", "<C-l>", [[<Cmd>wincmd l<CR>]], { buffer = 0 })
+    vim.keymap.set("t", "<C-h>", [[<cmd>wincmd h<CR>]], { buffer = 0 })
+    vim.keymap.set("t", "<C-j>", [[<cmd>wincmd j<CR>]], { buffer = 0 })
+    vim.keymap.set("t", "<C-k>", [[<cmd>wincmd k<CR>]], { buffer = 0 })
+    vim.keymap.set("t", "<C-l>", [[<cmd>wincmd l<CR>]], { buffer = 0 })
     vim.keymap.set("t", "<C-w>", [[<C-\><C-n><C-w>]], { buffer = 0 })
 end
 
@@ -26,22 +27,22 @@ function SaveAllAndQuit()
     vim.api.nvim_command(":qa")
 end
 
-map("n", "<Leader>wq", "<Cmd>lua SaveAllAndQuit()<CR>", opts)
-map("v", "<Leader>wq", "<Cmd>lua SaveAllAndQuit()<CR>", opts)
+map("n", "<Leader>wq", "<cmd>lua SaveAllAndQuit()<CR>", opts)
+map("v", "<Leader>wq", "<cmd>lua SaveAllAndQuit()<CR>", opts)
 
 -- 指定类型终端
 map("n", "<C-G>", "<cmd>TermExec cmd='git status ./' name=GIT<CR>", opts)
 
 -- tab快捷键
 -- Move to previous/next
-map("n", "<A-,>", "<Cmd>tabprevious<CR>", opts)
-map("n", "<A-.>", "<Cmd>tabnext<CR>", opts)
+map("n", "<A-,>", "<cmd>tabprevious<CR>", opts)
+map("n", "<A-.>", "<cmd>tabnext<CR>", opts)
 -- Re-order to previous/next
 map("n", "<A-Left>", "<cmd>-tabmove<CR>", opts)
 map("n", "<A-Right>", "<cmd>+tabmove<CR>", opts)
 -- Close buffer
-map("n", "<A-c>", "<Cmd>tabclose<CR>", opts)
-map("t", "<A-c>", "<Cmd>q!<CR>", opts)
+map("n", "<A-c>", "<cmd>tabclose<CR>", opts)
+map("t", "<A-c>", "<cmd>q!<CR>", opts)
 -- tab
 map("n", "<leader>ta", "<cmd>$tabnew<CR>", opts)
 map("n", "<leader>tc", "<cmd>tabclose<CR>", opts)
@@ -105,9 +106,16 @@ map("n", "fgr", "<cmd>FzfLua grep_cword<CR>", opts)
 map("n", "<leader>ff", "<cmd>Telescope find_files<CR>", opts)
 map("n", "<leader>fr", "<cmd>Telescope oldfiles<CR>", opts)
 -- live-grep 依赖于外部工具ripgrep， sudo apt install ripgrep
-map("n", "<leader>fg", "<cmd>Telescope live_grep<CR>", opts)
-map("n", "<leader>fb", "<cmd>Telescope buffers<CR>", opts)
+-- map("n", "<leader>fg", "<cmd>Telescope live_grep<CR>", opts)
+-- map("n", "<leader>fb", "<cmd>Telescope buffers<CR>", opts)
 map("n", "<leader>fh", "<cmd>Telescope help_tags<CR>", opts)
+vim.keymap.set("n", "<leader>fg", function()
+    -- 显示指定当前文件所在目录
+    require("telescope.builtin").live_grep({ cwd = vim.fn.expand("%:p:h") })
+end, { desc = "在当前文件目录查找" })
+vim.keymap.set("n", "<leader>fb", function()
+    require("telescope.builtin").buffers()
+end, { desc = "显示所有buffer" })
 
 -- formatter
 -- map("n", "<leader>cf", "<cmd>FormatWrite<CR>", opts)
@@ -123,25 +131,27 @@ map("n", "gR", "<cmd>Trouble lsp_references toggle<cr>", opts)
 
 -- 2. 优化 float 窗口打开行为（通过自定义函数封装）
 local function open_optimized_diagnostic_float()
+    vim.diagnostic.config({
+        virtual_lines = false,
+    })
     vim.diagnostic.open_float({
         -- 可选：限制窗口最大宽度/高度
         max_width = math.floor(vim.o.columns * 0.5), -- 最大宽度为屏幕50%
         max_height = math.floor(vim.o.lines * 0.4), -- 最大高度为屏幕40%
     })
 end
-
--- 3. 绑定快捷键（例如 <leader>d 打开优化后的诊断窗口）
 vim.keymap.set("n", "<space>e", open_optimized_diagnostic_float, { desc = "Open optimized diagnostics" })
-vim.keymap.set("n", "[d", custom.diagnostic_goto_prev, opts)
-vim.keymap.set("n", "]d", custom.diagnostic_goto_next, opts)
+-- vim.keymap.set("n", "<space>e", vim.diagnostic.open_float, opts)
+vim.keymap.set("n", "[d", custom_function.diagnostic_goto_prev, opts)
+vim.keymap.set("n", "]d", custom_function.diagnostic_goto_next, opts)
 vim.keymap.set("n", "<space>q", vim.diagnostic.setloclist, opts)
 
 -- 自动将查找到的字符串设置到屏幕中央
-map("n", "n", "nzz", { noremap = true, silent = true })
-map("n", "N", "Nzz", { noremap = true, silent = true })
+-- map("n", "n", "nzz", { noremap = true, silent = true })
+-- map("n", "N", "Nzz", { noremap = true, silent = true })
 
 -- 将单行内选中的字符串当作文件打开
-vim.keymap.set("v", "<leader>of", custom.open_selected_file, { desc = "Open file" })
+vim.keymap.set("v", "<leader>of", custom_function.open_selected_file, { desc = "Open file" })
 
 -- 格式化
 vim.keymap.set({ "n", "x" }, "<space>f", conform.format, { desc = "Format current buffer" })
@@ -151,22 +161,22 @@ vim.keymap.set({ "n", "x" }, "<space>f", conform.format, { desc = "Format curren
 -- 通过 v 进入的字符选择模式
 -- 通过 V 进入的行选择模式
 -- 通过 Ctrl+v 进入的块选择模式
-vim.keymap.set({ "n", "x" }, "<Leader>yy", custom.copy_with_metadata, {
+vim.keymap.set({ "n", "x" }, "<Leader>yy", custom_function.copy_with_metadata, {
     desc = "复制带文件名和行号的内容",
 })
 vim.keymap.set({ "n", "x" }, "<Leader>yf", function()
-    custom.copy_with_metadata(true)
+    custom_function.copy_with_metadata(true)
 end, {
     desc = "复制带文件名和行号的内容",
 })
 -- 拷贝当前行的commit sha
-vim.keymap.set("n", "<Leader>yc", custom.get_line_commit, { desc = "Get line commit SHA" })
+vim.keymap.set("n", "<Leader>yc", custom_function.get_line_commit, { desc = "Get line commit SHA" })
 -- 对比当前行的commit与当前buffer的文件差异
-vim.keymap.set("n", "<Leader>gd", custom.git_diff_with_commit_sha, {
+vim.keymap.set("n", "<Leader>gd", custom_function.git_diff_with_commit_sha, {
     desc = "Diff current line's Git commit",
 })
 -- 获取当前文件所在的路径名
-vim.keymap.set("n", "<Leader>yp", custom.copy_current_filepath, {
+vim.keymap.set("n", "<Leader>yp", custom_function.copy_current_filepath, {
     desc = "Copy current file path",
 })
 
@@ -189,3 +199,25 @@ vim.keymap.set("n", "<leader>tO", "O<C-R>=strftime('%Y-%m-%d %H:%M:%S')<CR><ESC>
 -- Using ufo provider need remap `zR` and `zM`. If Neovim is 0.6.1, remap yourself
 vim.keymap.set("n", "zR", require("ufo").openAllFolds)
 vim.keymap.set("n", "zM", require("ufo").closeAllFolds)
+
+-- 在当前函数上方插入注释
+vim.keymap.set("n", "<leader>fO", function()
+    local ok, err = pcall(custom_comment.insert_comment, "function")
+    if not ok then
+        vim.notify("insert failed: " .. err, vim.log.levels.ERROR)
+    end
+end)
+-- 在当前变量上方插入注释
+vim.keymap.set("n", "<leader>vO", function()
+    local ok, err = pcall(custom_comment.insert_comment, "variable")
+    if not ok then
+        vim.notify("insert failed: " .. err, vim.log.levels.ERROR)
+    end
+end)
+-- 在当前宏上方插入注释
+vim.keymap.set("n", "<leader>mO", function()
+    local ok, err = pcall(custom_comment.insert_comment, "macro")
+    if not ok then
+        vim.notify("insert failed: " .. err, vim.log.levels.ERROR)
+    end
+end)
