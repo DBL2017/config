@@ -100,6 +100,9 @@ vim.lsp.config("clangd", {
             diagnostics = false,
         },
     },
+    -- on_attach = function(client, bufnr)
+    --     require("nvim-navic").attach(client, bufnr)
+    -- end,
 })
 vim.lsp.enable("clangd", true)
 

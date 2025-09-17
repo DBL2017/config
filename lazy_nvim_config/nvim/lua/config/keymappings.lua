@@ -83,7 +83,7 @@ map("v", "<leader>qa", "<cmd>qa!<CR>", opts)
 -- nvim-tree
 map("n", "<F2>", "<cmd>NvimTreeToggle<CR>", opts)
 -- lspsaga
-map("n", "<F12>", "<cmd>Lspsaga outline<CR>", opts)
+map("n", "<F12>", "<cmd>Outline<CR>", opts)
 map("n", "K", "<cmd>Lspsaga hover_doc<CR>", opts)
 map("n", "pd", "<cmd>Lspsaga peek_definition<CR>", opts)
 map("n", "<leader>ca", "<cmd>Lspsaga code_action<CR>", opts)
@@ -103,19 +103,24 @@ map("n", "fgr", "<cmd>FzfLua grep_cword<CR>", opts)
 
 -- telescope
 -- " Find files using Telescope command-line sugar.
-map("n", "<leader>ff", "<cmd>Telescope find_files<CR>", opts)
-map("n", "<leader>fr", "<cmd>Telescope oldfiles<CR>", opts)
+map("n", "tff", "<cmd>Telescope find_files<CR>", opts)
+map("n", "tfr", "<cmd>Telescope oldfiles<CR>", opts)
 -- live-grep 依赖于外部工具ripgrep， sudo apt install ripgrep
 -- map("n", "<leader>fg", "<cmd>Telescope live_grep<CR>", opts)
 -- map("n", "<leader>fb", "<cmd>Telescope buffers<CR>", opts)
-map("n", "<leader>fh", "<cmd>Telescope help_tags<CR>", opts)
-vim.keymap.set("n", "<leader>fg", function()
-    -- 显示指定当前文件所在目录
+map("n", "tfh", "<cmd>Telescope help_tags<CR>", opts)
+vim.keymap.set("n", "tfg", function()
     require("telescope.builtin").live_grep({ cwd = vim.fn.expand("%:p:h") })
-end, { desc = "在当前文件目录查找" })
-vim.keymap.set("n", "<leader>fb", function()
+end, { silent = true, desc = "在当前文件目录查找" })
+vim.keymap.set("n", "tfb", function()
     require("telescope.builtin").buffers()
-end, { desc = "显示所有buffer" })
+end, { silent = true, desc = "显示所有buffer" })
+vim.keymap.set("n", "tgd", function()
+    require("telescope.builtin").lsp_definitions()
+end, { silent = true, desc = "Goto definitions" })
+vim.keymap.set("n", "tlr", function()
+    require("telescope.builtin").lsp_references()
+end, { silent = true, desc = "Goto definitions" })
 
 -- formatter
 -- map("n", "<leader>cf", "<cmd>FormatWrite<CR>", opts)
@@ -221,3 +226,26 @@ vim.keymap.set("n", "<leader>mO", function()
         vim.notify("insert failed: " .. err, vim.log.levels.ERROR)
     end
 end)
+
+-- 原生lsp
+vim.keymap.set("n", "<leader>lr", function()
+    vim.lsp.buf.references()
+end, {
+    silent = true,
+    desc = "lsp_reference",
+})
+
+vim.keymap.set("n", "<leader>lsp", function()
+    local params = vim.lsp.util.make_position_params()
+    vim.lsp.buf_request(0, "textDocument/references", params, function(err, result, ctx)
+        if err then
+            return
+        end
+
+        -- result 即引用列表，直接处理无需 Quickfix
+        print(vim.inspect(result))
+    end)
+end, {
+    silent = true,
+    desc = "lsp_reference",
+})

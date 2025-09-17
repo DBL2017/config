@@ -6,7 +6,7 @@ return {
         -- calling `setup` is optional for customization
         require("fzf-lua").setup({
             winopts = {
-                -- split         = "belowright new",-- open in a split instead?
+                split = "belowright new", -- open in a split instead?
                 -- "belowright new"  : split below
                 -- "aboveleft new"   : split above
                 -- "belowright vnew" : split right

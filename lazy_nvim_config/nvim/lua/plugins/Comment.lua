@@ -1,6 +1,7 @@
 return {
     {
         "numToStr/Comment.nvim",
+        lazy = false,
         config = function()
             require("Comment").setup({
                 ---Add a space b/w comment and the line
@@ -48,19 +49,22 @@ return {
                 post_hook = nil,
             })
 
-            require("Comment.ft").set({
-                "c",
-                "c++",
-                "javascript",
-            }, {
-                "// %s",
-                "/* %s */",
-            }).set({
-                "lua",
-            }, {
-                "-- %s",
-                "--[[%s]]",
-            }).set({ "sh" }, { "# %s" })
-        end
-    }
+            require("Comment.ft")
+                .set({
+                    "c",
+                    "c++",
+                    "javascript",
+                }, {
+                    "// %s",
+                    "/* %s */",
+                })
+                .set({
+                    "lua",
+                }, {
+                    "-- %s",
+                    "--[[%s]]",
+                })
+                .set({ "sh" }, { "# %s" })
+        end,
+    },
 }
