@@ -15,7 +15,7 @@ return -- lazy.nvim
                     layout = "vertical", -- vertical|horizontal|buffer
                 },
                 chat = {
-                    auto_scroll = false,
+                    auto_scroll = true,
                     opts = {
                         completion_provider = "cmp", -- blink|cmp|coc|default
                     },
@@ -149,7 +149,7 @@ return -- lazy.nvim
                                     default = "deepseek-ai/DeepSeek-R1",
                                     choices = {
                                         ["deepseek-ai/DeepSeek-R1"] = { opts = { can_reason = false } },
-                                        "deepseek-ai/DeepSeek-V3",
+                                        ["deepseek-ai/DeepSeek-V3"] = { opts = { can_reason = false } },
                                     },
                                 },
                             },
