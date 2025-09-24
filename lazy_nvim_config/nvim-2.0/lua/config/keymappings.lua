@@ -12,6 +12,7 @@ vim.keymap.set({ "n", "v" }, "<LocalLeader>wq", "<cmd>lua save_all_and_quit()<CR
 vim.keymap.set({ "n", "v" }, "<LocalLeader>q", "<cmd>q!<CR>", { silent = true })
 vim.keymap.set({ "n", "v" }, "<LocalLeader>w", "<cmd>w<CR>", { silent = true })
 vim.keymap.set({ "n", "v" }, "<LocalLeader>qa", "<cmd>qa!<CR>", { silent = true })
+vim.keymap.set({ "n", "v" }, "<C-q>", "<cmd>q!<CR>", { silent = true })
 
 -- 查找
 -- 自动将查找到的字符串设置到屏幕中央

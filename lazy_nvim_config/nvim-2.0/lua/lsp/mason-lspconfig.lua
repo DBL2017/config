@@ -3,7 +3,7 @@ return {
     opts = {
         -- A list of servers to automatically install if they're not already installed. Example: { "rust_analyzer@nightly", "lua_ls" }
         ---@type string[]
-        ensure_installed = { "clangd", "cmake", "pyright", "lua_ls" },
+        ensure_installed = { "clangd", "cmake", "pyright", "lua_ls", "bashls", "ts_ls", "vale_ls", "yamlls" },
         -- Whether installed servers should automatically be enabled via `:h vim.lsp.enable()`.
         --
         -- To exclude certain servers from being automatically enabled:
@@ -21,7 +21,10 @@ return {
         --   }
         -- ```
         ---@type boolean | string[] | { exclude: string[] }
-        automatic_enable = true,
+        ---@是否自动启动自动安装的lsp server
+        automatic_enable = {
+            exclude = { "stylua" },
+        },
     },
     dependencies = {
         { "mason-org/mason.nvim", opts = {} },

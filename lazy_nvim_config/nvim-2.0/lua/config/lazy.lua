@@ -47,7 +47,7 @@ require("lazy").setup({
     local_spec = true, -- load project specific .lazy.lua spec files. They will be added at the end of the spec.
     lockfile = vim.fn.stdpath("config") .. "/lazy-lock.json", -- lockfile generated after running update.
     ---@type number? limit the maximum amount of concurrent tasks
-    concurrency = jit.os:find("Windows") and (vim.uv.available_parallelism() * 2) or nil,
+    concurrency = 1,
     git = {
         -- defaults for the `Lazy log` command
         -- log = { "--since=3 days ago" }, -- show commits from the last 3 days

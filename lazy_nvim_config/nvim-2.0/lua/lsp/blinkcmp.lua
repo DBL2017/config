@@ -15,7 +15,7 @@ return {
         cmdline = {
             keymap = {
                 -- 选择并接受预选择的第一个
-                -- ["<CR>"] = { "select_and_accept", "fallback" },
+                ["<CR>"] = { "select_and_accept", "fallback" },
             },
             completion = {
                 -- 不预选第一个项目，选中后自动插入该项目文本
@@ -116,7 +116,7 @@ return {
                                     Operator = "󰆕",
                                     TypeParameter = " ",
                                 }
-                                return kind_icons[ctx.kind] .. ctx.icon_gap
+                                return kind_icons[ctx.kind] or kind_icons["Event"] .. ctx.icon_gap
 
                                 -- return ctx.kind_icon .. ctx.icon_gap
                             end,
@@ -221,6 +221,7 @@ return {
                 "path",
                 "snippets",
                 "avante",
+                "minuet",
             },
             providers = {
                 -- score_offset设置优先级数字越大优先级越高
@@ -236,26 +237,21 @@ return {
                     timeout_ms = 2000, -- How long to wait for the provider to return before showing completions and treating it as asynchronous
                     transform_items = nil, -- Function to transform the items before they're returned
                     should_show_items = true, -- Whether or not to show the items
-                    max_items = 10, -- Maximum number of items to display in the menu
+                    max_items = 5, -- Maximum number of items to display in the menu
                     min_keyword_length = 3, -- Minimum number of characters in the keyword to trigger the provider
                     -- If this provider returns 0 items, it will fallback to these providers.
                     -- If multiple providers fallback to the same provider, all of the providers must return 0 items for it to fallback
                     fallbacks = {},
-                    score_offset = 5, -- Boost/penalize the score of the items
+                    score_offset = 10, -- Boost/penalize the score of the items
                     override = nil, -- Override the source's functions
                 },
                 buffer = {
                     name = "BUF",
                     enabled = true,
-                    max_items = 10, -- Maximum number of items to display in the menu
+                    max_items = 3, -- Maximum number of items to display in the menu
                     min_keyword_length = 3, -- Minimum number of characters in the keyword to trigger the provider
                     score_offset = 4,
                 },
-                -- codecompanion = {
-                --     enabled = true,
-                --     min_keyword_length = 3, -- Minimum number of characters in the keyword to trigger the provider
-                --     score_offset = 4,
-                -- },
                 codecompanion = {
                     name = "CodeCompanion",
                     module = "codecompanion.providers.completion.blink",
@@ -301,6 +297,17 @@ return {
                         -- example: { vim.fn.expand('~/.config/nvim/dictionary') }
                         -- dictionary_directories = vim.fn.expand("~/.config/nvim/dict"),
                     },
+                },
+                minuet = {
+                    name = "MNT",
+                    module = "minuet.blink",
+                    async = true,
+                    max_items = 10, -- Maximum number of items to display in the menu
+                    min_keyword_length = 3, -- Minimum number of characters in the keyword to trigger the provider
+                    -- Should match minuet.config.request_timeout * 1000,
+                    -- since minuet.config.request_timeout is in seconds
+                    timeout_ms = 3000,
+                    score_offset = 50, -- Gives minuet higher priority among suggestions
                 },
             },
         },
