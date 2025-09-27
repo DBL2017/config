@@ -245,4 +245,12 @@ vim.keymap.set("n", "gR", "<cmd>Trouble lsp_references toggle<cr>", { silent = t
 -- lspsaga
 vim.keymap.set("n", "K", "<cmd>Lspsaga hover_doc<CR>", { silent = true, desc = "Lspsaga hover" })
 vim.keymap.set("n", "pd", "<cmd>Lspsaga peek_definition<CR>", { silent = true, desc = "Lspsaga peek_definition" })
-vim.keymap.set("n", "<leader>ca", "<cmd>Lspsaga code_action<CR>", { silent = true, desc = "Lspsaga code actions" })
+vim.keymap.set("n", "<LocalLeader>ca", "<cmd>Lspsaga code_action<CR>", { silent = true, desc = "Lspsaga code actions" })
+-- nvim-dap
+vim.keymap.set("n", "<F5>", "<cmd>DapContinue<CR>", { silent = true, desc = "launch/continue debug" })
+vim.keymap.set("n", "<C-F5>", "<cmd>DapTerminate<CR>", { silent = true, desc = "terminate debug" })
+vim.keymap.set("n", "<F6>", "<cmd>DapToggleBreakpoint<CR>", { silent = true, desc = "toggle breakpoint" })
+vim.keymap.set("n", "<C-F6>", "<cmd>DapClearBreakpoints<CR>", { silent = true, desc = "clear breakpoints" })
+vim.keymap.set("n", "<F10>", "<cmd>DapStepOver<CR>", { silent = true, desc = "step over" })
+vim.keymap.set("n", "<F11>", "<cmd>DapStepInto<CR>", { silent = true, desc = "step into" })
+vim.keymap.set("n", "<S-F11>", "<cmd>DapStepOut<CR>", { silent = true, desc = "step out" })

@@ -42,6 +42,7 @@ require("lazy").setup({
         { import = "ui" },
         { import = "plugins" },
         { import = "lsp" },
+        { import = "dap" },
     },
 
     local_spec = true, -- load project specific .lazy.lua spec files. They will be added at the end of the spec.

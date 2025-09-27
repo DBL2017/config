@@ -44,7 +44,7 @@ return {
             pip = {
                 -- 指定pip install的参数
                 -- Example: { "--proxy", "https://proxyserver" }
-                install_args = { "-i", "https://pypi.tuna.tsinghua.edu.cn/simple" },
+                install_args = { "-i", "https://mirrors.aliyun.com/pypi/simple" },
             },
 
             -- Controls to which degree logs are written to the log file. It's useful to set this to vim.log.levels.DEBUG when
