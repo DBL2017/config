@@ -91,7 +91,7 @@ vim.lsp.config("lua_ls", {
         },
     },
 })
-vim.lsp.enable("lua_ls", true)
+vim.lsp.enable("lua_ls", false)
 
 -- clangd
 -- local clangd_capabilities = require("cmp_nvim_lsp").default_capabilities()

@@ -147,40 +147,40 @@ autocmd({ "VimLeave" }, {
 -- end
 
 -- 根据上下文中的tab和空格数目决定是否启用tab转空格
-autocmd("InsertEnter", {
-    pattern = "*",
-    callback = function()
-        local line_num = vim.fn.line(".")
-        local start_line = math.max(1, line_num - 1)
-        local line = vim.fn.getline(start_line)
-        if line:match("^\t") then
-            vim.bo.expandtab = false
-        elseif line:match("^ ") then
-            vim.bo.expandtab = true
-        else
-            vim.bo.expandtab = false
-        end
-        -- local end_line = math.min(vim.fn.line("$"), line_num + 10)
-        -- local tab_count = 0
-        -- local space_count = 0
-        --
-        -- for i = start_line, end_line do
-        --     if i ~= line_num then
-        --         local line = vim.fn.getline(i)
-        --         if line:match("^\t") then
-        --             tab_count = tab_count + 1
-        --         elseif line:match("^ ") then
-        --             space_count = space_count + 1
-        --         else
-        --         end
-        --     end
-        -- end
-        --
-        -- if tab_count > space_count then
-        --     vim.bo.expandtab = false
-        -- else
-        --     vim.bo.expandtab = true
-        -- end
-    end,
-})
+-- autocmd("InsertEnter", {
+--     pattern = "*",
+--     callback = function()
+--         local line_num = vim.fn.line(".")
+--         local start_line = math.max(1, line_num - 1)
+--         local line = vim.fn.getline(start_line)
+--         if line:match("^\t") then
+--             vim.bo.expandtab = false
+--         elseif line:match("^ ") then
+--             vim.bo.expandtab = true
+--         else
+--             vim.bo.expandtab = false
+--         end
+--         -- local end_line = math.min(vim.fn.line("$"), line_num + 10)
+--         -- local tab_count = 0
+--         -- local space_count = 0
+--         --
+--         -- for i = start_line, end_line do
+--         --     if i ~= line_num then
+--         --         local line = vim.fn.getline(i)
+--         --         if line:match("^\t") then
+--         --             tab_count = tab_count + 1
+--         --         elseif line:match("^ ") then
+--         --             space_count = space_count + 1
+--         --         else
+--         --         end
+--         --     end
+--         -- end
+--         --
+--         -- if tab_count > space_count then
+--         --     vim.bo.expandtab = false
+--         -- else
+--         --     vim.bo.expandtab = true
+--         -- end
+--     end,
+-- })
 

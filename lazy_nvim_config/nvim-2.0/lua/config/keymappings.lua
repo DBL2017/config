@@ -13,6 +13,7 @@ vim.keymap.set({ "n", "v" }, "<LocalLeader>q", "<cmd>q!<CR>", { silent = true })
 vim.keymap.set({ "n", "v" }, "<LocalLeader>w", "<cmd>w<CR>", { silent = true })
 vim.keymap.set({ "n", "v" }, "<LocalLeader>qa", "<cmd>qa!<CR>", { silent = true })
 vim.keymap.set({ "n", "v" }, "<C-q>", "<cmd>q!<CR>", { silent = true })
+vim.keymap.set({ "n", "v" }, "<C-s>", "<cmd>w<CR>", { silent = true })
 
 -- 查找
 -- 自动将查找到的字符串设置到屏幕中央
@@ -248,9 +249,11 @@ vim.keymap.set("n", "pd", "<cmd>Lspsaga peek_definition<CR>", { silent = true, d
 vim.keymap.set("n", "<LocalLeader>ca", "<cmd>Lspsaga code_action<CR>", { silent = true, desc = "Lspsaga code actions" })
 -- nvim-dap
 vim.keymap.set("n", "<F5>", "<cmd>DapContinue<CR>", { silent = true, desc = "launch/continue debug" })
-vim.keymap.set("n", "<C-F5>", "<cmd>DapTerminate<CR>", { silent = true, desc = "terminate debug" })
+vim.keymap.set("n", "<F29>", "<cmd>DapTerminate<CR>", { silent = true, desc = "terminate debug" })
 vim.keymap.set("n", "<F6>", "<cmd>DapToggleBreakpoint<CR>", { silent = true, desc = "toggle breakpoint" })
-vim.keymap.set("n", "<C-F6>", "<cmd>DapClearBreakpoints<CR>", { silent = true, desc = "clear breakpoints" })
+vim.keymap.set("n", "<F30>", "<cmd>DapClearBreakpoints<CR>", { silent = true, desc = "clear breakpoints" })
 vim.keymap.set("n", "<F10>", "<cmd>DapStepOver<CR>", { silent = true, desc = "step over" })
 vim.keymap.set("n", "<F11>", "<cmd>DapStepInto<CR>", { silent = true, desc = "step into" })
-vim.keymap.set("n", "<S-F11>", "<cmd>DapStepOut<CR>", { silent = true, desc = "step out" })
+vim.keymap.set("n", "<F23>", "<cmd>DapStepOut<CR>", { silent = true, desc = "step out" })
+-- nvim-view-dap
+vim.keymap.set("n", "<LocalLeader>dw", "<cmd>DapViewWatch<CR>", { silent = true, desc = "step out" })

@@ -15,7 +15,9 @@ return {
         cmdline = {
             keymap = {
                 -- 选择并接受预选择的第一个
-                ["<CR>"] = { "select_and_accept", "fallback" },
+                ["<CR>"] = { "accept", "fallback" },
+                ["<S-Tab>"] = { "select_prev", "snippet_backward", "fallback" },
+                ["<Tab>"] = { "select_next", "snippet_forward", "fallback" }, -- 同时存在补全列表和snippet时，补全列表选择优先级更高
             },
             completion = {
                 -- 不预选第一个项目，选中后自动插入该项目文本

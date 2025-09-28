@@ -1,10 +1,13 @@
 return {
     {
         "mfussenegger/nvim-dap",
+        -- tag = "0.9.0",
+        commit = "7367cec8e8f7a0b1e4566af9a7ef5959d11206a7",
         event = "VeryLazy",
         config = function()
             local dap = require("dap")
             require("dap").defaults.fallback.switchbuf = "usevisible,usetab,newtab"
+            -- require("dap").defaults.fallback.switchbuf = "usevisible,split"
             dap.adapters = {
                 gdb = {
                     type = "executable",
@@ -43,6 +46,7 @@ return {
                         name = "Launch",
                         type = "gdb",
                         request = "launch",
+                        console = "integratedTerminal",
                         program = function()
                             return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/", "file")
                         end,
@@ -80,6 +84,7 @@ return {
                         type = "python", -- the type here established the link to the adapter definition: `dap.adapters.python`
                         request = "launch",
                         name = "Launch file",
+                        console = "integratedTerminal",
 
                         -- Options below are for debugpy, see https://github.com/microsoft/debugpy/wiki/Debug-configuration-settings for supported options
 
