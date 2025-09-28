@@ -2,7 +2,6 @@ return {
     "igorlfs/nvim-dap-view",
     ependencies = { "mfussenegger/nvim-dap" },
     enabled = true,
-    commit = "1183ed980c4280ee4d7bc6266342fddfae12a789",
     -- -@module 'dap-view'
     -- -@type dapview.Config
     config = function()

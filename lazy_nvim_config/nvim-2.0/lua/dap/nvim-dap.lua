@@ -6,7 +6,7 @@ return {
         event = "VeryLazy",
         config = function()
             local dap = require("dap")
-            require("dap").defaults.fallback.switchbuf = "usevisible,usetab,newtab"
+            dap.defaults.fallback.switchbuf = "usevisible,usetab,newtab"
             -- require("dap").defaults.fallback.switchbuf = "usevisible,split"
             dap.adapters = {
                 gdb = {
