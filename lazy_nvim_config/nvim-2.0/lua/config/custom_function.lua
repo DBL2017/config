@@ -157,6 +157,7 @@ local function diagnostics_goto_prev()
         count = -1,
         float = true,
         wrap = false,
+        severity = { vim.diagnostic.severity.ERROR, vim.diagnostic.severity.WARN },
     })
 end
 local function diagnostics_goto_next()
@@ -164,6 +165,7 @@ local function diagnostics_goto_next()
         count = 1,
         float = true,
         wrap = false,
+        severity = { vim.diagnostic.severity.ERROR, vim.diagnostic.severity.WARN },
     })
 end
 M.diagnostic_goto_prev = diagnostics_goto_prev
