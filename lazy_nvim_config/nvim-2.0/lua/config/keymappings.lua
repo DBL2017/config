@@ -143,8 +143,8 @@ local function open_optimized_diagnostic_float()
 end
 vim.keymap.set("n", "<space>e", open_optimized_diagnostic_float, { desc = "Open optimized diagnostics" })
 -- vim.keymap.set("n", "<space>e", vim.diagnostic.open_float, {silent=true, desc=""})
-vim.keymap.set("n", "[d", custom_function.diagnostic_goto_prev, { silent = true, desc = "" })
-vim.keymap.set("n", "]d", custom_function.diagnostic_goto_next, { silent = true, desc = "" })
+vim.keymap.set("n", "[d", custom_function.diagnostic_goto_prev, { silent = true, desc = "Jump prev diagnostic" })
+vim.keymap.set("n", "]d", custom_function.diagnostic_goto_next, { silent = true, desc = "Jump next diagnostic" })
 vim.keymap.set("n", "<space>q", vim.diagnostic.setloclist, { silent = true, desc = "" })
 
 ----------------------------------------------------------Plugins-------------------------------------------------------------
@@ -257,3 +257,47 @@ vim.keymap.set("n", "<F11>", "<cmd>DapStepInto<CR>", { silent = true, desc = "st
 vim.keymap.set("n", "<F23>", "<cmd>DapStepOut<CR>", { silent = true, desc = "step out" })
 -- nvim-view-dap
 vim.keymap.set("n", "<LocalLeader>dw", "<cmd>DapViewWatch<CR>", { silent = true, desc = "step out" })
+
+-- gitsign
+_G.set_gitsign_keymap = function(bufnr)
+    -- local bufnr = args.buf
+    vim.keymap.set("n", "]c", function()
+        -- diff模式时返回]c，用来触发默认动作
+        if vim.wo.diff then
+            return "]c"
+        end
+        vim.schedule(function()
+            require("gitsigns").nav_hunk("next", { preview = true })
+        end)
+        return "<Ignore>"
+    end, { expr = true, buffer = bufnr, desc = "Jump next diff" })
+    vim.keymap.set("n", "[c", function()
+        -- diff模式时返回]c，用来触发默认动作
+        if vim.wo.diff then
+            return "[c"
+        end
+        vim.schedule(function()
+            require("gitsigns").nav_hunk("prev", {
+                preview = true,
+            })
+        end)
+        return "<Ignore>"
+    end, { expr = true, buffer = bufnr, desc = "Jump prev diff" })
+
+    -- hunk stage
+    vim.keymap.set("n", "<LocalLeader>hs", function()
+        require("gitsigns").stage_hunk()
+    end, { buffer = bufnr, desc = "Stage hunk" })
+    -- hunk unstage
+    vim.keymap.set("n", "<LocalLeader>hu", function()
+        require("gitsigns").undo_stage_hunk()
+    end, { buffer = bufnr, desc = "Unstage hunk" })
+    -- hunk reset
+    vim.keymap.set("n", "<LocalLeader>hr", function()
+        require("gitsigns").reset_hunk()
+    end, { buffer = bufnr, desc = "Reset hunk" })
+    -- buffer stage
+    vim.keymap.set("n", "<LocalLeader>bs", function()
+        require("gitsigns").stage_buffer()
+    end, { buffer = bufnr, desc = "Stage buffer" })
+end

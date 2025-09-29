@@ -45,52 +45,7 @@ return {
                 col = 1,
             },
             on_attach = function(bufnr)
-                local gs = package.loaded.gitsigns
-                local function map(mode, l, r, opts)
-                    opts = opts or {}
-                    opts.buffer = bufnr
-                    vim.keymap.set(mode, l, r, opts)
-                end
-                -- Navigation
-                map("n", "]c", function()
-                    -- diff模式时返回]c，用来触发默认动作
-                    if vim.wo.diff then
-                        return "]c"
-                    end
-                    vim.schedule(function()
-                        gs.nav_hunk("next", { preview = true })
-                    end)
-                    return "<Ignore>"
-                end, { expr = true })
-
-                map("n", "[c", function()
-                    -- diff模式时返回]c，用来触发默认动作
-                    if vim.wo.diff then
-                        return "[c"
-                    end
-                    vim.schedule(function()
-                        gs.nav_hunk("prev", {
-                            preview = true,
-                        })
-                    end)
-                    return "<Ignore>"
-                end, { expr = true })
-                -- hunk stage
-                map("n", "<LocalLeader>hs", function()
-                    gs.stage_hunk()
-                end, {})
-                -- hunk unstage
-                map("n", "<LocalLeader>hu", function()
-                    gs.undo_stage_hunk()
-                end, {})
-                -- hunk reset
-                map("n", "<LocalLeader>hr", function()
-                    gs.reset_hunk()
-                end, {})
-                -- buffer stage
-                map("n", "<LocalLeader>bs", function()
-                    gs.stage_buffer()
-                end, {})
+                set_gitsign_keymap(bufnr)
             end,
         })
     end,
