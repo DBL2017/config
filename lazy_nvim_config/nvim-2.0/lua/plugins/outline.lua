@@ -28,7 +28,7 @@ return {
 
                 -- Auto close the outline window if goto_location is triggered and not for
                 -- peek_location
-                auto_close = false,
+                auto_close = true,
                 -- Automatically scroll to the location in code when navigating outline window.
                 auto_jump = false,
                 -- boolean or integer for milliseconds duration to apply a temporary highlight
@@ -101,7 +101,7 @@ return {
                 -- screen width for preview window, ensure the result width is at least 50
                 -- characters wide.
                 relative_width = true,
-                height = 50, -- Percentage or integer of lines
+                height = 70, -- Percentage or integer of lines
                 min_height = 10, -- Minimum number of lines
                 -- Similar to relative_width, except the height is relative to the outline
                 -- window's height.

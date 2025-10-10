@@ -258,7 +258,7 @@ vim.keymap.set("n", "<F23>", "<cmd>DapStepOut<CR>", { silent = true, desc = "ste
 -- nvim-view-dap
 vim.keymap.set("n", "<LocalLeader>dw", "<cmd>DapViewWatch<CR>", { silent = true, desc = "step out" })
 
--- gitsign
+-- gitsigns
 _G.set_gitsign_keymap = function(bufnr)
     -- local bufnr = args.buf
     vim.keymap.set("n", "]c", function()
@@ -300,4 +300,15 @@ _G.set_gitsign_keymap = function(bufnr)
     vim.keymap.set("n", "<LocalLeader>bs", function()
         require("gitsigns").stage_buffer()
     end, { buffer = bufnr, desc = "Stage buffer" })
+    -- buffer blame
+    vim.keymap.set("n", "<LocalLeader>gb", function()
+        require("gitsigns").blame()
+    end, { buffer = bufnr, desc = "Blame buffer" })
+    -- buffer line blame
+    vim.keymap.set("n", "<LocalLeader>bl", function()
+        require("gitsigns").blame_line()
+    end, { buffer = bufnr, desc = "Blame line" })
 end
+
+-- neogit
+vim.keymap.set("n", "<LocalLeader>ng", "<cmd>Neogit<CR>", { silent = true, desc = "Neogit" })
