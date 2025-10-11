@@ -39,7 +39,7 @@ return {
                 center_on_jump = true,
 
                 -- Vim options for the outline window
-                show_numbers = false,
+                show_numbers = true,
                 show_relative_numbers = false,
                 wrap = false,
 
@@ -76,7 +76,7 @@ return {
                 -- virtual text, for quick navigation when not focused on outline.
                 -- Why? See this comment:
                 -- https://github.com/simrat39/symbols-outline.nvim/issues/212#issuecomment-1793503563
-                show_symbol_lineno = true,
+                show_symbol_lineno = false,
                 -- Whether to highlight the currently hovered symbol and all direct parents
                 highlight_hovered_item = true,
                 -- Whether to automatically set cursor location in outline to match
