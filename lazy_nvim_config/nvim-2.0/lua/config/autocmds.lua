@@ -99,7 +99,10 @@ autocmd("BufNewFile", {
 })
 
 -- 进入term时设置快捷键
-autocmd({ "TermOpen" }, { command = "lua set_terminal_keymaps()" })
+local toggleterm_ok, toggleterm_err = pcall(require, "toggleterm")
+if toggleterm_ok then
+    autocmd({ "TermOpen" }, { command = "lua set_terminal_keymaps()" })
+end
 
 -- 光标设置
 local function hiCursor()

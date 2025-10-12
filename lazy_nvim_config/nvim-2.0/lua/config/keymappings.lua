@@ -154,109 +154,162 @@ vim.keymap.set("n", "<space>q", vim.diagnostic.setloclist, { silent = true, desc
 -- vim.keymap.set("n", "zM", require("ufo").closeAllFolds, { silent = true, desc = "Close all folds" })
 
 -- 格式化
-vim.keymap.set({ "n", "v" }, "<space>f", require("conform").format, { desc = "Format current buffer" })
+local conform_ok, conform_err = pcall(require, "conform")
+if conform_ok then
+    vim.keymap.set({ "n", "v" }, "<space>f", require("conform").format, { desc = "Format current buffer" })
+end
 
 -- 文件树
-vim.keymap.set({ "n", "v", "i" }, "<F2>", "<cmd>NvimTreeToggle<CR>", { desc = "Open file explore" })
+local nvimtree_ok, nvimtree_err = pcall(require, "nvim-tree")
+if nvimtree_ok then
+    vim.keymap.set({ "n", "v", "i" }, "<F2>", "<cmd>NvimTreeToggle<CR>", { desc = "Open file explore" })
+end
 
 -- CodeCompanion
-vim.keymap.set({ "n", "v" }, "<LocalLeader>aa", "<cmd>CodeCompanionActions<cr>", { noremap = true, silent = true })
-vim.keymap.set({ "n", "v" }, "<LocalLeader>at", "<cmd>CodeCompanionChat Toggle<cr>", { noremap = true, silent = true })
-vim.keymap.set("v", "ga", "<cmd>CodeCompanionChat Add<cr>", { noremap = true, silent = true })
--- Expand 'cc' into 'CodeCompanion' in the command line
-vim.cmd([[cab cc CodeCompanion]])
-vim.keymap.set({ "v" }, "<LocalLeader>ae", function()
-    require("codecompanion").prompt("explain_in_chinese")
-end, { noremap = true, silent = true })
+local codecompanion_ok, codecompanion_err = pcall(require, "codecompanion")
+if codecompanion_ok then
+    vim.keymap.set({ "n", "v" }, "<LocalLeader>aa", "<cmd>CodeCompanionActions<cr>", { noremap = true, silent = true })
+    vim.keymap.set(
+        { "n", "v" },
+        "<LocalLeader>at",
+        "<cmd>CodeCompanionChat Toggle<cr>",
+        { noremap = true, silent = true }
+    )
+    vim.keymap.set("v", "ga", "<cmd>CodeCompanionChat Add<cr>", { noremap = true, silent = true })
+    -- Expand 'cc' into 'CodeCompanion' in the command line
+    vim.cmd([[cab cc CodeCompanion]])
+    vim.keymap.set({ "v" }, "<LocalLeader>ae", function()
+        require("codecompanion").prompt("explain_in_chinese")
+    end, { noremap = true, silent = true })
+end
 
 -- telescope
 -- " Find files using Telescope command-line sugar.
 -- live-grep 依赖于外部工具ripgrep， sudo apt install ripgrep
-vim.keymap.set("n", "tfr", function()
-    require("telescope.builtin").find_files()
-end, { silent = true, desc = "Search for files" })
+local telescope_ok, telescope_err = pcall(require, "telescope.builtin")
+if telescope_ok then
+    vim.keymap.set("n", "tfr", function()
+        require("telescope.builtin").find_files()
+    end, { silent = true, desc = "Search for files" })
 
-vim.keymap.set("n", "tfr", function()
-    require("telescope.builtin").oldfiles()
-end, { silent = true, desc = "Lists previously open files" })
+    vim.keymap.set("n", "tfr", function()
+        require("telescope.builtin").oldfiles()
+    end, { silent = true, desc = "Lists previously open files" })
 
-vim.keymap.set("n", "tfh", function()
-    require("telescope.builtin").help_tags()
-end, { silent = true, desc = "Lists available help tags" })
+    vim.keymap.set("n", "tfh", function()
+        require("telescope.builtin").help_tags()
+    end, { silent = true, desc = "Lists available help tags" })
 
-vim.keymap.set("n", "tfg", function()
-    require("telescope.builtin").live_grep({ cwd = vim.fn.expand("%:p:h") })
-end, { silent = true, desc = "Search for a string and get results live as you type" })
+    vim.keymap.set("n", "tfg", function()
+        require("telescope.builtin").live_grep({ cwd = vim.fn.expand("%:p:h") })
+    end, { silent = true, desc = "Search for a string and get results live as you type" })
 
-vim.keymap.set("n", "tfb", function()
-    require("telescope.builtin").buffers()
-end, { silent = true, desc = "Lists open buffers in current neovim instance" })
+    vim.keymap.set("n", "tfb", function()
+        require("telescope.builtin").buffers()
+    end, { silent = true, desc = "Lists open buffers in current neovim instance" })
 
-vim.keymap.set("n", "tgd", function()
-    require("telescope.builtin").lsp_definitions()
-end, { silent = true, desc = "Goto the definition of the word under the cursor" })
+    vim.keymap.set("n", "tgd", function()
+        require("telescope.builtin").lsp_definitions()
+    end, { silent = true, desc = "Goto the definition of the word under the cursor" })
 
-vim.keymap.set("n", "tlr", function()
-    require("telescope.builtin").lsp_references()
-end, { silent = true, desc = "Lists LSP references for word under the cursor" })
+    vim.keymap.set("n", "tlr", function()
+        require("telescope.builtin").lsp_references()
+    end, { silent = true, desc = "Lists LSP references for word under the cursor" })
+
+    vim.keymap.set("n", "tch", function()
+        require("telescope.builtin").colorscheme()
+    end, { silent = true, desc = "Change colorscheme" })
+end
 
 -- FzfLua
-vim.keymap.set("n", "fgd", "<cmd>FzfLua lsp_definitions<CR>", { silent = true, desc = "Definitions" })
-vim.keymap.set("n", "fgD", "<cmd>FzfLua lsp_declarations<CR>", { silent = true, desc = "Declarations" })
-vim.keymap.set("n", "flr", "<cmd>FzfLua lsp_references<CR>", { silent = true, desc = "References" })
-vim.keymap.set("n", "flf", "<cmd>FzfLua lsp_finder<CR>", { silent = true, desc = "All lsp locations" })
-vim.keymap.set("n", "fli", "<cmd>FzfLua lsp_implementations<CR>", { silent = true, desc = "Implementations" })
-vim.keymap.set("n", "flt", "<cmd>FzfLua lsp_typedefs<CR>", { silent = true, desc = "Type definitions" })
-vim.keymap.set("n", "fca", "<cmd>FzfLua code_action<CR>", { silent = true, desc = "Code actions" })
+local fzflua_ok, fzflua_err = pcall(require, "fzf-lua")
+if fzflua_ok then
+    vim.keymap.set("n", "fgd", "<cmd>FzfLua lsp_definitions<CR>", { silent = true, desc = "Definitions" })
+    vim.keymap.set("n", "fgD", "<cmd>FzfLua lsp_declarations<CR>", { silent = true, desc = "Declarations" })
+    vim.keymap.set("n", "flr", "<cmd>FzfLua lsp_references<CR>", { silent = true, desc = "References" })
+    vim.keymap.set("n", "flf", "<cmd>FzfLua lsp_finder<CR>", { silent = true, desc = "All lsp locations" })
+    vim.keymap.set("n", "fli", "<cmd>FzfLua lsp_implementations<CR>", { silent = true, desc = "Implementations" })
+    vim.keymap.set("n", "flt", "<cmd>FzfLua lsp_typedefs<CR>", { silent = true, desc = "Type definitions" })
+    vim.keymap.set("n", "fca", "<cmd>FzfLua code_action<CR>", { silent = true, desc = "Code actions" })
 
-vim.keymap.set("n", "fgc", "<cmd>FzfLua git_commits<CR>", { silent = true, desc = "Git commit log(project)" })
-vim.keymap.set("n", "fgb", "<cmd>FzfLua git_bcommits<CR>", { silent = true, desc = "Git commit log(buffer)" })
-vim.keymap.set("n", "fgr", "<cmd>FzfLua grep_cword<CR>", { silent = true, desc = "Search word under cursor" })
+    vim.keymap.set("n", "fgc", "<cmd>FzfLua git_commits<CR>", { silent = true, desc = "Git commit log(project)" })
+    vim.keymap.set("n", "fgb", "<cmd>FzfLua git_bcommits<CR>", { silent = true, desc = "Git commit log(buffer)" })
+    vim.keymap.set("n", "fgr", "<cmd>FzfLua grep_cword<CR>", { silent = true, desc = "Search word under cursor" })
+end
 
 -- Outline
-vim.keymap.set("n", "<F12>", "<cmd>Outline<CR>", { silent = true, desc = "Toggle outline" })
+local outline_ok, outline_err = pcall(require, "outline")
+if outline_ok then
+    vim.keymap.set("n", "<F12>", "<cmd>Outline<CR>", { silent = true, desc = "Toggle outline" })
+end
 
 -- Toggleterm
 -- 设置toggleterm的快捷键，使其能够在打开终端的情况下切换到其他窗口
-function _G.set_terminal_keymaps()
-    vim.keymap.set("t", "<esc>", [[<C-\><C-n>]], { buffer = 0 })
-    vim.keymap.set("t", "jk", [[<C-\><C-n>]], { buffer = 0 })
-    -- 有些终端模拟器上，<Backspace>按键会发送0x08，与<C-h>一致，下面的映射就可能导致<BS>失效，需要修改终端模拟对<BS>的配置
-    vim.keymap.set("t", "<C-h>", [[<cmd>wincmd h<CR>]], { buffer = 0 })
-    vim.keymap.set("t", "<C-j>", [[<cmd>wincmd j<CR>]], { buffer = 0 })
-    vim.keymap.set("t", "<C-k>", [[<cmd>wincmd k<CR>]], { buffer = 0 })
-    vim.keymap.set("t", "<C-l>", [[<cmd>wincmd l<CR>]], { buffer = 0 })
-    vim.keymap.set("t", "<C-w>", [[<C-\><C-n><C-w>]], { buffer = 0 })
+local toggleterm_ok, toggleterm_err = pcall(require, "toggleterm")
+if toggleterm_ok then
+    function _G.set_terminal_keymaps()
+        vim.keymap.set("t", "<esc>", [[<C-\><C-n>]], { buffer = 0 })
+        vim.keymap.set("t", "jk", [[<C-\><C-n>]], { buffer = 0 })
+        -- 有些终端模拟器上，<Backspace>按键会发送0x08，与<C-h>一致，下面的映射就可能导致<BS>失效，需要修改终端模拟对<BS>的配置
+        vim.keymap.set("t", "<C-h>", [[<cmd>wincmd h<CR>]], { buffer = 0 })
+        vim.keymap.set("t", "<C-j>", [[<cmd>wincmd j<CR>]], { buffer = 0 })
+        vim.keymap.set("t", "<C-k>", [[<cmd>wincmd k<CR>]], { buffer = 0 })
+        vim.keymap.set("t", "<C-l>", [[<cmd>wincmd l<CR>]], { buffer = 0 })
+        vim.keymap.set("t", "<C-w>", [[<C-\><C-n><C-w>]], { buffer = 0 })
+    end
 end
 
 -- Trouble
 -- diagnostic键映射
-vim.keymap.set(
-    "n",
-    "<LocalLeader>xx",
-    "<cmd>Trouble diagnostics toggle filter.buf=0<cr>",
-    { silent = true, desc = "Trouble diagnostic toggle" }
-)
-vim.keymap.set("n", "<LocalLeader>xw", "<cmd>Trouble workspace_diagnostics toggle<cr>", { silent = true, desc = "" })
-vim.keymap.set("n", "<LocalLeader>xd", "<cmd>Trouble document_diagnostics toggle<cr>", { silent = true, desc = "" })
-vim.keymap.set("n", "<LocalLeader>xl", "<cmd>Trouble loclist toggle<cr>", { silent = true, desc = "" })
-vim.keymap.set("n", "<LocalLeader>xq", "<cmd>Trouble quickfix toggle<cr>", { silent = true, desc = "" })
-vim.keymap.set("n", "gR", "<cmd>Trouble lsp_references toggle<cr>", { silent = true, desc = "" })
+local trouble_ok, trouble_err = pcall(require, "trouble")
+if trouble_ok then
+    vim.keymap.set(
+        "n",
+        "<LocalLeader>xx",
+        "<cmd>Trouble diagnostics toggle filter.buf=0<cr>",
+        { silent = true, desc = "Trouble diagnostic toggle" }
+    )
+    vim.keymap.set(
+        "n",
+        "<LocalLeader>xw",
+        "<cmd>Trouble workspace_diagnostics toggle<cr>",
+        { silent = true, desc = "" }
+    )
+    vim.keymap.set("n", "<LocalLeader>xd", "<cmd>Trouble document_diagnostics toggle<cr>", { silent = true, desc = "" })
+    vim.keymap.set("n", "<LocalLeader>xl", "<cmd>Trouble loclist toggle<cr>", { silent = true, desc = "" })
+    vim.keymap.set("n", "<LocalLeader>xq", "<cmd>Trouble quickfix toggle<cr>", { silent = true, desc = "" })
+    vim.keymap.set("n", "gR", "<cmd>Trouble lsp_references toggle<cr>", { silent = true, desc = "" })
+end
 
 -- lspsaga
-vim.keymap.set("n", "K", "<cmd>Lspsaga hover_doc<CR>", { silent = true, desc = "Lspsaga hover" })
-vim.keymap.set("n", "pd", "<cmd>Lspsaga peek_definition<CR>", { silent = true, desc = "Lspsaga peek_definition" })
-vim.keymap.set("n", "<LocalLeader>ca", "<cmd>Lspsaga code_action<CR>", { silent = true, desc = "Lspsaga code actions" })
+local lspsaga_ok, lspsaga_err = pcall(require, "lspsaga")
+if lspsaga_ok then
+    vim.keymap.set("n", "K", "<cmd>Lspsaga hover_doc<CR>", { silent = true, desc = "Lspsaga hover" })
+    vim.keymap.set("n", "pd", "<cmd>Lspsaga peek_definition<CR>", { silent = true, desc = "Lspsaga peek_definition" })
+    vim.keymap.set(
+        "n",
+        "<LocalLeader>ca",
+        "<cmd>Lspsaga code_action<CR>",
+        { silent = true, desc = "Lspsaga code actions" }
+    )
+end
+
 -- nvim-dap
-vim.keymap.set("n", "<F5>", "<cmd>DapContinue<CR>", { silent = true, desc = "launch/continue debug" })
-vim.keymap.set("n", "<F29>", "<cmd>DapTerminate<CR>", { silent = true, desc = "terminate debug" })
-vim.keymap.set("n", "<F6>", "<cmd>DapToggleBreakpoint<CR>", { silent = true, desc = "toggle breakpoint" })
-vim.keymap.set("n", "<F30>", "<cmd>DapClearBreakpoints<CR>", { silent = true, desc = "clear breakpoints" })
-vim.keymap.set("n", "<F10>", "<cmd>DapStepOver<CR>", { silent = true, desc = "step over" })
-vim.keymap.set("n", "<F11>", "<cmd>DapStepInto<CR>", { silent = true, desc = "step into" })
-vim.keymap.set("n", "<F23>", "<cmd>DapStepOut<CR>", { silent = true, desc = "step out" })
--- nvim-view-dap
-vim.keymap.set("n", "<LocalLeader>dw", "<cmd>DapViewWatch<CR>", { silent = true, desc = "step out" })
+local dap_ok, dap_err = pcall(require, "dap")
+if dap_ok then
+    vim.keymap.set("n", "<F5>", "<cmd>DapContinue<CR>", { silent = true, desc = "launch/continue debug" })
+    vim.keymap.set("n", "<F29>", "<cmd>DapTerminate<CR>", { silent = true, desc = "terminate debug" })
+    vim.keymap.set("n", "<F6>", "<cmd>DapToggleBreakpoint<CR>", { silent = true, desc = "toggle breakpoint" })
+    vim.keymap.set("n", "<F30>", "<cmd>DapClearBreakpoints<CR>", { silent = true, desc = "clear breakpoints" })
+    vim.keymap.set("n", "<F10>", "<cmd>DapStepOver<CR>", { silent = true, desc = "step over" })
+    vim.keymap.set("n", "<F11>", "<cmd>DapStepInto<CR>", { silent = true, desc = "step into" })
+    vim.keymap.set("n", "<F23>", "<cmd>DapStepOut<CR>", { silent = true, desc = "step out" })
+    -- nvim-view-dap
+    local view_dap_ok, view_dap_err = pcall(require, "dap-view")
+    if view_dap_ok then
+        vim.keymap.set("n", "<LocalLeader>dw", "<cmd>DapViewWatch<CR>", { silent = true, desc = "step out" })
+    end
+end
 
 -- gitsigns
 _G.set_gitsign_keymap = function(bufnr)
@@ -311,4 +364,7 @@ _G.set_gitsign_keymap = function(bufnr)
 end
 
 -- neogit
-vim.keymap.set("n", "<LocalLeader>ng", "<cmd>Neogit<CR>", { silent = true, desc = "Neogit" })
+local neogit_ok, neogit_err = pcall(require, "neogit")
+if neogit_ok then
+    vim.keymap.set("n", "<LocalLeader>ng", "<cmd>Neogit<CR>", { silent = true, desc = "Neogit" })
+end
