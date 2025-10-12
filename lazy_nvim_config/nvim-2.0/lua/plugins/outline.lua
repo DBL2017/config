@@ -94,7 +94,7 @@ return {
                 -- If you disable this you can still open hover_symbol using your keymap
                 -- below.
                 open_hover_on_preview = false,
-                width = 50, -- Percentage or integer of columns
+                width = 65, -- Percentage or integer of columns
                 min_width = 30, -- Minimum number of columns
                 -- Whether width is relative to the total width of nvim.
                 -- When relative_width = true, this means take 50% of the total
