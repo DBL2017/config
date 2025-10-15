@@ -29,7 +29,7 @@ return {
             end)
             require("ibl").setup({
                 indent = { highlight = highlight },
-                scope = { show_start = false, show_end = false },
+                scope = { show_start = true, show_end = true },
                 exclude = {
                     filetypes = {
                         "help",

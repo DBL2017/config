@@ -1,10 +1,16 @@
+is_win = require("config.custom_function").check_win()
 return {
-
+    enabled = not is_win,
     "nvim-treesitter/nvim-treesitter",
     dependencies = {
         "nvim-tree/nvim-web-devicons",
     },
     config = function()
+        -- 解决默认使用curl下载报错的问题
+        -- nvim-treesitter[query]: 
+        -- Error during download, please verify your internet connection
+        -- curl: (60) SSL certificate problem: unable to get local issuer certificate More details here: https://curl.se/docs/sslcerts.html
+        require("nvim-treesitter.install").prefer_git = true
         require("nvim-treesitter.configs").setup({
             -- A list of parser names, or "all"
             -- ensure_installed = { "c", "lua", "python" },
