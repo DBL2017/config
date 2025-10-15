@@ -43,6 +43,8 @@ local function str_width()
     end
 end
 
+local is_tmux = require("config.custom_function").check_tmux()
+
 local opts = {
     options = {
         icons_enabled = false,
@@ -137,7 +139,7 @@ local opts = {
                 -- Display new file status (new file means no write after created)
                 newfile_status = true,
                 -- 0: Just the filename 1: Relative path 2: Absolute path 3: Absolute path, with tilde as the home directory
-                path = 1,
+                path = is_tmux and 1 or 3,
 
                 -- Shortens path to leave 40 spaces in the window
                 shorting_target = 40,

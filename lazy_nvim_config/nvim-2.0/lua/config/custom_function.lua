@@ -171,4 +171,14 @@ end
 M.diagnostic_goto_prev = diagnostics_goto_prev
 M.diagnostic_goto_next = diagnostics_goto_next
 
+local function check_win()
+    return package.config:sub(1, 1) == "\\" and true or false
+end
+M.check_win = check_win
+
+local function check_tmux()
+    return os.getenv("TMUX") ~= nil
+end
+M.check_tmux = check_tmux
+
 return M
