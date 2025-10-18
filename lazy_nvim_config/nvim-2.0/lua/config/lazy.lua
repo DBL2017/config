@@ -21,6 +21,22 @@ vim.opt.rtp:prepend(vim.env.LAZY or lazypath)
 vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
 
+local spec = {
+    -- import your plugins
+    { import = "ui" },
+    { import = "plugins" },
+    { import = "lsp" },
+    { import = "dap" },
+}
+
+is_windows = vim.loop.os_uname().version:match("Windows")
+if is_windows then
+    spec = {
+        { import = "ui" },
+        { import = "plugins" },
+    }
+end
+
 -- Setup lazy.nvim
 require("lazy").setup({
     root = vim.fn.stdpath("data") .. "/lazy", -- directory where plugins will be installed
@@ -37,13 +53,7 @@ require("lazy").setup({
         cond = nil, ---@type boolean|fun(self:LazyPlugin):boolean|nil
     },
     -- leave nil when passing the spec as the first argument to setup()
-    spec = {
-        -- import your plugins
-        { import = "ui" },
-        { import = "plugins" },
-        { import = "lsp" },
-        { import = "dap" },
-    },
+    spec = spec,
 
     local_spec = true, -- load project specific .lazy.lua spec files. They will be added at the end of the spec.
     lockfile = vim.fn.stdpath("config") .. "/lazy-lock.json", -- lockfile generated after running update.
