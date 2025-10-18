@@ -26,8 +26,8 @@ vim.diagnostic.config({
 -- lsp全局配置
 vim.lsp.set_log_level("warn")
 -- 解决插件缺失导致的配置错误问题
-local ok, err = pcall(require, "blink.cmp")
-if ok then
+local blink_ok, blink_err = pcall(require, "blink.cmp")
+if blink_ok then
     -- local capabilities = require("cmp_nvim_lsp").default_capabilities()
     local capabilities = require("blink.cmp").get_lsp_capabilities()
     local lsp_flags = {
@@ -73,57 +73,57 @@ if ok then
         flags = lsp_flags,
         on_attach = on_attach,
     })
+
+    -- lua
+    vim.lsp.config("lua_ls", {
+        settings = {
+            Lua = {
+                hint = {
+                    enable = true, -- necessary
+                },
+                runtime = "LuaJIT",
+                diagnostics = {
+                    globals = { "vim" },
+                },
+                workspace = {
+                    library = vim.api.nvim_get_runtime_file("", true),
+                },
+                telemetry = {
+                    enable = false,
+                },
+            },
+        },
+    })
+    vim.lsp.enable("lua_ls", false)
+
+    -- clangd
+    -- local clangd_capabilities = require("cmp_nvim_lsp").default_capabilities()
+    local clangd_capabilities = require("blink.cmp").get_lsp_capabilities()
+    clangd_capabilities.offsetEncoding = "utf-8"
+    vim.lsp.config("clangd", {
+        single_file_support = true,
+        capabilities = clangd_capabilities,
+        settings = {
+            clangd = {
+                InlayHints = {
+                    Designators = true,
+                    Enabled = true,
+                    ParameterNames = true,
+                    DeducedTypes = true,
+                },
+                fallbackFlags = { "-std=c++20" },
+            },
+            C = {
+                diagnostics = false,
+            },
+        },
+        -- on_attach = function(client, bufnr)
+        --     require("nvim-navic").attach(client, bufnr)
+        -- end,
+    })
+    vim.lsp.enable("clangd", true)
+
+    -- vim.lsp.enable({ "pyright", "tsserver", "marksman", "jsonls", "eslint", "bashls", "cmake" }, true)
+    vim.lsp.enable({ "pyright", "cmake", "jsonls" })
+    vim.lsp.enable("bashls", true)
 end
-
--- lua
-vim.lsp.config("lua_ls", {
-    settings = {
-        Lua = {
-            hint = {
-                enable = true, -- necessary
-            },
-            runtime = "LuaJIT",
-            diagnostics = {
-                globals = { "vim" },
-            },
-            workspace = {
-                library = vim.api.nvim_get_runtime_file("", true),
-            },
-            telemetry = {
-                enable = false,
-            },
-        },
-    },
-})
-vim.lsp.enable("lua_ls", false)
-
--- clangd
--- local clangd_capabilities = require("cmp_nvim_lsp").default_capabilities()
-local clangd_capabilities = require("blink.cmp").get_lsp_capabilities()
-clangd_capabilities.offsetEncoding = "utf-8"
-vim.lsp.config("clangd", {
-    single_file_support = true,
-    capabilities = clangd_capabilities,
-    settings = {
-        clangd = {
-            InlayHints = {
-                Designators = true,
-                Enabled = true,
-                ParameterNames = true,
-                DeducedTypes = true,
-            },
-            fallbackFlags = { "-std=c++20" },
-        },
-        C = {
-            diagnostics = false,
-        },
-    },
-    -- on_attach = function(client, bufnr)
-    --     require("nvim-navic").attach(client, bufnr)
-    -- end,
-})
-vim.lsp.enable("clangd", true)
-
--- vim.lsp.enable({ "pyright", "tsserver", "marksman", "jsonls", "eslint", "bashls", "cmake" }, true)
-vim.lsp.enable({ "pyright", "cmake", "jsonls" })
-vim.lsp.enable("bashls", true)
