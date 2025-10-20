@@ -147,6 +147,8 @@ vim.keymap.set("n", "[d", custom_function.diagnostic_goto_prev, { silent = true,
 vim.keymap.set("n", "]d", custom_function.diagnostic_goto_next, { silent = true, desc = "Jump next diagnostic" })
 vim.keymap.set("n", "<space>q", vim.diagnostic.setloclist, { silent = true, desc = "" })
 
+vim.keymap.set("n", "<LocalLeader>ac", custom_function.align_column, { silent = true, desc = "Align columns end" })
+
 ----------------------------------------------------------Plugins-------------------------------------------------------------
 -- nvim-ufo
 -- Using ufo provider need remap `zR` and `zM`. If Neovim is 0.6.1, remap yourself

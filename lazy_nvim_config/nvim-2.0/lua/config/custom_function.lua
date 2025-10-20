@@ -181,4 +181,20 @@ local function check_tmux()
 end
 M.check_tmux = check_tmux
 
+local function align_column()
+    local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+    local max_len = 0
+    -- 获取最长行
+    for _, line in ipairs(lines) do
+        max_len = math.max(max_len, #line) + 1
+    end
+
+    -- 对不足长的行进行填充空格
+    for i, line in ipairs(lines) do
+        lines[i] = line .. string.rep(" ", max_len - #line)
+    end
+    vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
+end
+M.align_column = align_column
+
 return M
