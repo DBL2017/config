@@ -27,15 +27,16 @@ vim.o.tabstop = 8
 vim.o.softtabstop = 4
 vim.bo.softtabstop = 4
 -- 由于tabstop==4，即tab占用4个字符长度；softtabstop==4，因此键入tab时插入4个空格。
--- 如果tabstop==8, softtabstop==4，则键入tab时会插入8个空格。
+-- 如果expandtab==true, tabstop==8 and softtabstop==4，那么第一次键入tab会插入4个空格，第二次键入tab继续插入4个空格。
 -- 如果expandtab==false, tabstop==8 and softtabstop==4，那么第一次键入tab会插入4个空格，第二次键入tab会替换之前空格为tab键（8）。
+-- 上面这些仅在行内生效，行首会被当作缩进处理，受限于shiftwidth的配置
+-- 在行首键入tab时会受到shiftwidth的影响
+-- 缩进时的空格数量
+vim.o.shiftwidth = 4
 
 -- 自动缩进
 vim.bo.autoindent = true
 vim.bo.smartindent = true
-
--- 缩进时的空格数量
-vim.o.shiftwidth = 4
 
 -- 总是显示标签栏
 vim.g.showtabline = 2
