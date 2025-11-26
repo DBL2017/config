@@ -50,10 +50,11 @@ vim.keymap.set("n", "<LocalLeader>ti", "i<C-R>=strftime('%Y-%m-%d %H:%M:%S')<CR>
     desc = "插入本地化时间",
 })
 -- 普通模式下在下一行插入时间
-vim.keymap.set("n", "<LocalLeader>to", "o<C-R>=strftime('%Y-%m-%d %H:%M:%S')<CR><ESC>", {
-    silent = true,
-    desc = "插入本地化时间",
-})
+-- 和tab only快捷键冲突，去掉该快捷键
+-- vim.keymap.set("n", "<LocalLeader>to", "o<C-R>=strftime('%Y-%m-%d %H:%M:%S')<CR><ESC>", {
+--     silent = true,
+--     desc = "插入本地化时间",
+-- })
 -- 普通模式下在上一行插入时间
 vim.keymap.set("n", "<LocalLeader>tO", "O<C-R>=strftime('%Y-%m-%d %H:%M:%S')<CR><ESC>", {
     silent = true,
@@ -218,7 +219,7 @@ if telescope_ok then
         require("telescope.builtin").lsp_references()
     end, { silent = true, desc = "Lists LSP references for word under the cursor" })
 
-    vim.keymap.set("n", "tch", function()
+    vim.keymap.set("n", "tcs", function()
         require("telescope.builtin").colorscheme()
     end, { silent = true, desc = "Change colorscheme" })
 end
@@ -233,6 +234,7 @@ if fzflua_ok then
     vim.keymap.set("n", "fli", "<cmd>FzfLua lsp_implementations<CR>", { silent = true, desc = "Implementations" })
     vim.keymap.set("n", "flt", "<cmd>FzfLua lsp_typedefs<CR>", { silent = true, desc = "Type definitions" })
     vim.keymap.set("n", "fca", "<cmd>FzfLua code_action<CR>", { silent = true, desc = "Code actions" })
+    vim.keymap.set("n", "fch", "<cmd>FzfLua lsp_incoming_calls<CR>", { silent = true, desc = "Show incomming calls" })
 
     vim.keymap.set("n", "fgc", "<cmd>FzfLua git_commits<CR>", { silent = true, desc = "Git commit log(project)" })
     vim.keymap.set("n", "fgb", "<cmd>FzfLua git_bcommits<CR>", { silent = true, desc = "Git commit log(buffer)" })
