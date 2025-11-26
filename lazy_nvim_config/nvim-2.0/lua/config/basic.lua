@@ -1,6 +1,6 @@
 -- 行号
 vim.wo.number = true
--- vim.wo.relativenumber = true
+vim.wo.relativenumber = true
 
 -- 字符编码 终端显示编码
 -- vim.g.encoding = "UTF-8"
@@ -169,6 +169,10 @@ vim.g.backspace = "indent, eol, start"
 
 vim.o.exrc = true
 
+-- 启用swapfile
+vim.go.swapfile = true
+-- 允许 Neovim 自动检测外部更改（如其他编辑器修改文件）
+vim.opt.autoread = true
 -- 设置swap文件位置
 vim.go.directory = vim.fn.expand("~/.nvim/swapfiles//")
 
