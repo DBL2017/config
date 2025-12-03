@@ -194,6 +194,13 @@ return {
                     },
                 },
             },
+            trigger = {
+                -- When true, will show completion window after backspacing
+                show_on_backspace = false,
+
+                -- When true, will show completion window after backspacing into a keyword
+                show_on_backspace_in_keyword = true,
+            },
         },
         -- 指定文件类型启用/禁用
         enabled = function()
@@ -240,7 +247,8 @@ return {
                     transform_items = nil, -- Function to transform the items before they're returned
                     should_show_items = true, -- Whether or not to show the items
                     max_items = 5, -- Maximum number of items to display in the menu
-                    min_keyword_length = 3, -- Minimum number of characters in the keyword to trigger the provider
+                    -- 设置为0才会对C语言中的.和->进行补全提示
+                    min_keyword_length = 0, -- Minimum number of characters in the keyword to trigger the provider
                     -- If this provider returns 0 items, it will fallback to these providers.
                     -- If multiple providers fallback to the same provider, all of the providers must return 0 items for it to fallback
                     fallbacks = {},

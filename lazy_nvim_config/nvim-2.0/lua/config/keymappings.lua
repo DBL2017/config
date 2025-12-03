@@ -1,6 +1,7 @@
 ----------------------------------------------------------Basic-------------------------------------------------------------
 local custom_function = require("config.custom_function")
 local custom_comment = require("config.custom_comment")
+local custom_lsp = require("config.custom_lsp")
 
 function save_all_and_quit()
     -- wirte all buffers first
@@ -372,3 +373,11 @@ local neogit_ok, neogit_err = pcall(require, "neogit")
 if neogit_ok then
     vim.keymap.set("n", "<LocalLeader>ng", "<cmd>Neogit<CR>", { silent = true, desc = "Neogit" })
 end
+
+--lspconfig
+vim.keymap.set("n", "<LocalLeader>sl", function()
+    custom_lsp.start_lsp()
+end, { buffer = bufnr, desc = "Start lsp client" })
+vim.keymap.set("n", "<LocalLeader>db", function()
+    custom_lsp.detach_current()
+end, { buffer = bufnr, desc = "Detach buffer from client" })
