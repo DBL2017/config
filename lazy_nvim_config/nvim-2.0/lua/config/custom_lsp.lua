@@ -57,6 +57,50 @@ M.lsp_servers = {
             },
         },
     },
+    bashls = {
+        filetypes = { "bash", "sh" },
+        root_markers = { ".git" },
+        config = {
+            name = "bash-language-server",
+            cmd = {
+                "bash-language-server",
+                "start",
+            },
+            settings = {
+                bashIde = {
+                    globPattern = "*@(.sh|.inc|.bash|.command)",
+                },
+            },
+        },
+    },
+    pyright = {
+        filetypes = {
+            "python",
+            "py",
+        },
+        root_markers = {
+            "pyproject.toml",
+            "setup.py",
+            "setup.cfg",
+            "requirements.txt",
+            "Pipfile",
+            "pyrightconfig.json",
+            ".git",
+        },
+        config = {
+            name = "pyright-langserver",
+            cmd = { "pyright-langserver", "--stdio" },
+            settings = {
+                python = {
+                    analysis = {
+                        autoSearchPaths = true,
+                        diagnosticMode = "openFilesOnly",
+                        useLibraryCodeForTypes = true,
+                    },
+                },
+            },
+        },
+    },
     -- 可扩展其他语言...
 }
 -- 全局状态跟踪器
@@ -144,6 +188,7 @@ function M.start_lsp()
         if client.config.root_dir == root_dir then
             -- 将现有客户端附加到新缓冲区
             vim.lsp.buf_attach_client(0, client.id)
+            vim.notify("Current buffer attached", vim.log.levels.INFO)
             return
         end
     end

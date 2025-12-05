@@ -106,4 +106,4 @@ if global_capabilities then
     })
     -- 默认禁用所有LSP功能，手动控制开关，用以避免占用CPU和内存过高导致系统卡死
 end
-vim.lsp.enable({ "clangd", "lua_ls", "pyright", "tsserver", "marksman", "jsonls", "eslint", "bashls", "cmake" }, false)
+vim.lsp.enable({ "clangd", "lua_ls", "pyright", "tsserver", "marksman", "jsonls", "eslint", "bashls", "cmake", "ts_ls", "vale_ls", "yamlls" }, false)
