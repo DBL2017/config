@@ -57,7 +57,7 @@ return {
             log_level = vim.log.levels.DEBUG,
             -- Conform will notify you when a formatter errors
             notify_on_error = true,
-            timeout = 5000,
+            timeout = 15000,
             formatters = {
                 custom_stylua = {
                     command = "stylua",
