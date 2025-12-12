@@ -156,8 +156,8 @@ M.tracker = {
     end,
 }
 -- 获取适合当前文件的 LSP
-function M.get_lsp_for_filetype()
-    local ft = vim.bo.filetype
+function M.get_lsp_for_filetype(filetype)
+    local ft = filetype or vim.bo.filetype
     for server_name, server_config in pairs(M.lsp_servers) do
         if vim.tbl_contains(server_config.filetypes, ft) then
             return server_name
@@ -166,61 +166,14 @@ function M.get_lsp_for_filetype()
 end
 
 function M.start_lsp()
-    local server_name = M.get_lsp_for_filetype()
-    if not server_name then
-        vim.notify("Not support filetype: " .. vim.bo.filetype, vim.log.levels.WARN)
-        return
-    end
+    local bufnr = vim.api.nvim_get_current_buf()
+    if vim.api.nvim_buf_is_valid(bufnr) and vim.api.nvim_buf_is_loaded(bufnr) then
+        local buf_name = vim.api.nvim_buf_get_name(bufnr)
+        local filetype = vim.api.nvim_buf_get_option(bufnr, "filetype")
 
-    if vim.fn.executable(M.lsp_servers[server_name].config.name) == 0 then
-        vim.notify(server_name .. " is not installed. Please install it first.", vim.log.levels.INFO)
-        return
-    end
-
-    -- 获取当前文件的合理根目录
-    local root_markers = M.lsp_servers[server_name].root_markers
-    local root_dir = vim.fs.dirname(
-        vim.fs.find(root_markers, { upward = true, path = vim.fn.expand("%:p:h") })[1] or vim.fn.getcwd()
-    )
-
-    -- 检查是否已存在可复用的客户端
-    for _, client in ipairs(vim.lsp.get_clients({ name = server_name })) do
-        if client.config.root_dir == root_dir then
-            -- 将现有客户端附加到新缓冲区
-            vim.lsp.buf_attach_client(0, client.id)
-            vim.notify("Current buffer attached", vim.log.levels.INFO)
-            return
+        if buf_name ~= "" and filetype ~= "" then
+            local success = M.attach_buffer(bufnr)
         end
-    end
-
-    local blink_ok, blink_err = pcall(require, "blink.cmp")
-    local nvim_cmp_ok, nvim_cmp_err = pcall(require, "cmp")
-    if blink_ok then
-        local config = vim.deepcopy(M.lsp_servers[server_name].config)
-        config.root_dir = root_dir
-        config.capabilities = require("blink.cmp").get_lsp_capabilities()
-        config.on_attach = function(client, bufnr)
-            M.tracker:register(client, bufnr)
-        end
-        config.on_exit = function(client, bufnr)
-            M.tracker:unregister(client, bufnr)
-        end
-        -- 启动 clangd
-        vim.lsp.start(config)
-        vim.notify(server_name .. " started", vim.log.levels.INFO)
-    elseif nvim_cmp_ok then
-        local config = vim.deepcopy(M.lsp_servers[server_name].config)
-        config.root_dir = root_dir
-        config.capabilities = require("cmp_nvim_lsp").default_capabilities()
-        config.on_attach = function(client, bufnr)
-            M.tracker:register(client, bufnr)
-        end
-        config.on_exit = function(client, bufnr)
-            M.tracker:unregister(client, bufnr)
-        end
-        -- 启动 clangd
-        vim.lsp.start(config)
-        vim.notify(server_name .. " started", vim.log.levels.INFO)
     end
 end
 
@@ -238,8 +191,147 @@ function M.stop_lsp()
         vim.log.levels.INFO
     )
 end
-function M.detach_current()
-    local bufnr = vim.api.nvim_get_current_buf()
+
+function M.attach_buffer(bufnr)
+    bufnr = bufnr or vim.api.nvim_get_current_buf()
+
+    -- 检查buffer是否有效
+    if not vim.api.nvim_buf_is_valid(bufnr) or not vim.api.nvim_buf_is_loaded(bufnr) then
+        vim.notify("Buffer is not valid or loaded", vim.log.levels.WARN)
+        return false
+    end
+
+    -- 检查是否已经有LSP附加
+    local existing_clients = vim.lsp.get_clients({ bufnr = bufnr })
+    if #existing_clients > 0 then
+        vim.notify("Buffer already has LSP attached", vim.log.levels.INFO)
+        return true
+    end
+
+    local filetype = vim.api.nvim_buf_get_option(bufnr, "filetype")
+    if filetype == "" then
+        vim.notify("Buffer has no filetype", vim.log.levels.WARN)
+        return false
+    end
+
+    local server_name = M.get_lsp_for_filetype(filetype)
+    if not server_name then
+        vim.notify(string.format("No LSP server configured for filetype: " .. filetype), vim.log.levels.WARN)
+        return false
+    end
+
+    local server_config = M.lsp_servers[server_name]
+    if not server_config then
+        vim.notify(string.format("LSP server not configured: " .. server_name), vim.log.levels.WARN)
+        return false
+    end
+
+    -- 检查是否已安装
+    if vim.fn.executable(server_config.config.name or server_name) == 0 then
+        vim.notify(string.format(server_name .. " is not installed"), vim.log.levels.WARN)
+        return false
+    end
+
+    -- 获取当前文件的合理根目录
+    local root_markers = M.lsp_servers[server_name].root_markers
+    local root_dir = vim.fs.dirname(
+        vim.fs.find(root_markers, { upward = true, path = vim.fn.expand("%:p:h") })[1] or vim.fn.getcwd()
+    )
+
+    -- 检查是否已存在可复用的客户端
+    for _, client in ipairs(vim.lsp.get_clients({ name = server_name })) do
+        if client.config.root_dir == root_dir then
+            vim.lsp.buf_attach_client(bufnr, client.id)
+            M.tracker:register(client, bufnr)
+            vim.notify("Attached to existing LSP client", vim.log.levels.INFO)
+            return true
+        end
+    end
+
+    -- 启动新的LSP客户端
+    local config = vim.deepcopy(server_config.config)
+    config.root_dir = root_dir
+
+    -- 设置capabilities
+    local has_cmp, cmp = pcall(require, "cmp_nvim_lsp")
+    local has_blink, blink = pcall(require, "blink.cmp")
+
+    if has_blink then
+        config.capabilities = blink.get_lsp_capabilities()
+    elseif has_cmp then
+        config.capabilities = cmp.default_capabilities()
+    else
+        config.capabilities = vim.lsp.protocol.make_client_capabilities()
+    end
+
+    -- 设置回调
+    config.on_attach = function(client, attached_bufnr)
+        M.tracker:register(client, attached_bufnr)
+    end
+
+    config.on_exit = function(client, exited_bufnr)
+        M.tracker:unregister(client, exited_bufnr)
+    end
+
+    -- 启动LSP
+    local client_id = vim.lsp.start(config)
+    if client_id then
+        -- 将新客户端附加到当前buffer
+        vim.lsp.buf_attach_client(bufnr, client_id)
+        vim.notify("Started new LSP client and attached", vim.log.levels.INFO)
+        return true
+    else
+        vim.notify("Failed to start LSP client", vim.log.levels.WARN)
+        return false
+    end
+end
+-- 为所有buffer附加LSP
+function M.attach_all()
+    local buffers = vim.api.nvim_list_bufs()
+    local results = {
+        success = 0,
+        failed = 0,
+        skipped = 0,
+        details = {},
+    }
+
+    for _, bufnr in ipairs(buffers) do
+        if vim.api.nvim_buf_is_valid(bufnr) and vim.api.nvim_buf_is_loaded(bufnr) then
+            local buf_name = vim.api.nvim_buf_get_name(bufnr)
+            local filetype = vim.api.nvim_buf_get_option(bufnr, "filetype")
+
+            -- 跳过特殊buffer
+            if buf_name == "" or filetype == "" then
+                results.skipped = results.skipped + 1
+            else
+                local success = M.attach_buffer(bufnr)
+
+                if success then
+                    results.success = results.success + 1
+                else
+                    results.failed = results.failed + 1
+                end
+            end
+        else
+            results.skipped = results.skipped + 1
+        end
+    end
+
+    -- 生成报告
+    local message = string.format(
+        "Attached LSP to %d buffer(s): %d success, %d failed, %d skipped",
+        results.success,
+        results.success,
+        results.failed,
+        results.skipped
+    )
+    vim.notify(message, vim.log.levels.INFO)
+
+    return results
+end
+
+function M.detach_buffer(bufnr)
+    local bufnr = bufnr or vim.api.nvim_get_current_buf()
     local clients = M.tracker:get_clients(bufnr)
     local detached = 0
 
@@ -251,10 +343,79 @@ function M.detach_current()
 
         -- 当client没有关联的buffer时则停止
         if #M.tracker:get_buffers(client.id) == 0 then
-            vim.lsp.stop_client(client.id, true)
+            vim.lsp.stop_client(client.id, false)
         end
     end
-    vim.notify(string.format("Detached %d %s from buffer", detached, "LSP client(s)"), vim.log.levels.INFO)
+    return detached
+end
+
+function M.detach_current()
+    local bufnr = bufnr or vim.api.nvim_get_current_buf()
+    local detached = M.detach_buffer(bufnr)
+
+    if detached > 0 then
+        vim.notify(string.format("Detached %d LSP client(s) from current buffer", detached), vim.log.levels.INFO)
+    else
+        vim.notify("No LSP clients attached to current buffer", vim.log.levels.INFO)
+    end
+
+    return detached
+end
+
+function M.detach_all()
+    local total_detached = 0
+    local affected_buffers = {}
+
+    -- 获取所有buffer列表
+    local buffers = vim.api.nvim_list_bufs()
+
+    for _, bufnr in ipairs(buffers) do
+        -- 只处理可用的buffer
+        if vim.api.nvim_buf_is_valid(bufnr) and vim.api.nvim_buf_is_loaded(bufnr) then
+            local detached = M.detach_buffer(bufnr)
+
+            if detached > 0 then
+                total_detached = total_detached + detached
+                table.insert(affected_buffers, bufnr)
+
+                -- 获取buffer名称用于显示
+                local buf_name = vim.api.nvim_buf_get_name(bufnr)
+                if buf_name == "" then
+                    buf_name = "[No Name]"
+                else
+                    buf_name = vim.fn.fnamemodify(buf_name, ":t")
+                end
+            end
+        end
+    end
+
+    -- 生成详细报告
+    local message =
+        string.format("Detached LSP from %d buffer(s), total %d client(s)", #affected_buffers, total_detached)
+    vim.notify(message, vim.log.levels.INFO)
+    return total_detached, affected_buffers
+end
+
+-- 分离除当前buffer外的所有buffer
+function M.detach_others()
+    local current_buf = vim.api.nvim_get_current_buf()
+    local total_detached = 0
+    local affected_buffers = {}
+
+    local buffers = vim.api.nvim_list_bufs()
+
+    for _, bufnr in ipairs(buffers) do
+        if bufnr ~= current_buf and vim.api.nvim_buf_is_valid(bufnr) and vim.api.nvim_buf_is_loaded(bufnr) then
+            local detached = M.detach_buffer(bufnr)
+            if detached > 0 then
+                total_detached = total_detached + detached
+                table.insert(affected_buffers, bufnr)
+            end
+        end
+    end
+    vim.notify(string.format("Detached LSP from %d other buffer(s)", #affected_buffers), vim.log.levels.INFO)
+
+    return total_detached, affected_buffers
 end
 
 return M

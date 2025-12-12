@@ -151,6 +151,12 @@ vim.keymap.set("n", "<space>q", vim.diagnostic.setloclist, { silent = true, desc
 
 vim.keymap.set("n", "<LocalLeader>ac", custom_function.align_column, { silent = true, desc = "Align columns end" })
 
+vim.keymap.set("n", "[[", "[[zz", {
+    noremap = true,
+    silent = true,
+    desc = "跳转到上一个段落并居中",
+})
+
 ----------------------------------------------------------Plugins-------------------------------------------------------------
 -- nvim-ufo
 -- Using ufo provider need remap `zR` and `zM`. If Neovim is 0.6.1, remap yourself
@@ -378,6 +384,18 @@ end
 vim.keymap.set("n", "<LocalLeader>sl", function()
     custom_lsp.start_lsp()
 end, { buffer = bufnr, desc = "Start lsp client" })
-vim.keymap.set("n", "<LocalLeader>db", function()
+vim.keymap.set("n", "<LocalLeader>abc", function()
+    custom_lsp.attach_buffer()
+end, { buffer = bufnr, desc = "Attach current buffer" })
+vim.keymap.set("n", "<LocalLeader>aba", function()
+    custom_lsp.attach_all()
+end, { buffer = bufnr, desc = "Attach all buffer" })
+vim.keymap.set("n", "<LocalLeader>dbc", function()
     custom_lsp.detach_current()
-end, { buffer = bufnr, desc = "Detach buffer from client" })
+end, { buffer = bufnr, desc = "Detach current buffer from client" })
+vim.keymap.set("n", "<LocalLeader>dba", function()
+    custom_lsp.detach_all()
+end, { buffer = bufnr, desc = "Detach all buffers from client" })
+vim.keymap.set("n", "<LocalLeader>dbo", function()
+    custom_lsp.detach_others()
+end, { buffer = bufnr, desc = "Detach other buffers from client" })
