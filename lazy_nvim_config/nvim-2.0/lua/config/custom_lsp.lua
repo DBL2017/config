@@ -1,10 +1,10 @@
 -- 定义语言服务器
 M.lsp_servers = {
     clangd = {
-        filetypes = { "c", "cpp", "objc", "objcpp", "h", "hpp" },
-        root_markers = { "compile_commands.json", ".git", "CMakeLists.txt" },
         config = {
             name = "clangd",
+            filetypes = { "c", "cpp", "objc", "objcpp", "h", "hpp" },
+            root_markers = { "compile_commands.json", ".git", "CMakeLists.txt" },
             cmd = {
                 "clangd",
                 "--background-index",
@@ -31,10 +31,10 @@ M.lsp_servers = {
         },
     },
     lua_ls = {
-        filetypes = { "lua" },
-        root_markers = { "stylua.toml", ".git" },
         config = {
             name = "lua-language-server",
+            filetypes = { "lua" },
+            root_markers = { "stylua.toml", ".git" },
             cmd = {
                 "lua-language-server",
             },
@@ -58,10 +58,10 @@ M.lsp_servers = {
         },
     },
     bashls = {
-        filetypes = { "bash", "sh" },
-        root_markers = { ".git" },
         config = {
             name = "bash-language-server",
+            filetypes = { "bash", "sh" },
+            root_markers = { ".git" },
             cmd = {
                 "bash-language-server",
                 "start",
@@ -74,21 +74,21 @@ M.lsp_servers = {
         },
     },
     pyright = {
-        filetypes = {
-            "python",
-            "py",
-        },
-        root_markers = {
-            "pyproject.toml",
-            "setup.py",
-            "setup.cfg",
-            "requirements.txt",
-            "Pipfile",
-            "pyrightconfig.json",
-            ".git",
-        },
         config = {
             name = "pyright-langserver",
+            filetypes = {
+                "python",
+                "py",
+            },
+            root_markers = {
+                "pyproject.toml",
+                "setup.py",
+                "setup.cfg",
+                "requirements.txt",
+                "Pipfile",
+                "pyrightconfig.json",
+                ".git",
+            },
             cmd = { "pyright-langserver", "--stdio" },
             settings = {
                 python = {
@@ -159,7 +159,7 @@ M.tracker = {
 function M.get_lsp_for_filetype(filetype)
     local ft = filetype or vim.bo.filetype
     for server_name, server_config in pairs(M.lsp_servers) do
-        if vim.tbl_contains(server_config.filetypes, ft) then
+        if vim.tbl_contains(server_config.config.filetypes, ft) then
             return server_name
         end
     end
@@ -233,17 +233,42 @@ function M.attach_buffer(bufnr)
     end
 
     -- 获取当前文件的合理根目录
-    local root_markers = M.lsp_servers[server_name].root_markers
+    local root_markers = M.lsp_servers[server_name].config.root_markers
     local root_dir = vim.fs.dirname(
         vim.fs.find(root_markers, { upward = true, path = vim.fn.expand("%:p:h") })[1] or vim.fn.getcwd()
+    )
+    local buf_path = vim.api.nvim_buf_get_name(bufnr)
+    if buf_path == "" then
+        vim.notify("Buffer has no file path", vim.log.levels.WARN)
+        return false
+    end
+    local root_dir = vim.fs.dirname(
+        vim.fs.find(root_markers, { upward = true, path = vim.fs.dirname(buf_path) })[1] or vim.fn.getcwd()
     )
 
     -- 检查是否已存在可复用的客户端
     for _, client in ipairs(vim.lsp.get_clients({ name = server_name })) do
         if client.config.root_dir == root_dir then
-            vim.lsp.buf_attach_client(bufnr, client.id)
-            M.tracker:register(client, bufnr)
-            vim.notify("Attached to existing LSP client", vim.log.levels.INFO)
+            -- 检查客户端是否支持当前buffer的文件类型
+            local supported_filetypes = server_config.config.filetypes or {}
+            local is_supported = false
+
+            -- 如果客户端没有指定filetypes，假设它支持所有
+            if #supported_filetypes == 0 then
+                is_supported = true
+            else
+                for _, ft in ipairs(supported_filetypes) do
+                    if ft == filetype then
+                        is_supported = true
+                        break
+                    end
+                end
+            end
+            if is_supported then
+                vim.lsp.buf_attach_client(bufnr, client.id)
+                M.tracker:register(client, bufnr)
+                vim.notify("Attached to existing LSP client", vim.log.levels.INFO)
+            end
             return true
         end
     end
@@ -274,10 +299,11 @@ function M.attach_buffer(bufnr)
     end
 
     -- 启动LSP
-    local client_id = vim.lsp.start(config)
+    -- 解决多个不同文件类型的buffer，最后一次启动的lsp client会附加所有buffer的问题
+    local client_id = vim.lsp.start(config, { bufnr = bufnr })
     if client_id then
         -- 将新客户端附加到当前buffer
-        vim.lsp.buf_attach_client(bufnr, client_id)
+        -- vim.lsp.buf_attach_client(bufnr, client_id)
         vim.notify("Started new LSP client and attached", vim.log.levels.INFO)
         return true
     else
@@ -326,7 +352,6 @@ function M.attach_all()
         results.skipped
     )
     vim.notify(message, vim.log.levels.INFO)
-
     return results
 end
 
