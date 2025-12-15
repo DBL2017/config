@@ -364,6 +364,10 @@ _G.set_gitsign_keymap = function(bufnr)
     vim.keymap.set("n", "<LocalLeader>bs", function()
         require("gitsigns").stage_buffer()
     end, { buffer = bufnr, desc = "Stage buffer" })
+    -- buffer stage
+    vim.keymap.set("n", "<LocalLeader>br", function()
+        require("gitsigns").reset_buffer()
+    end, { buffer = bufnr, desc = "Reset buffer" })
     -- buffer blame
     vim.keymap.set("n", "<LocalLeader>gb", function()
         require("gitsigns").blame()
