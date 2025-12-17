@@ -23,7 +23,7 @@ return {
             },
             attach_to_untracked = true,
             -- blame性能太低，在大项目中导致git cpu占用率太高
-            current_line_blame = true, -- Toggle with `:Gitsigns toggle_current_line_blame`
+            current_line_blame = false, -- Toggle with `:Gitsigns toggle_current_line_blame`
             current_line_blame_opts = {
                 virt_text = true,
                 virt_text_pos = "eol", -- 'eol' | 'overlay' | 'right_align'
