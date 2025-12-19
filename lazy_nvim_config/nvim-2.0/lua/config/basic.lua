@@ -174,7 +174,8 @@ vim.go.swapfile = true
 -- 允许 Neovim 自动检测外部更改（如其他编辑器修改文件）
 vim.opt.autoread = true
 -- 设置swap文件位置
-vim.go.directory = vim.fn.expand("~/.nvim/swapfiles//")
+-- vim.go.directory = vim.fn.expand("~/.nvim/swapfiles//")
+vim.go.directory = "."
 
 -- 该值指定tab line是否被显示，2表示总是显示
 vim.go.showtabline = 2
