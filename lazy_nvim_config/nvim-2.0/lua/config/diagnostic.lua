@@ -28,9 +28,14 @@ vim.diagnostic.config({
                 [vim.diagnostic.severity.INFO] = "",
                 [vim.diagnostic.severity.HINT] = "",
             }
-            return string.format("%s  %s", icons[diagnostic.severity] or icons_bak[diagnostic.severity], diagnostic.message)
+            return string.format(
+                "%s  [%s] %s",
+                icons[diagnostic.severity] or icons_bak[diagnostic.severity],
+                diagnostic.source,
+                diagnostic.message
+           )
         end,
-	-- 移除前面的黑框
+        -- 移除前面的黑框
         prefix = "",
         -- 位置和样式
         virt_text_pos = "eol", -- 右对齐（看起来像行尾）
@@ -38,9 +43,11 @@ vim.diagnostic.config({
         hl_mode = "combine",
     },
     severity_sort = true,
-    signs = {
-        severity = { min = vim.diagnostic.severity.HINT },
-    },
+    -- 该符号列会和gitsigns的符号列冲突
+    signs = false,
+    -- signs = {
+    --     severity = { min = vim.diagnostic.severity.HINT },
+    -- },
     float = {
         scope = "line",
         severity_sort = true,
