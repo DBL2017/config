@@ -5,10 +5,21 @@ return {
         require("conform").setup({
             -- Map of filetype to formatters
             formatters_by_ft = {
-                lua = { "custom_stylua" },
-                c = { "clang-format" },
-                cpp = { "clang-format" },
-
+                lua = function(bufnr)
+                    if require("conform").get_formatter_info("stylua", bufnr).available then
+                        return { "custom_stylua" }
+                    end
+                end,
+                c = function(bufnr)
+                    if require("conform").get_formatter_info("clang-format", bufnr).available then
+                        return { "custom_cpp" }
+                    end
+                end,
+                cpp = function(bufnr)
+                    if require("conform").get_formatter_info("clang-format", bufnr).available then
+                        return { "custom_cpp" }
+                    end
+                end,
                 -- Conform will run multiple formatters sequentially
                 -- go = { "goimports", "gofmt" },
                 -- Use a sub-list to run only the first available formatter
@@ -18,7 +29,7 @@ return {
                 python = function(bufnr)
                     return { "black" }
                 end,
-                sh = function()
+                sh = function(bufnr)
                     if require("conform").get_formatter_info("beautysh", bufnr).available then
                         return { "custom_sh" }
                     end
@@ -36,7 +47,11 @@ return {
                 end,
                 markdown = { "markdownlint" },
                 tex = { "latexindent" },
-                xml = { "custom_xml" },
+                xml = function(bufnr)
+                    if require("conform").get_formatter_info("xmlformat", bufnr).available then
+                        return { "custom_xml" }
+                    end
+                end,
                 -- Use the "*" filetype to run formatters on all filetypes.
                 -- ["*"] = { "codespell" },
                 -- Use the "_" filetype to run formatters on filetypes that don't
@@ -97,6 +112,31 @@ return {
                         "paronly",
                         "-",
                     },
+                    stdin = true,
+                },
+                custom_cpp = {
+                    command = "clang-format",
+                    args = function(self, ctx)
+                        -- 动态构建参数
+                        local args = { "--style=file" }
+
+                        -- 如果有配置文件，使用它
+                        local config_file = vim.fn.findfile(".clang-format", ".;")
+                        if config_file ~= "" then
+                            -- 使用项目中的配置文件
+                            args = { "--style=file:" .. config_file }
+                        else
+                            -- 使用全局配置文件
+                            local global_config = vim.fn.expand("~/.clang-format")
+                            if vim.fn.filereadable(global_config) == 1 then
+                                args = { "--style=file:" .. global_config }
+                            end
+                        end
+                        -- 添加其他参数
+                        table.insert(args, "--assume-filename=" .. ctx.filename)
+                        table.insert(args, "--verbose")
+                        return args
+                    end,
                     stdin = true,
                 },
                 custom_xml = {

@@ -33,7 +33,7 @@ vim.diagnostic.config({
                 icons[diagnostic.severity] or icons_bak[diagnostic.severity],
                 diagnostic.source,
                 diagnostic.message
-           )
+            )
         end,
         -- 移除前面的黑框
         prefix = "",
