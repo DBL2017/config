@@ -292,8 +292,8 @@ function M.attach_buffer(bufnr)
     -- 设置回调
     config.on_attach = function(client, attached_bufnr)
         M.tracker:register(client, attached_bufnr)
-	-- 这里增加快捷键的作用在于buffer内部跳转
-        local bufopts = { noremap = true, silent = true, buffer = attached_bufnr}
+        -- 这里增加快捷键的作用在于buffer内部跳转
+        local bufopts = { noremap = true, silent = true, buffer = attached_bufnr }
         vim.keymap.set("n", "gD", vim.lsp.buf.declaration, bufopts)
         vim.keymap.set("n", "gd", vim.lsp.buf.definition, bufopts)
     end

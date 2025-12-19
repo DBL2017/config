@@ -331,8 +331,13 @@ _G.set_gitsign_keymap = function(bufnr)
             return "]c"
         end
         vim.schedule(function()
-            require("gitsigns").nav_hunk("next", { preview = true })
+            require("gitsigns").nav_hunk("next", { preview = true, target = "all" })
         end)
+        -- 延迟一小段时间后执行居中
+        --  -- 使用 feedkeys 模拟按键
+        vim.defer_fn(function()
+            vim.cmd("normal! zz")
+        end, 10) -- 10ms延迟
         return "<Ignore>"
     end, { expr = true, buffer = bufnr, desc = "Jump next diff" })
     vim.keymap.set("n", "[c", function()
@@ -343,8 +348,13 @@ _G.set_gitsign_keymap = function(bufnr)
         vim.schedule(function()
             require("gitsigns").nav_hunk("prev", {
                 preview = true,
+                target = "all",
             })
         end)
+        -- 延迟一小段时间后执行居中
+        vim.defer_fn(function()
+            vim.cmd("normal! zz")
+        end, 10) -- 10ms延迟
         return "<Ignore>"
     end, { expr = true, buffer = bufnr, desc = "Jump prev diff" })
 
