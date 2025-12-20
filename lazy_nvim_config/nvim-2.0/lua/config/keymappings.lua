@@ -25,13 +25,20 @@ vim.keymap.set("n", "N", "Nzz", { silent = true })
 vim.keymap.set("v", "<LocalLeader>of", custom_function.open_selected_file, { desc = "Open file" })
 
 -- 扩展复制
-vim.keymap.set({ "n", "x" }, "<LocalLeader>yy", custom_function.copy_with_metadata, {
-    desc = "复制带文件名和行号的内容",
-})
-vim.keymap.set({ "n", "x" }, "<LocalLeader>yf", function()
-    custom_function.copy_with_metadata(true)
+vim.keymap.set({ "n", "x" }, "<LocalLeader>yy", function()
+    custom_function.copy_with_metadata(0)
 end, {
     desc = "Copy with filename and linenu",
+})
+vim.keymap.set({ "n", "x" }, "<LocalLeader>yf", function()
+    custom_function.copy_with_metadata(1)
+end, {
+    desc = "Copy with fullpath filename and linenu",
+})
+vim.keymap.set({ "n", "x" }, "<LocalLeader>yr", function()
+    custom_function.copy_with_metadata(2)
+end, {
+    desc = "Copy with relative filename and linenu",
 })
 -- 获取当前文件所在的路径名
 vim.keymap.set("n", "<LocalLeader>yp", custom_function.copy_current_filepath, {

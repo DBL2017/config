@@ -78,8 +78,31 @@ end
 M.git_diff_with_commit_sha = git_diff_with_commit_sha
 
 -- 复制内容并附加文件名与行号
-local function copy_with_metadata(is_full_path)
-    local buf_name = is_full_path and vim.fn.expand("%:p") or vim.fn.expand("%:t") -- 获取当前文件名（不含路径）
+-- path_type:
+-- 0 仅文件名
+-- 1 绝对路径
+-- 2 相对路径
+local function copy_with_metadata(path_type)
+    local file_name = vim.fn.expand("%:t")
+    local file_full_name = vim.fn.expand("%:p")
+
+    local buf_name = file_full_name -- 默认值
+
+    if path_type == 0 then
+        buf_name = file_name
+    elseif path_type == 1 then
+        buf_name = file_full_name
+    else
+        -- 获取当前文件的合理根目录
+        local root_markers = { ".git" }
+        local root_dir = vim.fs.dirname(vim.fs.find(root_markers, { upward = true, path = vim.fn.expand("%:p:h") })[1])
+        if string.sub(file_full_name, 0, #root_dir) == root_dir then
+            buf_name = string.sub(file_full_name, #root_dir + 2)
+        else
+            buf_name = file_full_name
+        end
+    end
+    --
     local lines = {}
 
     -- 获取选区行号范围
