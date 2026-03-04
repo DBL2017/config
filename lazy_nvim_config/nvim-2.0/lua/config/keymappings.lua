@@ -218,6 +218,10 @@ if telescope_ok then
     end, { silent = true, desc = "Lists available help tags" })
 
     vim.keymap.set("n", "tfg", function()
+        require("telescope.builtin").grep_string({ cwd = vim.fn.expand("%:p:h") })
+    end, { silent = true, desc = "Searches for the string under your cursor in your current working directory" })
+
+    vim.keymap.set("n", "tff", function()
         require("telescope.builtin").live_grep({ cwd = vim.fn.expand("%:p:h") })
     end, { silent = true, desc = "Search for a string and get results live as you type" })
 

@@ -187,3 +187,26 @@ autocmd({ "VimLeave" }, {
 --     end,
 -- })
 
+-- 基于文件类型设置是否将tab转为space，以及tab的占位符大小
+autocmd("FileType", {
+    pattern = {
+        "cpp",
+        "c",
+    },
+    callback = function()
+        -- tab转空格
+        vim.bo.expandtab = false
+        -- tab占位符的宽度，不修改键入tab时的行为，可用来格式化对齐
+        vim.o.tabstop = 8
+        -- 键入tab时插入的空格数
+        vim.o.softtabstop = 4
+        vim.bo.softtabstop = 4
+        -- 由于tabstop==4，即tab占用4个字符长度；softtabstop==4，因此键入tab时插入4个空格。
+        -- 如果expandtab==true, tabstop==8 and softtabstop==4，那么第一次键入tab会插入4个空格，第二次键入tab继续插入4个空格。
+        -- 如果expandtab==false, tabstop==8 and softtabstop==4，那么第一次键入tab会插入4个空格，第二次键入tab会替换之前空格为tab键（8）。
+        -- 上面这些仅在行内生效，行首会被当作缩进处理，受限于shiftwidth的配置
+        -- 在行首键入tab时会受到shiftwidth的影响
+        -- 缩进时的空格数量
+        vim.o.shiftwidth = 4
+    end,
+})

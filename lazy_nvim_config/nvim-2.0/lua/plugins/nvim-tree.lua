@@ -39,6 +39,14 @@ return {
                 highlight_clipboard = "name",
                 indent_markers = {
                     enable = true,
+                    inline_arrows = true,
+                    icons = {
+                        corner = "└",
+                        edge = "│",
+                        item = "│",
+                        bottom = "─",
+                        none = " ",
+                    },
                 },
                 --[[ 使用图标的前提是要修复相应字体中的图标，可以安装nerd-font ]]
                 icons = {
@@ -53,17 +61,28 @@ return {
                 git_clean = false,
                 no_buffer = false,
                 no_bookmark = false,
-                custom = {},
+                custom = { ".swp" },
                 exclude = {},
             },
 
             update_focused_file = {
+                -- 自动聚焦当前文件
                 enable = true,
                 update_root = {
-                    enable = true,
+                    -- 不更新根目录，此时可能会出现多级目录
+                    enable = false,
                     ignore_list = {},
                 },
                 exclude = false,
+            },
+
+            git = {
+                enable = false,
+                show_on_dirs = true,
+                show_on_open_dirs = true,
+                disable_for_dirs = {},
+                timeout = 400,
+                cygwin_support = false,
             },
             tab = {
                 sync = {

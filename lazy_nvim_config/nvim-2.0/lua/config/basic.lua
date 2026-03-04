@@ -18,7 +18,7 @@ vim.g.autoread = true
 vim.g.showmatch = false
 
 -- tab转空格
-vim.bo.expandtab = false
+vim.bo.expandtab = true
 
 -- tab占位符的宽度，不修改键入tab时的行为，可用来格式化对齐
 vim.o.tabstop = 8
