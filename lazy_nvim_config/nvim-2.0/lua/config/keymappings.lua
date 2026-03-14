@@ -101,30 +101,27 @@ end, {
 
 -- tab快捷键
 -- Move to previous/next
-vim.keymap.set("n", "<A-,>", "<cmd>tabprevious<CR>", { silent = true, desc = "tabprevious" })
-vim.keymap.set("n", "<A-.>", "<cmd>tabnext<CR>", { silent = true, desc = "tabnext" })
+vim.keymap.set({ "n" }, "<A-,>", "<cmd>tabprevious<CR>", { silent = true, desc = "tabprevious" })
+vim.keymap.set({ "n" }, "<A-.>", "<cmd>tabnext<CR>", { silent = true, desc = "tabnext" })
 -- Re-order to previous/next
-vim.keymap.set("n", "<A-Left>", "<cmd>-tabmove<CR>", { silent = true, desc = "-tabmove" })
-vim.keymap.set("n", "<A-Right>", "<cmd>+tabmove<CR>", { silent = true, desc = "+tabmove" })
+vim.keymap.set({ "n" }, "<A-Left>", "<cmd>-tabmove<CR>", { silent = true, desc = "-tabmove" })
+vim.keymap.set({ "n" }, "<A-Right>", "<cmd>+tabmove<CR>", { silent = true, desc = "+tabmove" })
 -- Close buffer
-vim.keymap.set("n", "<A-c>", "<cmd>tabclose<CR>", { silent = true, desc = "tabclose" })
-vim.keymap.set("t", "<A-c>", "<cmd>q!<CR>", { silent = true, desc = "q!" })
+vim.keymap.set({ "n" }, "<A-c>", "<cmd>tabclose<CR>", { silent = true, desc = "tabclose" })
 -- tab
-vim.keymap.set("n", "<LocalLeader>ta", "<cmd>$tabnew<CR>", { silent = true, desc = "$tabnew" })
-vim.keymap.set("n", "<LocalLeader>tc", "<cmd>tabclose<CR>", { silent = true, desc = "tabclose" })
-vim.keymap.set("n", "<LocalLeader>to", "<cmd>tabonly<CR>", { silent = true, desc = "tabonly" })
-vim.keymap.set("n", "<LocalLeader>tn", "<cmd>tabn<CR>", { silent = true, desc = "tabn" })
-vim.keymap.set("n", "<LocalLeader>tp", "<cmd>tabp<CR>", { silent = true, desc = "tabp" })
-vim.keymap.set("n", "<A-0>", "<cmd>tablast<CR>", { silent = true, desc = "tablast" })
-vim.keymap.set("n", "<A-1>", "<cmd>tabnext 1<CR>", { silent = true, desc = "tabnext 1" })
-vim.keymap.set("n", "<A-2>", "<cmd>tabnext 2<CR>", { silent = true, desc = "tabnext 2" })
-vim.keymap.set("n", "<A-3>", "<cmd>tabnext 3<CR>", { silent = true, desc = "tabnext 3" })
-vim.keymap.set("n", "<A-4>", "<cmd>tabnext 4<CR>", { silent = true, desc = "tabnext 4" })
-vim.keymap.set("n", "<A-5>", "<cmd>tabnext 5<CR>", { silent = true, desc = "tabnext 5" })
-vim.keymap.set("n", "<A-6>", "<cmd>tabnext 6<CR>", { silent = true, desc = "tabnext 6" })
-vim.keymap.set("n", "<A-7>", "<cmd>tabnext 7<CR>", { silent = true, desc = "tabnext 7" })
-vim.keymap.set("n", "<A-8>", "<cmd>tabnext 8<CR>", { silent = true, desc = "tabnext 8" })
-vim.keymap.set("n", "<A-9>", "<cmd>tabnext 9<CR>", { silent = true, desc = "tabnext 9" })
+vim.keymap.set({ "n" }, "<A-n>", "<cmd>$tabnew<CR>", { silent = true, desc = "$tabnew" })
+vim.keymap.set({ "n" }, "<A-o>", "<cmd>tabonly<CR>", { silent = true, desc = "tabonly" })
+
+vim.keymap.set({ "n" }, "<A-0>", "<cmd>tablast<CR>", { silent = true, desc = "tablast" })
+vim.keymap.set({ "n" }, "<A-1>", "<cmd>tabnext 1<CR>", { silent = true, desc = "tabnext 1" })
+vim.keymap.set({ "n" }, "<A-2>", "<cmd>tabnext 2<CR>", { silent = true, desc = "tabnext 2" })
+vim.keymap.set({ "n" }, "<A-3>", "<cmd>tabnext 3<CR>", { silent = true, desc = "tabnext 3" })
+vim.keymap.set({ "n" }, "<A-4>", "<cmd>tabnext 4<CR>", { silent = true, desc = "tabnext 4" })
+vim.keymap.set({ "n" }, "<A-5>", "<cmd>tabnext 5<CR>", { silent = true, desc = "tabnext 5" })
+vim.keymap.set({ "n" }, "<A-6>", "<cmd>tabnext 6<CR>", { silent = true, desc = "tabnext 6" })
+vim.keymap.set({ "n" }, "<A-7>", "<cmd>tabnext 7<CR>", { silent = true, desc = "tabnext 7" })
+vim.keymap.set({ "n" }, "<A-8>", "<cmd>tabnext 8<CR>", { silent = true, desc = "tabnext 8" })
+vim.keymap.set({ "n" }, "<A-9>", "<cmd>tabnext 9<CR>", { silent = true, desc = "tabnext 9" })
 
 -- 禁用方向键
 -- vim.keymap.set("n", "<Left>", "<NOP>", {silent=true,desc=""})
@@ -230,7 +227,7 @@ if telescope_ok then
     end, { silent = true, desc = "Lists open buffers in current neovim instance" })
 
     vim.keymap.set("n", "tgd", function()
-        require("telescope.builtin").lsp_definitions()
+        require("telescope.builtin").lsp_definitions({ jump_type = "never" })
     end, { silent = true, desc = "Goto the definition of the word under the cursor" })
 
     vim.keymap.set("n", "tlr", function()
@@ -238,8 +235,19 @@ if telescope_ok then
     end, { silent = true, desc = "Lists LSP references for word under the cursor" })
 
     vim.keymap.set("n", "tcs", function()
-        require("telescope.builtin").colorscheme()
-    end, { silent = true, desc = "Change colorscheme" })
+        require("telescope.builtin").colorscheme({ enable_preview = true })
+    end, { silent = true, desc = "Change colorscheme and preview" })
+
+    vim.keymap.set("n", "tgc", function()
+        require("telescope.builtin").git_commits()
+    end, { silent = true, desc = "Lists commits for current directory with diff preview" })
+
+    vim.keymap.set("n", "tic", function()
+        require("telescope.builtin").lsp_incoming_calls()
+    end, { silent = true, desc = "Lists LSP incoming calls for word under the cursor, jumps to reference on" })
+    vim.keymap.set("n", "toc", function()
+        require("telescope.builtin").lsp_outgoing_calls()
+    end, { silent = true, desc = "Lists LSP outgoing calls for word under the cursor, jumps to reference on" })
 end
 
 -- FzfLua
@@ -252,7 +260,8 @@ if fzflua_ok then
     vim.keymap.set("n", "fli", "<cmd>FzfLua lsp_implementations<CR>", { silent = true, desc = "Implementations" })
     vim.keymap.set("n", "flt", "<cmd>FzfLua lsp_typedefs<CR>", { silent = true, desc = "Type definitions" })
     vim.keymap.set("n", "fca", "<cmd>FzfLua code_action<CR>", { silent = true, desc = "Code actions" })
-    vim.keymap.set("n", "fch", "<cmd>FzfLua lsp_incoming_calls<CR>", { silent = true, desc = "Show incomming calls" })
+    vim.keymap.set("n", "fic", "<cmd>FzfLua lsp_incoming_calls<CR>", { silent = true, desc = "Show incomming calls" })
+    vim.keymap.set("n", "foc", "<cmd>FzfLua lsp_outgoing_calls<CR>", { silent = true, desc = "Show outgoging calls" })
 
     vim.keymap.set("n", "fgc", "<cmd>FzfLua git_commits<CR>", { silent = true, desc = "Git commit log(project)" })
     vim.keymap.set("n", "fgb", "<cmd>FzfLua git_bcommits<CR>", { silent = true, desc = "Git commit log(buffer)" })

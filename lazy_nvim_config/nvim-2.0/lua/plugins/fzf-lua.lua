@@ -48,6 +48,7 @@ return {
                     scrolloff = "-2", -- float scrollbar offset from right
                     -- applies only when scrollbar = 'float'
                     scrollchars = { "█", "" }, -- scrollbar chars ({ <full>, <empty> }
+                    scrollspeed = 5,
                     -- applies only when scrollbar = 'border'
                     delay = 100, -- delay(ms) displaying the preview
                     -- prevents lag on fast scrolling

@@ -30,6 +30,8 @@ return {
                 layout_config = {
                     height = 0.99,
                     width = 0.99,
+		    -- 预览内容一次滚动5行，默认为半屏
+                    scroll_speed = 5,
                     preview_width = 0.5, -- 预览窗口宽度比例（横向布局时生效）
                     preview_cutoff = 80, -- 预览窗口最小宽度（字符数），超过则自动隐藏
                     horizontal = { -- 横向布局时的专属配置
