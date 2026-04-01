@@ -1,6 +1,6 @@
 -- 行号
 vim.wo.number = true
-vim.wo.relativenumber = false
+vim.wo.relativenumber = true
 
 -- 字符编码 终端显示编码
 -- vim.g.encoding = "UTF-8"
@@ -37,9 +37,6 @@ vim.o.shiftwidth = 4
 -- 自动缩进
 vim.bo.autoindent = true
 vim.bo.smartindent = true
-
--- 总是显示标签栏
-vim.g.showtabline = 2
 
 -- 缓冲区更新时间
 vim.g.updatetime = 100

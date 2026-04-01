@@ -54,13 +54,13 @@ local function fill_template(template_path, replacements)
                 local line_text =
                     vim.api.nvim_buf_get_lines(vim.api.nvim_get_current_buf(), brief_line - 1, brief_line, false)[1]
                 -- vim.notify("line_text" .. line_text)
-                vim.api.nvim_win_set_cursor(win, { 4, #line_text + 1 })
-                vim.api.nvim_feedkeys("a", "n", false) -- 进入插入模式
+                -- vim.api.nvim_win_set_cursor(win, { 4, #line_text + 1 })
+                -- vim.api.nvim_feedkeys("a", "n", false) -- 进入插入模式
             end
         end
     else
         -- 直接跳转到末尾
-        vim.api.nvim_feedkeys("a", "n", false) -- 进入插入模式
+        -- vim.api.nvim_feedkeys("a", "n", false) -- 进入插入模式
         return
     end
 end

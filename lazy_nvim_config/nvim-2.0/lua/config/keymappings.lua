@@ -75,21 +75,21 @@ vim.keymap.set("n", "<LocalLeader>fO", function()
     if not ok then
         vim.notify("insert failed: " .. err, vim.log.levels.ERROR)
     end
-end)
+end, { silent = true, desc = "在当前变量上方插入注释" })
 -- 在当前变量上方插入注释
 vim.keymap.set("n", "<LocalLeader>vO", function()
     local ok, err = pcall(custom_comment.insert_comment, "variable")
     if not ok then
         vim.notify("insert failed: " .. err, vim.log.levels.ERROR)
     end
-end)
+end, { silent = true, desc = "在当前变量上方插入注释" })
 -- 在当前宏上方插入注释
 vim.keymap.set("n", "<LocalLeader>mO", function()
     local ok, err = pcall(custom_comment.insert_comment, "macro")
     if not ok then
         vim.notify("insert failed: " .. err, vim.log.levels.ERROR)
     end
-end)
+end, { silent = true, desc = "在当前宏上方插入注释" })
 
 -- 原生lsp
 vim.keymap.set("n", "<LocalLeader>lr", function()
@@ -109,8 +109,9 @@ vim.keymap.set({ "n" }, "<A-Right>", "<cmd>+tabmove<CR>", { silent = true, desc 
 -- Close buffer
 vim.keymap.set({ "n" }, "<A-c>", "<cmd>tabclose<CR>", { silent = true, desc = "tabclose" })
 -- tab
-vim.keymap.set({ "n" }, "<A-n>", "<cmd>$tabnew<CR>", { silent = true, desc = "$tabnew" })
-vim.keymap.set({ "n" }, "<A-o>", "<cmd>tabonly<CR>", { silent = true, desc = "tabonly" })
+-- 使用LocalLeader的原因防止误操作
+vim.keymap.set({ "n" }, "<LocalLeader>tn", "<cmd>$tabnew<CR>", { silent = true, desc = "$tabnew" })
+vim.keymap.set({ "n" }, "<LocalLeader>to", "<cmd>tabonly<CR>", { silent = true, desc = "tabonly" })
 
 vim.keymap.set({ "n" }, "<A-0>", "<cmd>tablast<CR>", { silent = true, desc = "tablast" })
 vim.keymap.set({ "n" }, "<A-1>", "<cmd>tabnext 1<CR>", { silent = true, desc = "tabnext 1" })
@@ -155,7 +156,7 @@ vim.keymap.set("n", "<space>q", vim.diagnostic.setloclist, { silent = true, desc
 
 vim.keymap.set("n", "<LocalLeader>ac", custom_function.align_column, { silent = true, desc = "Align columns end" })
 
-vim.keymap.set("n", "[[", "[[zz", {
+vim.keymap.set("n", "[[", "[[zt", {
     noremap = true,
     silent = true,
     desc = "跳转到上一个段落并居中",
@@ -368,7 +369,7 @@ _G.set_gitsign_keymap = function(bufnr)
         vim.schedule(function()
             require("gitsigns").nav_hunk("prev", {
                 preview = true,
-                target = "all",
+                target = "unstaged",
             })
         end)
         -- 延迟一小段时间后执行居中
