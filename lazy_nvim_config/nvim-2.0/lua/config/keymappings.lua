@@ -434,3 +434,32 @@ end, { buffer = bufnr, desc = "Detach all buffers from client" })
 vim.keymap.set("n", "<LocalLeader>dbo", function()
     custom_lsp.detach_others()
 end, { buffer = bufnr, desc = "Detach other buffers from client" })
+
+local ts_textobject_ok, ts_textobject_err = pcall(require, "nvim-treesitter-textobjects")
+if ts_textobject_ok then
+    -- nvim-treesitter-textobject
+    -- -- 快捷键映射
+    vim.keymap.set("n", "]f", function()
+        require("nvim-treesitter-textobjects.move").goto_next_start("@function.outer")
+    end, { desc = "Next function" })
+
+    vim.keymap.set("n", "[f", function()
+        require("nvim-treesitter-textobjects.move").goto_previous_start("@function.outer")
+    end, { desc = "Previous function" })
+
+    vim.keymap.set("n", "]i", function()
+        require("nvim-treesitter-textobjects.move").goto_next_start("@conditional.outer")
+    end, { desc = "Next if statement" })
+
+    vim.keymap.set("n", "[i", function()
+        require("nvim-treesitter-textobjects.move").goto_previous_start("@conditional.outer")
+    end, { desc = "Previous if statement" })
+
+    -- You can use the capture groups defined in `textobjects.scm`
+    vim.keymap.set({ "x", "o" }, "af", function()
+        require("nvim-treesitter-textobjects.select").select_textobject("@function.outer", "textobjects")
+    end)
+    vim.keymap.set({ "x", "o" }, "if", function()
+        require("nvim-treesitter-textobjects.select").select_textobject("@function.inner", "textobjects")
+    end)
+end

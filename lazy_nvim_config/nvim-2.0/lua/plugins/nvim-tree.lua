@@ -113,6 +113,9 @@ return {
                 },
                 open_file = {
                     quit_on_open = true,
+                    window_picker = {
+                        enable = false,
+                    },
                 },
                 remove_file = {
                     close_window = true,
