@@ -207,9 +207,9 @@ if telescope_ok then
         require("telescope.builtin").find_files()
     end, { silent = true, desc = "Search for files" })
 
-    vim.keymap.set("n", "tfr", function()
-        require("telescope.builtin").oldfiles()
-    end, { silent = true, desc = "Lists previously open files" })
+    -- vim.keymap.set("n", "tfr", function()
+    --     require("telescope.builtin").oldfiles()
+    -- end, { silent = true, desc = "Lists previously open files" })
 
     vim.keymap.set("n", "tfh", function()
         require("telescope.builtin").help_tags()
@@ -227,9 +227,28 @@ if telescope_ok then
         require("telescope.builtin").buffers()
     end, { silent = true, desc = "Lists open buffers in current neovim instance" })
 
+    vim.keymap.set("n", "tft", function()
+        require("telescope.builtin").treesitter()
+    end, {
+        silent = true,
+        desc = "Lists function names, variables, and other symbols from treesitter queries",
+    })
+
     vim.keymap.set("n", "tgd", function()
         require("telescope.builtin").lsp_definitions({ jump_type = "never" })
     end, { silent = true, desc = "Goto the definition of the word under the cursor" })
+
+    vim.keymap.set("n", "tgb", function()
+        require("telescope.builtin").git_branches({ jump_type = "never" })
+    end, { silent = true, desc = "List branches for current directory, shown in the preview window" })
+
+    vim.keymap.set("n", "tgc", function()
+        require("telescope.builtin").git_commits({ jump_type = "never" })
+    end, { silent = true, desc = "List commits for current directory with diff preview" })
+
+    vim.keymap.set("n", "tbc", function()
+        require("telescope.builtin").git_bcommits({ jump_type = "never" })
+    end, { silent = true, desc = "Lists commits for current buffer with diff preview" })
 
     vim.keymap.set("n", "tlr", function()
         require("telescope.builtin").lsp_references()
@@ -461,5 +480,8 @@ if ts_textobject_ok then
     end)
     vim.keymap.set({ "x", "o" }, "if", function()
         require("nvim-treesitter-textobjects.select").select_textobject("@function.inner", "textobjects")
+    end)
+    vim.keymap.set({ "x", "o" }, "ai", function()
+        require("nvim-treesitter-textobjects.select").select_textobject("@conditional.outer", "textobjects")
     end)
 end

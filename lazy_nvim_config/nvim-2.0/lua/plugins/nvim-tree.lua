@@ -112,7 +112,8 @@ return {
                     },
                 },
                 open_file = {
-                    quit_on_open = true,
+                    --[[ 打开文件后不自动关闭 ]]
+                    quit_on_open = false,
                     window_picker = {
                         enable = false,
                     },

@@ -210,3 +210,24 @@ autocmd("FileType", {
         vim.o.shiftwidth = 4
     end,
 })
+
+-- 在 treesitter-context 设置后添加
+local function refresh_context()
+    local ok, ctx = pcall(require, "treesitter-context")
+    if ok then
+        ctx.enable()
+    end
+end
+
+-- 解决切换tab时nvim-treesitter-context失效的问题
+vim.api.nvim_create_autocmd({
+    "TabEnter",
+    "BufEnter",
+    "WinEnter",
+    -- "CursorMoved",
+    -- "CursorMovedI",
+}, {
+    pattern = "*",
+    callback = refresh_context,
+    desc = "Refresh treesitter context",
+})
