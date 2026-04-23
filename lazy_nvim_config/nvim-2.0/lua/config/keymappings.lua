@@ -171,7 +171,47 @@ vim.keymap.set("n", "[[", "[[zt", {
 -- 格式化
 local conform_ok, conform_err = pcall(require, "conform")
 if conform_ok then
-    vim.keymap.set({ "n", "v" }, "<space>f", require("conform").format, { desc = "Format current buffer" })
+    -- vim.keymap.set({ "n", "v" }, "<space>f", require("conform").format, { desc = "Format current buffer" })
+    -- 快捷键配置
+    vim.keymap.set({ "n", "v" }, "<space>f", function(args)
+        local mode = vim.api.nvim_get_mode().mode
+
+        if mode == "v" or mode == "V" then
+            -- 用 getpos 获取可视选区起止：{bufnum, lnum, col, off}
+            local vpos = vim.fn.getpos("v") -- {buf, lnum, col, off}
+            local cpos = vim.fn.getpos(".") -- {buf, lnum, col, off}
+
+            local srow, erow = vpos[2], cpos[2]
+
+            if srow > erow then
+                srow, erow = erow, srow
+            end
+
+            -- 取结束行长度作为“行末列”
+            local end_line = vim.api.nvim_buf_get_lines(0, erow - 1, erow, true)[1] or ""
+            local end_col = #end_line
+
+            local range = {
+                start = { srow - 1, 0 },
+                ["end"] = { erow - 1, end_col },
+            }
+
+            -- print("格式化范围:", vim.inspect(range))
+
+            require("conform").format({
+                lsp_fallback = true,
+                async = false,
+                timeout_ms = 5000,
+                range = range,
+            })
+        else -- 普通模式（格式化整个文件）
+            require("conform").format({
+                lsp_fallback = true,
+                async = false,
+                timeout_ms = 5000,
+            })
+        end
+    end, { desc = "格式化文件或选中区域" })
 end
 
 -- 文件树
