@@ -9,16 +9,19 @@ return {
                     if require("conform").get_formatter_info("stylua", bufnr).available then
                         return { "custom_stylua" }
                     end
+                    return {}
                 end,
                 c = function(bufnr)
                     if require("conform").get_formatter_info("clang-format", bufnr).available then
                         return { "custom_cpp" }
                     end
+                    return {}
                 end,
                 cpp = function(bufnr)
                     if require("conform").get_formatter_info("clang-format", bufnr).available then
                         return { "custom_cpp" }
                     end
+                    return {}
                 end,
                 -- Conform will run multiple formatters sequentially
                 -- go = { "goimports", "gofmt" },
@@ -39,11 +42,13 @@ return {
                     -- else
                     -- 	return { "beautysh" }
                     -- end
+                    return {}
                 end,
                 json = function(bufnr)
                     if require("conform").get_formatter_info("jq", bufnr).available then
                         return { "custom_json" }
                     end
+                    return {}
                 end,
                 markdown = { "markdownlint" },
                 tex = { "latexindent" },
@@ -51,6 +56,7 @@ return {
                     if require("conform").get_formatter_info("xmlformat", bufnr).available then
                         return { "custom_xml" }
                     end
+                    return {}
                 end,
                 -- Use the "*" filetype to run formatters on all filetypes.
                 -- ["*"] = { "codespell" },
