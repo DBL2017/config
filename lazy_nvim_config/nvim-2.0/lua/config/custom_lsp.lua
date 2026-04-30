@@ -11,6 +11,7 @@ M.lsp_servers = {
                 "--completion-style=detailed",
                 "--function-arg-placeholders",
                 "--header-insertion=never",
+                "--clang-tidy",
             }, -- 添加常用参数
             init_options = {
                 clangdFileStatus = true, -- 显示文件状态

@@ -1,0 +1,23 @@
+CompileFlags:
+  CompilationDatabse: compile_commands.json
+  Add: [-Wall, -Wextra, -Wpedantic, -Wunused]
+
+Diagnostics:
+  UnusedIncludes: Strict
+  MissingIncludes: Error
+  ClangTidy:
+    Add: [
+      "misc-*",
+      "readability-*",
+    ]
+    Remove: [
+      "google-*",
+      "abseil-*",
+      "android-*",
+      "fuchsia-*",
+    ]
+    CheckOptions:
+      misc-unused-parameters.WarnOnUnusedParameters: true
+
+If:
+  PathMatch: .*\.(cpp|cxx|cc|c|h|hpp)$

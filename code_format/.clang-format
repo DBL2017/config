@@ -1,164 +1,190 @@
----
-# Clang format for draco component
-BasedOnStyle: Google
----
-Language: Cpp
-Standard: Cpp11
-# 4 space indentation
-UseTab: Never
+# 默认风格，用于设置下面为自定义的选项
+# 可取值：LLVM，Google，Chromium，Mozilla，WebKit，GNU，InheritParentConfig
+BasedOnStyle: LLVM
+# 制表符使用方法，可能取值如下：
+# Nerver：从不使用制表符
+# ForIndentation：只在缩进时使用制表符
+# ForContinuationAndIndentation：用制表符填充所有前导空格,使用空格进行行内对齐(例如连续赋值和声明)。
+# AlignWithSpaces: 使用制表符进行行连续和缩进，空格进行对齐
+# Always：当我们需要填充至少从一个制表位到下一个制表位的空白时，就使用制表位。
+UseTab: AlignWithSpaces
+# tab宽度
 TabWidth: 4
-# 缩进列数
+# 缩进宽度
 IndentWidth: 4
-# 延续缩进列数
-ContinuationIndentWidth: 4
-# Max column size
-ColumnLimit: 120
 
-##################################对齐方式###########################################################
-# 开括号对齐
-# 可取值：
-# Align：所有参数在开括号处对齐
-# DontAlign：不对齐，使用ContinuationIndentWidth参数进行缩进
-# AlwaysBreak：总是在开括号处换行，前提是达到列数限制
-AlignAfterOpenBracket: AlwaysBreak
-# 数组元素对齐方式
-AlignArrayOfStructures: Right
-# 连续赋值运算的对齐方式
-AlignConsecutiveAssignments:
-  # 启用开关
-  Enabled: true
-  # 是否跨过空行
-  AcrossEmptyLines: true
-  # 是否跨过注释
-  AcrossComments: true
-  # 复合运算符对齐，类似于+=
-  AlignCompound: true
-  # 操作符填充
-  PadOperators: true
+# 语言: None, Cpp, Java, JavaScript, ObjC, Proto, TableGen, TextProto
+Language:	Cpp
+# 标准: Cpp03, Cpp11, Auto
+Standard:	Cpp11
 
-# 连续位域对齐方式
-AlignConsecutiveBitFields:
-  Enabled: true
-  AcrossEmptyLines: true
-  AcrossComments: true
-  AlignCompound: true
-  AlignFunctionPointers: true
-  PadOperators: true
-
-# 连续声明对齐方式
-AlignConsecutiveDeclarations:
-  Enabled: true
-  AcrossEmptyLines: true
-  AcrossComments: true
-  AlignCompound: true
-  # AlignFunctionDeclarations: true
-  AlignFunctionPointers: true
-  PadOperators: true
-
-# 宏对齐
-AlignConsecutiveMacros:
-  Enabled: true
-  AcrossEmptyLines: true
-  AcrossComments: true
-  AlignCompound: true
-  AlignFunctionPointers: true
-  PadOperators: true
-
-# 短语句对齐
-AlignConsecutiveShortCaseStatements:
-  Enabled: true
-  AcrossEmptyLines: true
-  AcrossComments: true
-  # case语句在冒号上对齐
-  AlignCaseColons: true
-
-# 转义换行的对齐方式
-# 取值如下：
-# DontAlign: 不对齐
-# Left：尽可能向左对齐
-# Right：尽可能向右对齐，以列宽为限
-# LeftWithLastLine：尽可能向左对齐，如果最后一行最长，则以其为参考
-AlignEscapedNewlines: LeftWithLastLine
-# 对齐操作符
-AlignOperands: Align
-# 行尾注释对齐
+# 访问说明符(public、private等)的偏移
+AccessModifierOffset:	-4
+######################################缩进和对齐######################################################
+# 开括号(圆括号、尖括号、方括号)后的对齐，前提是达到行字符数限制，取值如下：
+# Align：参数对齐
+# DontAlign：不对参数对齐，仅使用缩进
+# AlwaysBreak：总是在开括号后换行
+# BlockIndent：AlwaysBreak的基础上闭括号也换行
+AlignAfterOpenBracket: Align
+# 连续赋值时，对齐所有等号
+AlignConsecutiveAssignments:	true
+# 连续声明时，对齐所有声明的变量名
+AlignConsecutiveDeclarations:	true
+# 左对齐逃脱换行(使用反斜杠换行)的反斜杠
+AlignEscapedNewlinesLeft:	true
+# 水平对齐二元和三元表达式的操作数
+AlignOperands:	true
+# 控制行尾的注释
 AlignTrailingComments:
+  # 指定行尾注释的对其方式方式，取值Leave：保持原样，Always：对齐注释，Nerver：不对齐但应用其他格式化程序
   Kind: Always
-  OverEmptyLines:  2
-
-# 指针*或引用&的对齐方式
-# true：学习已有的对齐方式，PointerAlignment做退避处理
-DerivePointerAlignment: true
-# 指针*或引用&的对齐方式
-# 可取值：Left，Right以及Middle
-# int* a; int *a; int * a;
-PointerAlignment: Left
-##################################对齐方式###########################################################
-
-AllowAllParametersOfDeclarationOnNextLine: true
-BinPackArguments: true
-BinPackParameters: true
-ExperimentalAutoDetectBinPacking: true
-# 定义大括号之前是否需要换行
-# 可取值Attach：所有大括号都附加到附近上下文，Custom：所有大括号都自定义
-BreakBeforeBraces: Custom
+  # 跨越的空行数，超过该空行数注释不会对对齐
+  OverEmptyLines: 2
+# 最大保留的连续几个空行
+MaxEmptyLinesToKeep: 1
+# 允许函数声明的所有参数在放在下一行
+AllowAllParametersOfDeclarationOnNextLine:	true
+# 允许短的块放在同一行
+AllowShortBlocksOnASingleLine:	false
+# 允许短的case标签放在同一行
+AllowShortCaseLabelsOnASingleLine:	false
+# 允许短的函数放在同一行: None, InlineOnly(定义在类中), Empty(空函数), Inline(定义在类中，空函数), All
+AllowShortFunctionsOnASingleLine:	Empty
+# 允许短的if语句保持在同一行
+AllowShortIfStatementsOnASingleLine:	false
+# 允许短的循环保持在同一行
+AllowShortLoopsOnASingleLine:	false
+# 总是在定义返回类型后换行(deprecated)
+AlwaysBreakAfterDefinitionReturnType:	None
+# 总是在返回类型后换行: None, All, TopLevel(顶级函数，不包括在类中的函数),
+#   AllDefinitions(所有的定义，不包括声明), TopLevelDefinitions(所有的顶级函数的定义)
+AlwaysBreakAfterReturnType:	None
+# 总是在多行string字面量前换行
+AlwaysBreakBeforeMultilineStrings:	false
+# 总是在template声明后换行
+AlwaysBreakTemplateDeclarations:	false
+# false表示函数实参要么都在同一行，要么都各自一行
+BinPackArguments:	true
+# false表示所有形参要么都在同一行，要么都各自一行
+BinPackParameters:	true
+# 在大括号前换行: Attach(始终将大括号附加到周围的上下文), Linux(除函数、命名空间和类定义，与Attach类似),
+#   Mozilla(除枚举、函数、记录定义，与Attach类似), Stroustrup(除函数定义、catch、else，与Attach类似),
+#   Allman(总是在大括号前换行), GNU(总是在大括号前换行，并对于控制语句的大括号增加额外的缩进), WebKit(在函数前换行), Custom
+#   注：这里认为语句块也属于函数
+BreakBeforeBraces:	Custom
+# 大括号换行，只有当BreakBeforeBraces设置为Custom时才有效
 BraceWrapping:
-  AfterCaseLabel: true
+  # class定义后面
   AfterClass: true
+  # 控制语句后面
   AfterControlStatement: Always # if/for/while/switch
+  # enum定义后面
   AfterEnum: true
-  AfterExternBlock: false
+  # 函数定义后面
   AfterFunction: true
-  AfterNamespace: false
-  AfterObjCDeclaration: false
+  # 命名空间定义后面
+  AfterNamespace: true
+  # ObjC定义后面
+  AfterObjCDeclaration: true
+  # struct定义后面
   AfterStruct: true
+  # union定义后面
   AfterUnion: true
-  BeforeCatch: true
-  BeforeElse: true
-  BeforeLambdaBody: false
-  BeforeWhile:     false
-  IndentBraces:    false
-  SplitEmptyFunction: true
-  SplitEmptyRecord: true
-  SplitEmptyNamespace: true
-# includes order
-#  first match is applied
+  # catch之前
+  BeforeCatch:	true
+  # else之前
+  BeforeElse:	true
+  # 缩进大括号
+  IndentBraces:	false
+# 在二元运算符前换行: None(在操作符后换行), NonAssignment(在非赋值的操作符前换行), All(在操作符前换行)
+BreakBeforeBinaryOperators:	NonAssignment
+# 在三元运算符前换行
+BreakBeforeTernaryOperators:	true
+# 在构造函数的初始化列表的逗号前换行
+BreakConstructorInitializersBeforeComma:	false
+# 每行字符的限制，0表示没有限制
+ColumnLimit:	120
+# 描述具有特殊意义的注释的正则表达式，它不应该被分割为多行或以其它方式改变
+CommentPragmas:	'^ IWYU pragma:'
+# 构造函数的初始化列表要么都在同一行，要么都各自一行
+ConstructorInitializerAllOnOneLineOrOnePerLine:	false
+# 构造函数的初始化列表的缩进宽度
+ConstructorInitializerIndentWidth:	4
+# 延续的行的缩进宽度
+ContinuationIndentWidth:	4
+# 去除C++11的列表初始化的大括号{后和}前的空格
+Cpp11BracedListStyle:	false
+# 继承最常用的指针和引用的对齐方式
+DerivePointerAlignment:	false
+# 关闭格式化
+DisableFormat:	false
+# 自动检测函数的调用和定义是否被格式为每行一个参数(Experimental)
+ExperimentalAutoDetectBinPacking:	false
+# 需要被解读为foreach循环而不是函数调用的宏
+ForEachMacros:	[ foreach, Q_FOREACH, BOOST_FOREACH ]
+# 对#include进行排序，匹配了某正则表达式的#include拥有对应的优先级，匹配不到的则默认优先级为INT_MAX(优先级越小排序越靠前)，
+#   可以定义负数优先级从而保证某些#include永远在最前面
 IncludeCategories:
-  - Regex: '^<draco/'      # component's
-    Priority: 2
-  - Regex: '^<.*/'      # System nested (like <gtest/gtest.h>
-    Priority: 3
-  - Regex: '^".*'       # internal
-    Priority: 1
-# No indentation for access modifiers (public/protected/private)
-AccessModifierOffset: -4
-
-
-# Constructor initializer list like
-# A::A()
-#   : a(0)
-#   , b{}
-# {}
-BreakConstructorInitializersBeforeComma: true
-ConstructorInitializerAllOnOneLineOrOnePerLine: false
-ConstructorInitializerIndentWidth: 4
-# Strings rules
-AlwaysBreakBeforeMultilineStrings: false
-PenaltyBreakString: 100
-# Do not allow construct like `if (a) { return; }`
-AllowShortBlocksOnASingleLine: false
-# Do not allow construct like `if (a) return;`
-AllowShortIfStatementsOnASingleLine: false
-# Do not allow construct like `while(i>0) i--;`
-AllowShortLoopsOnASingleLine: false
-# Do not allow short functions like 'int f() { return 0; }'
-AllowShortFunctionsOnASingleLine: false
-
-# 行尾
-# 可取值：
-# LF：\n
-# CRLF：\r\n
-# DeriveLF：使用\n除非输入中有更多的行使用\r\n
-# DeriveCRLF：使用\r\n除非输入中更多的行使用\n
-LineEnding: DeriveLF
-...
+  - Regex:	'^"(llvm|llvm-c|clang|clang-c)/'
+    Priority:	2
+  - Regex:	'^(<|"(gtest|isl|json)/)'
+    Priority:	3
+  - Regex:	'.*'
+    Priority:	1
+# 缩进case标签
+IndentCaseLabels:	false
+# 函数返回类型换行时，缩进函数声明或函数定义的函数名
+IndentWrappedFunctionNames:	false
+# 保留在块开始处的空行
+KeepEmptyLinesAtTheStartOfBlocks:	true
+# 开始一个块的宏的正则表达式
+MacroBlockBegin:	''
+# 结束一个块的宏的正则表达式
+MacroBlockEnd:	''
+# 命名空间的缩进: None, Inner(缩进嵌套的命名空间中的内容), All
+NamespaceIndentation:	Inner
+# 使用ObjC块时缩进宽度
+ObjCBlockIndentWidth:	4
+# 在ObjC的@property后添加一个空格
+ObjCSpaceAfterProperty:	false
+# 在ObjC的protocol列表前添加一个空格
+ObjCSpaceBeforeProtocolList:	true
+# 在call(后对函数调用换行的penalty
+PenaltyBreakBeforeFirstCallParameter:	19
+# 在一个注释中引入换行的penalty
+PenaltyBreakComment:	300
+# 第一次在<<前换行的penalty
+PenaltyBreakFirstLessLess:	120
+# 在一个字符串字面量中引入换行的penalty
+PenaltyBreakString:	1000
+# 对于每个在行字符数限制之外的字符的penalty
+PenaltyExcessCharacter:	1000000
+# 将函数的返回类型放到它自己的行的penalty
+PenaltyReturnTypeOnItsOwnLine:	60
+# 指针和引用的对齐: Left, Right, Middle
+PointerAlignment: Right
+# 允许重新排版注释
+ReflowComments:	true
+# 允许排序#include
+SortIncludes:	true
+# 在C风格类型转换后添加空格
+SpaceAfterCStyleCast:	false
+# 在赋值运算符之前添加空格
+SpaceBeforeAssignmentOperators:	true
+# 开圆括号之前添加一个空格: Never, ControlStatements, Always
+SpaceBeforeParens:	ControlStatements
+# 在空的圆括号中添加空格
+SpaceInEmptyParentheses:	false
+# 在尾随的评论前添加的空格数(只适用于//)
+SpacesBeforeTrailingComments:	2
+# 在尖括号的<后和>前添加空格
+SpacesInAngles:	true
+# 在容器(ObjC和JavaScript的数组和字典等)字面量中添加空格
+SpacesInContainerLiterals:	true
+# 在C风格类型转换的括号中添加空格
+SpacesInCStyleCastParentheses: false
+# 在圆括号的(后和)前添加空格
+SpacesInParentheses: false
+# 在方括号的[后和]前添加空格，lamda表达式和未指明大小的数组的声明不受影响
+SpacesInSquareBrackets: false

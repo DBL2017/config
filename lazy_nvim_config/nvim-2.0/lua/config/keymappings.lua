@@ -199,14 +199,14 @@ if conform_ok then
             -- print("格式化范围:", vim.inspect(range))
 
             require("conform").format({
-                lsp_fallback = true,
+                lsp_fallback = false,
                 async = false,
                 timeout_ms = 5000,
                 range = range,
             })
         else -- 普通模式（格式化整个文件）
             require("conform").format({
-                lsp_fallback = true,
+                lsp_fallback = false,
                 async = false,
                 timeout_ms = 5000,
             })
