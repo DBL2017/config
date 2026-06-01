@@ -187,3 +187,15 @@ vim.go.showtabline = 2
 vim.go.diffopt = "internal,iwhiteeol,filler,closeoff,vertical,iblank"
 
 vim.g.winborder = "rounded"
+
+-- 设置显示非可见字符
+vim.opt.list = true
+vim.opt.listchars = {
+    tab = "▸ ",
+    trail = "·",
+    space = "·",
+    nbsp = "␣",
+    extends = "❯",
+    precedes = "❮",
+    eol = "↴",
+}
