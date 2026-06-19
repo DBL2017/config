@@ -252,11 +252,11 @@ return -- lazy.nvim
 
                     -- Options to customize the UI of the chat buffer
                     window = {
-                        layout = "horizontal", -- float|vertical|horizontal|buffer
-                        position = "bottom", -- left|right|top|bottom (nil will default depending on vim.opt.splitright|vim.opt.splitbelow)
+                        layout = "vertical", -- float|vertical|horizontal|buffer
+                        position = "right", -- left|right|top|bottom (nil will default depending on vim.opt.splitright|vim.opt.splitbelow)
                         border = "single",
                         height = 0.45,
-                        width = 0.4,
+                        width = 0.3,
                         relative = "editor",
                         full_height = true, -- when set to false, vsplit will be used to open the chat buffer vs. botright/topleft vsplit
                         sticky = false, -- when set to true and `layout` is not `"buffer"`, the chat buffer will remain opened when switching tabs
@@ -527,6 +527,7 @@ return -- lazy.nvim
                                         default = "5m",
                                     },
                                 },
+                                -- 下面两行不生效，需要主调插件源码中openai.lua中的top_p
                                 temperature = nil,
                                 top_p = nil, -- 显式覆盖掉 top_p，七牛云不支持同时出现temperature和top_p
                             },
