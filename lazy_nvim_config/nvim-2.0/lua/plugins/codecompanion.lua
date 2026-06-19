@@ -97,28 +97,28 @@ return -- lazy.nvim
                         -- },
                     },
                     prompts = {
-                        {
-                            role = "system",
-                            content = function(context)
-                                local machine = vim.uv.os_uname().sysname
-                                if machine == "Darwin" then
-                                    machine = "Mac"
-                                end
-                                if machine:find("Windows") then
-                                    machine = "Windows"
-                                end
-                                -- 为每种不同的ai工具生成对应的系统提示词
-                                return string.format(
-                                    default_prompt,
-                                    os.date("%B %d, %Y"),
-                                    vim.version().major .. "." .. vim.version().minor .. "." .. vim.version().patch,
-                                    machine
-                                )
-                            end,
-                            opts = {
-                                visible = false,
-                            },
-                        },
+                        -- {
+                        --     role = "system",
+                        --     content = function(context)
+                        --         local machine = vim.uv.os_uname().sysname
+                        --         if machine == "Darwin" then
+                        --             machine = "Mac"
+                        --         end
+                        --         if machine:find("Windows") then
+                        --             machine = "Windows"
+                        --         end
+                        --         -- 为每种不同的ai工具生成对应的系统提示词
+                        --         return string.format(
+                        --             default_prompt,
+                        --             os.date("%B %d, %Y"),
+                        --             vim.version().major .. "." .. vim.version().minor .. "." .. vim.version().patch,
+                        --             machine
+                        --         )
+                        --     end,
+                        --     opts = {
+                        --         visible = false,
+                        --     },
+                        -- },
                         {
                             role = "user",
                             content = function(context)
@@ -286,7 +286,8 @@ return -- lazy.nvim
             strategies = {
                 chat = {
                     -- adapter = "siliconflow_r1",
-                    adapter = "qwen2_coder_local",
+                    -- adapter = "qwen2_coder_local",
+                    adapter = "claude_opus_online",
                     keymaps = {
                         close = {
                             modes = { n = "<C-q>", i = "<C-q>" },
@@ -351,7 +352,7 @@ return -- lazy.nvim
                 },
                 inline = {
                     -- adapter = "siliconflow_r1",
-                    adapter = "qwen2_coder_local",
+                    adapter = "claude_opus_online",
                     keymaps = {
                         accept_change = {
                             modes = { n = "ga" },
@@ -366,7 +367,7 @@ return -- lazy.nvim
                 },
                 agent = {
                     --adapter = "siliconflow_r1"
-                    adapter = "qwen2_coder_local",
+                    adapter = "claude_opus_online",
                 },
             },
             opts = {
@@ -498,6 +499,36 @@ return -- lazy.nvim
                                         default = "5m",
                                     },
                                 },
+                            },
+                        })
+                    end,
+                    claude_opus_online = function()
+                        return require("codecompanion.adapters").extend("openai", {
+                            name = "claude_opus_online",
+                            url = "https://api.qnaigc.com/v1/chat/completions", -- 七牛云兼容模式地址
+                            env = {
+                                api_key = function()
+                                    return os.getenv("ANTHROPIC_API_KEY") -- 在 .env 或系统环境变量里设置
+                                end,
+                            },
+                            schema = {
+                                model = {
+                                    default = "claude-4.6-sonnet", -- 默认模型
+                                    -- default = "anthropic/claude-opus-4.6",
+                                    choices = {
+                                        -- ["anthropic/claude-opus-4.6"] = { opts = { can_reason = true } },
+                                        ["claude-4.6-opus"] = { opts = { can_reason = true } },
+                                        ["claude-4.6-sonnet"] = { opts = { can_reason = true } },
+                                    },
+                                    num_ctx = {
+                                        default = 8192, -- 上下文长度
+                                    },
+                                    keep_alive = {
+                                        default = "5m",
+                                    },
+                                },
+                                temperature = nil,
+                                top_p = nil, -- 显式覆盖掉 top_p，七牛云不支持同时出现temperature和top_p
                             },
                         })
                     end,

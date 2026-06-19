@@ -230,7 +230,7 @@ return {
                 "path",
                 "snippets",
                 "avante",
-                -- "minuet",
+                "minuet",
             },
             providers = {
                 -- score_offset设置优先级数字越大优先级越高
@@ -309,7 +309,7 @@ return {
                     },
                 },
                 minuet = {
-                    enabled = false,
+                    enabled = true,
                     name = "MNT",
                     module = "minuet.blink",
                     async = true,

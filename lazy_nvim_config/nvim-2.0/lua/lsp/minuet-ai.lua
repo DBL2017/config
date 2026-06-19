@@ -14,14 +14,17 @@ return {
             context_window = 512,
             provider_options = {
                 openai_compatible = {
-                    model = "qwen2.5-coder-32b-instruct",
+                    model = "claude-4.6-sonnet",
+                    -- model = "qwen2.5-coder-32b-instruct",
                     -- system = "see [Prompt] section for the default value",
                     -- few_shots = "see [Prompt] section for the default value",
                     -- chat_input = "See [Prompt Section for default value]",
                     stream = true,
-                    end_point = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
+                    -- end_point = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
+                    end_point = "https://api.qnaigc.com/v1/chat/completions", -- 七牛云兼容模式地址
                     api_key = function()
-                        return os.getenv("QWEN3_CODER_PLUS_2025")
+                        -- return os.getenv("QWEN3_CODER_PLUS_2025")
+                        return os.getenv("ANTHROPIC_API_KEY") -- 在 .env 或系统环境变量里设置
                     end,
                     name = "dashscope",
                     optional = {
