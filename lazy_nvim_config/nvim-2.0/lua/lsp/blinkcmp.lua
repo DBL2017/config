@@ -17,7 +17,17 @@ return {
                 -- 选择并接受预选择的第一个
                 ["<CR>"] = { "accept", "fallback" },
                 ["<S-Tab>"] = { "select_prev", "snippet_backward", "fallback" },
-                ["<Tab>"] = { "select_next", "snippet_forward", "fallback" }, -- 同时存在补全列表和snippet时，补全列表选择优先级更高
+                -- ["<Tab>"] = { "select_next", "snippet_forward", "fallback" }, -- 同时存在补全列表和snippet时，补全列表选择优先级更高
+                ["<Tab>"] = {
+                    function()
+                        if vim.bo.filetype == "markdown" then
+                            return false -- 👉 让 bullets 接管
+                        end
+                    end,
+                    "select_next", -- 原本功能
+                    "snippet_forward",
+                    "fallback",
+                },
             },
             completion = {
                 -- 不预选第一个项目，选中后自动插入该项目文本
@@ -41,7 +51,17 @@ return {
             ["<CR>"] = { "accept", "fallback" }, -- 更改成'select_and_accept'会选择第一项插入
             ["<C-q>"] = { "cancel" },
             ["<S-Tab>"] = { "select_prev", "snippet_backward", "fallback" },
-            ["<Tab>"] = { "select_next", "snippet_forward", "fallback" }, -- 同时存在补全列表和snippet时，补全列表选择优先级更高
+            -- ["<Tab>"] = { "select_next", "snippet_forward", "fallback" }, -- 同时存在补全列表和snippet时，补全列表选择优先级更高
+            ["<Tab>"] = {
+                function()
+                    if vim.bo.filetype == "markdown" then
+                        return false -- 👉 让 bullets 接管
+                    end
+                end,
+                "select_next", -- 原本功能
+                "snippet_forward",
+                "fallback",
+            },
 
             ["<C-b>"] = { "scroll_documentation_up", "fallback" },
             ["<C-f>"] = { "scroll_documentation_down", "fallback" },
@@ -246,7 +266,7 @@ return {
                     timeout_ms = 2000, -- How long to wait for the provider to return before showing completions and treating it as asynchronous
                     transform_items = nil, -- Function to transform the items before they're returned
                     should_show_items = true, -- Whether or not to show the items
-                    max_items = 5, -- Maximum number of items to display in the menu
+                    max_items = 10, -- Maximum number of items to display in the menu
                     -- 设置为0才会对C语言中的.和->进行补全提示
                     min_keyword_length = 0, -- Minimum number of characters in the keyword to trigger the provider
                     -- If this provider returns 0 items, it will fallback to these providers.
@@ -257,7 +277,7 @@ return {
                 },
                 buffer = {
                     name = "BUF",
-                    enabled = true,
+                    enabled = false,
                     max_items = 3, -- Maximum number of items to display in the menu
                     min_keyword_length = 3, -- Minimum number of characters in the keyword to trigger the provider
                     score_offset = 4,

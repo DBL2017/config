@@ -45,6 +45,15 @@ return {
                 row = 0,
                 col = 1,
             },
+
+            diff_opts = {
+                internal = true, -- 使用内置 diff（推荐）
+                ignore_blank_lines = false,
+                ignore_whitespace_change = false, -- ✅ 不忽略空格/空行变化
+                ignore_whitespace = false,
+                ignore_whitespace_change_at_eol = false,
+            },
+
             on_attach = function(bufnr)
                 set_gitsign_keymap(bufnr)
             end,

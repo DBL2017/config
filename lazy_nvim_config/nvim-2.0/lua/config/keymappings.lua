@@ -525,3 +525,24 @@ if ts_textobject_ok then
         require("nvim-treesitter-textobjects.select").select_textobject("@conditional.outer", "textobjects")
     end)
 end
+
+-- 判断 bullets 是否可用
+local function has_bullets()
+    return vim.fn.exists("*bullets#init") == 1
+end
+
+-- insert 模式 Tab → bullets 缩进
+vim.keymap.set("i", "<Tab>", function()
+    if has_bullets() and vim.bo.filetype == "markdown" or vim.bo.filetype == "text" then
+        return "<Plug>(bullets-demote)"
+    end
+    return "\t"
+end, { expr = true })
+
+-- insert 模式 Shift-Tab → 反缩进
+vim.keymap.set("i", "<S-Tab>", function()
+    if has_bullets() and vim.bo.filetype == "markdown" or vim.bo.filetype == "text" then
+        return "<Plug>(bullets-promote)"
+    end
+    return "<S-Tab>"
+end, { expr = true })
