@@ -546,3 +546,9 @@ vim.keymap.set("i", "<S-Tab>", function()
     end
     return "<S-Tab>"
 end, { expr = true })
+
+-- zen-mode
+local zen_mode_ok, zen_mode_err = pcall(require, "zen-mode")
+if zen_mode_ok then
+    vim.keymap.set("n", "<LocalLeader>z", "<cmd>ZenMode<cr>")
+end
