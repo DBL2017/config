@@ -101,28 +101,32 @@ end, {
 
 -- tab快捷键
 -- Move to previous/next
-vim.keymap.set({ "n" }, "<A-,>", "<cmd>tabprevious<CR>", { silent = true, desc = "tabprevious" })
-vim.keymap.set({ "n" }, "<A-.>", "<cmd>tabnext<CR>", { silent = true, desc = "tabnext" })
+vim.keymap.set({ "i", "n" }, "<A-,>", "<cmd>tabprevious<CR>", { silent = true, desc = "tabprevious" })
+vim.keymap.set({ "i", "n" }, "<A-.>", "<cmd>tabnext<CR>", { silent = true, desc = "tabnext" })
 -- Re-order to previous/next
-vim.keymap.set({ "n" }, "<A-Left>", "<cmd>-tabmove<CR>", { silent = true, desc = "-tabmove" })
-vim.keymap.set({ "n" }, "<A-Right>", "<cmd>+tabmove<CR>", { silent = true, desc = "+tabmove" })
+vim.keymap.set({ "i", "n" }, "<A-Left>", "<cmd>-tabmove<CR>", { silent = true, desc = "-tabmove" })
+vim.keymap.set({ "i", "n" }, "<A-Right>", "<cmd>+tabmove<CR>", { silent = true, desc = "+tabmove" })
 -- Close buffer
-vim.keymap.set({ "n" }, "<A-c>", "<cmd>tabclose<CR>", { silent = true, desc = "tabclose" })
+vim.keymap.set({ "i", "n" }, "<A-c>", "<cmd>tabclose<CR>", { silent = true, desc = "tabclose" })
 -- tab
 -- 使用LocalLeader的原因防止误操作
-vim.keymap.set({ "n" }, "<LocalLeader>tn", "<cmd>$tabnew<CR>", { silent = true, desc = "$tabnew" })
-vim.keymap.set({ "n" }, "<LocalLeader>to", "<cmd>tabonly<CR>", { silent = true, desc = "tabonly" })
+vim.keymap.set({ "i", "n" }, "<LocalLeader>tn", "<cmd>$tabnew<CR>", { silent = true, desc = "$tabnew" })
+vim.keymap.set({ "i", "n" }, "<LocalLeader>to", "<cmd>tabonly<CR>", { silent = true, desc = "tabonly" })
 
-vim.keymap.set({ "n" }, "<A-0>", "<cmd>tablast<CR>", { silent = true, desc = "tablast" })
-vim.keymap.set({ "n" }, "<A-1>", "<cmd>tabnext 1<CR>", { silent = true, desc = "tabnext 1" })
-vim.keymap.set({ "n" }, "<A-2>", "<cmd>tabnext 2<CR>", { silent = true, desc = "tabnext 2" })
-vim.keymap.set({ "n" }, "<A-3>", "<cmd>tabnext 3<CR>", { silent = true, desc = "tabnext 3" })
-vim.keymap.set({ "n" }, "<A-4>", "<cmd>tabnext 4<CR>", { silent = true, desc = "tabnext 4" })
-vim.keymap.set({ "n" }, "<A-5>", "<cmd>tabnext 5<CR>", { silent = true, desc = "tabnext 5" })
-vim.keymap.set({ "n" }, "<A-6>", "<cmd>tabnext 6<CR>", { silent = true, desc = "tabnext 6" })
-vim.keymap.set({ "n" }, "<A-7>", "<cmd>tabnext 7<CR>", { silent = true, desc = "tabnext 7" })
-vim.keymap.set({ "n" }, "<A-8>", "<cmd>tabnext 8<CR>", { silent = true, desc = "tabnext 8" })
-vim.keymap.set({ "n" }, "<A-9>", "<cmd>tabnext 9<CR>", { silent = true, desc = "tabnext 9" })
+vim.keymap.set({ "i", "n" }, "<A-0>", "<cmd>tablast<CR>", { silent = true, desc = "tablast" })
+vim.keymap.set({ "i", "n" }, "<A-1>", "<cmd>tabnext 1<CR>", { silent = true, desc = "tabnext 1" })
+vim.keymap.set({ "i", "n" }, "<A-2>", "<cmd>tabnext 2<CR>", { silent = true, desc = "tabnext 2" })
+vim.keymap.set({ "i", "n" }, "<A-3>", "<cmd>tabnext 3<CR>", { silent = true, desc = "tabnext 3" })
+vim.keymap.set({ "i", "n" }, "<A-4>", "<cmd>tabnext 4<CR>", { silent = true, desc = "tabnext 4" })
+vim.keymap.set({ "i", "n" }, "<A-5>", "<cmd>tabnext 5<CR>", { silent = true, desc = "tabnext 5" })
+vim.keymap.set({ "i", "n" }, "<A-6>", "<cmd>tabnext 6<CR>", { silent = true, desc = "tabnext 6" })
+vim.keymap.set({ "i", "n" }, "<A-7>", "<cmd>tabnext 7<CR>", { silent = true, desc = "tabnext 7" })
+vim.keymap.set({ "i", "i", "n" }, "<A-8>", "<cmd>tabnext 8<CR>", { silent = true, desc = "tabnext 8" })
+vim.keymap.set({ "i", "i", "n" }, "<A-9>", "<cmd>tabnext 9<CR>", { silent = true, desc = "tabnext 9" })
+
+vim.keymap.set({ "i", "n" }, "<A-Down>", "<cmd>bnext<CR>", { silent = true, desc = "buffer next" })
+vim.keymap.set({ "i", "n" }, "<A-Up>", "<cmd>bprevious<CR>", { silent = true, desc = "buffer previous" })
+vim.keymap.set({ "i", "n" }, "<A-d>", "<cmd>bd<CR>", { silent = true, desc = "buffer delete" })
 
 -- 禁用方向键
 -- vim.keymap.set("n", "<Left>", "<NOP>", {silent=true,desc=""})
