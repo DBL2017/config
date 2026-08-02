@@ -1,3 +1,21 @@
+local utils = {}
+
+function utils.machine()
+    local machine = vim.uv.os_uname().sysname
+    if machine == "Darwin" then
+        return "Mac"
+    end
+    if machine:find("Windows") then
+        return "Windows"
+    end
+    return machine
+end
+
+function utils.nvim_version()
+    local v = vim.version()
+    return string.format("%d.%d.%d", v.major, v.minor, v.patch)
+end
+
 local kimi_prompt = [[
 你是一个名为CodeCompanion的长文本总结助手，工作在Neovim文本编辑器中，能够总结用户给出的文本，并生成摘要。你可以执行以下任务：
 1. 仔细阅读提供的文章内容
@@ -76,140 +94,38 @@ return -- lazy.nvim
         "nvim-lua/plenary.nvim",
         "nvim-treesitter/nvim-treesitter",
     },
+    version = "^19.22.0",
     config = function()
         -- Other package managers
+        local adapters = {
+            claude = {
+                name = "claude_opus_online",
+            },
+
+            kimi = {
+                name = "kimi_openai_online",
+                model = "moonshot-v1-128k",
+            },
+
+            qwen = {
+                name = "qwen3_coder_plus_2025_online",
+                model = "qwen3-coder-plus-2025-07-22",
+            },
+        }
+
+        local function build_default_prompt()
+            return string.format(default_prompt, os.date("%B %d, %Y"), utils.nvim_version(), utils.machine())
+        end
+
+        local function build_kimi_prompt()
+            return string.format(kimi_prompt, os.date("%B %d, %Y"), utils.nvim_version(), utils.machine())
+        end
         require("codecompanion").setup({
             prompt_library = {
-                ["Explain in chinese"] = {
-                    strategy = "chat",
-                    description = "中文解释代码",
-                    opts = {
-                        is_slash_cmd = true,
-                        modes = { "v" },
-                        short_name = "explain_in_chinese",
-                        auto_submit = false,
-                        user_prompt = false,
-                        stop_context_insertion = true,
-                        ignore_system_prompt = true,
-                        -- adapter = {
-                        --     name = "siliconflow_r1",
-                        --     model = "deepseek-ai/DeepSeek-R1",
-                        -- },
-                    },
-                    prompts = {
-                        -- {
-                        --     role = "system",
-                        --     content = function(context)
-                        --         local machine = vim.uv.os_uname().sysname
-                        --         if machine == "Darwin" then
-                        --             machine = "Mac"
-                        --         end
-                        --         if machine:find("Windows") then
-                        --             machine = "Windows"
-                        --         end
-                        --         -- 为每种不同的ai工具生成对应的系统提示词
-                        --         return string.format(
-                        --             default_prompt,
-                        --             os.date("%B %d, %Y"),
-                        --             vim.version().major .. "." .. vim.version().minor .. "." .. vim.version().patch,
-                        --             machine
-                        --         )
-                        --     end,
-                        --     opts = {
-                        --         visible = false,
-                        --     },
-                        -- },
-                        {
-                            role = "user",
-                            content = function(context)
-                                local input = require("codecompanion.helpers.actions").get_code(
-                                    context.start_line,
-                                    context.end_line
-                                )
-
-                                return string.format(
-                                    [[请解释buffer %d 中的这段代码:<prompt>
-```%s
-%s
-```
-</prompt>
-]],
-                                    context.bufnr,
-                                    context.filetype,
-                                    input
-                                )
-                            end,
-                            opts = {
-                                contains_code = true,
-                            },
-                        },
-                    },
-                },
-                ["Generate digest"] = {
-                    strategy = "chat",
-                    description = "对当前Buffer内容生成摘要",
-                    opts = {
-                        modes = { "n", "v" },
-                        short_name = "generate_digest",
-                        auto_submit = true,
-                        user_prompt = false,
-                        stop_context_insertion = true,
-                        is_slash_cmd = true,
-                        -- Do not send default system prompt
-                        ignore_system_prompt = true,
-                        -- To customize the chat buffer UI, you can set a custom intro message:
-                        intro_message = "Welcome to generate digest!",
-                        adapter = {
-                            name = "kimi_openai_online",
-                            model = "moonshot-v1-128k",
-                        },
-                    },
-                    prompts = {
-                        {
-                            role = "system",
-                            content = function(context)
-                                local machine = vim.uv.os_uname().sysname
-                                if machine == "Darwin" then
-                                    machine = "Mac"
-                                end
-                                if machine:find("Windows") then
-                                    machine = "Windows"
-                                end
-                                return string.format(
-                                    kimi_prompt,
-                                    os.date("%B %d, %Y"),
-                                    vim.version().major .. "." .. vim.version().minor .. "." .. vim.version().patch,
-                                    machine
-                                )
-                            end,
-                            opts = {
-                                visible = false,
-                            },
-                        },
-                        {
-                            role = "user",
-                            content = function(context)
-                                local input = require("codecompanion.helpers.actions").get_code(
-                                    context.start_line,
-                                    context.end_line
-                                )
-                                -- if #input <= 0 or input == nil then
-                                local content = vim.api.nvim_buf_get_lines(context.bufnr, 0, -1, false)
-                                for i, line in ipairs(content) do
-                                    input = input .. "\n" .. line
-                                end
-                                -- end
-
-                                return string.format(
-                                    [[请对buffer %d 中的内容生成摘要:<prompt>%s</prompt>]],
-                                    context.bufnr,
-                                    input
-                                )
-                            end,
-                            opts = {
-                                contains_code = true,
-                            },
-                        },
+                markdown = {
+                    dirs = {
+                        vim.fn.getcwd() .. "/.prompts", -- 当前项目下的 .prompts 目录
+                        "~/.config/nvim/templates/md/prompts", -- 全局配置目录
                     },
                 },
             },
@@ -218,7 +134,7 @@ return -- lazy.nvim
                     width = 100,
                     height = 0.45,
                     prompt = "Prompt ", -- Prompt used for interactive LLM calls
-                    provider = "fzf_lua", -- Can be "default", "telescope", "fzf_lua", "mini_pick" or "snacks". If not specified, the plugin will autodetect installed providers.
+                    provider = "telescope", -- Can be "default", "telescope", "fzf_lua", "mini_pick" or "snacks". If not specified, the plugin will autodetect installed providers.
                     opts = {
                         show_default_actions = true, -- Show the default actions in the action palette?
                         show_default_prompt_library = true, -- Show the default prompt library in the action palette?
@@ -283,7 +199,7 @@ return -- lazy.nvim
                     end,
                 },
             },
-            strategies = {
+            interactions = {
                 chat = {
                     -- adapter = "siliconflow_r1",
                     -- adapter = "qwen2_coder_local",
@@ -297,7 +213,7 @@ return -- lazy.nvim
                     variables = {
                         ["buffer"] = {
                             opts = {
-                                default_params = "pin", -- or 'watch'
+                                default_params = "watch", -- or 'watch'
                             },
                         },
                     },
@@ -324,28 +240,11 @@ return -- lazy.nvim
                         ---@param opts { adapter: CodeCompanion.HTTPAdapter, language: string }
                         ---@return string
                         system_prompt = function(opts)
-                            local machine = vim.uv.os_uname().sysname
-                            if machine == "Darwin" then
-                                machine = "Mac"
-                            end
-                            if machine:find("Windows") then
-                                machine = "Windows"
-                            end
                             -- 为每种不同的ai工具生成对应的系统提示词
-                            if opts.adapter == "kimi_openai_online" then
-                                return string.format(
-                                    kimi_prompt,
-                                    os.date("%B %d, %Y"),
-                                    vim.version().major .. "." .. vim.version().minor .. "." .. vim.version().patch,
-                                    machine
-                                )
+                            if opts.adapter and opts.adapter.name == "kimi_openai_online" then
+                                return build_kimi_prompt()
                             else
-                                return string.format(
-                                    default_prompt,
-                                    os.date("%B %d, %Y"),
-                                    vim.version().major .. "." .. vim.version().minor .. "." .. vim.version().patch,
-                                    machine
-                                )
+                                return build_default_prompt()
                             end
                         end,
                     },
@@ -371,7 +270,7 @@ return -- lazy.nvim
                 },
             },
             opts = {
-                log_level = "WARN", -- or "TRACE"
+                log_level = "TRACE", -- or "TRACE"
                 language = "Chinese",
             },
             adapters = {
@@ -489,15 +388,15 @@ return -- lazy.nvim
                                     choices = {
                                         ["qwen3-coder-plus-2025-07-22"] = { opts = { can_reason = true } },
                                     },
-                                    num_ctx = {
-                                        default = 16384,
-                                    },
-                                    think = {
-                                        default = false,
-                                    },
-                                    keep_alive = {
-                                        default = "5m",
-                                    },
+                                },
+                                num_ctx = {
+                                    default = 16384,
+                                },
+                                think = {
+                                    default = false,
+                                },
+                                keep_alive = {
+                                    default = "5m",
                                 },
                             },
                         })
@@ -520,12 +419,12 @@ return -- lazy.nvim
                                         ["claude-4.6-opus"] = { opts = { can_reason = true } },
                                         ["claude-4.6-sonnet"] = { opts = { can_reason = true } },
                                     },
-                                    num_ctx = {
-                                        default = 8192, -- 上下文长度
-                                    },
-                                    keep_alive = {
-                                        default = "5m",
-                                    },
+                                },
+                                num_ctx = {
+                                    default = 8192, -- 上下文长度
+                                },
+                                keep_alive = {
+                                    default = "5m",
                                 },
                                 -- 下面两行不生效，需要主调插件源码中openai.lua中的top_p
                                 temperature = nil,
