@@ -96,23 +96,6 @@ return -- lazy.nvim
     },
     version = "^19.22.0",
     config = function()
-        -- Other package managers
-        local adapters = {
-            claude = {
-                name = "claude_opus_online",
-            },
-
-            kimi = {
-                name = "kimi_openai_online",
-                model = "moonshot-v1-128k",
-            },
-
-            qwen = {
-                name = "qwen3_coder_plus_2025_online",
-                model = "qwen3-coder-plus-2025-07-22",
-            },
-        }
-
         local function build_default_prompt()
             return string.format(default_prompt, os.date("%B %d, %Y"), utils.nvim_version(), utils.machine())
         end
@@ -147,56 +130,166 @@ return -- lazy.nvim
                     layout = "vertical", -- vertical|horizontal|buffer
                 },
                 chat = {
-                    auto_scroll = true,
-                    opts = {
-                        completion_provider = "blink", -- blink|cmp|coc|default
-                        goto_file_action = "tabnew", -- this will always open the file in a new tab
-                    },
-                    -- Change the default icons
+                    -- 自动滚动
+                    auto_scroll = false, -- 默认会自动滚动到最后，设置为 false 可避免长回复时界面跳动
+
+                    -- 补全引擎
+                    completion_provider = "blink", -- 可选 blink|cmp|coc|default，决定使用哪种补全插件
+
+                    -- 上下文折叠
                     icons = {
-                        buffer_pin = " ",
-                        buffer_watch = "👀 ",
+                        -- 折叠上下文时显示的图标
+                        -- 当前效果：使用 "📎️" 作为折叠标识
+                        -- 可选取值：任意字符串或图标
+                        chat_context = "📎️",
+
+                        -- 折叠 reasoning 时显示的图标
+                        -- 当前效果：使用 " " 作为折叠标识
+                        -- 可选取值：任意字符串或图标
+                        chat_fold = " ",
                     },
 
-                    -- Alter the sizing of the debug window
-                    debug_window = {
-                        ---@return number|fun(): number
-                        width = vim.o.columns - 5,
-                        ---@return number|fun(): number
-                        height = vim.o.lines - 2,
-                    },
+                    -- 是否折叠上下文
+                    -- 当前效果：true → 上下文会被折叠，只显示图标，不展开完整内容
+                    -- 可选取值：true（折叠）、false（不折叠）
+                    fold_context = true,
 
-                    -- Options to customize the UI of the chat buffer
+                    -- 是否折叠 reasoning 输出
+                    -- 当前效果：false → 不折叠，完整显示 reasoning 内容
+                    -- 可选取值：true（折叠）、false（不折叠）
+                    fold_reasoning = false,
+
+                    -- 是否显示 reasoning 输出
+                    -- 当前效果：false → 完全隐藏，不显示任何 reasoning 内容
+                    -- 可选取值：true（显示）、false（隐藏）
+                    show_reasoning = false,
+
+                    -- 布局
                     window = {
-                        layout = "vertical", -- float|vertical|horizontal|buffer
-                        position = "right", -- left|right|top|bottom (nil will default depending on vim.opt.splitright|vim.opt.splitbelow)
-                        border = "single",
-                        height = 0.45,
-                        width = 0.3,
+                        -- 是否在 buffer 列表中显示 Chat Buffer
+                        -- 当前效果：会出现在 :ls 或 buffer 切换列表中
+                        -- 可选取值：true（显示）、false（隐藏）
+                        buflisted = true,
+
+                        -- 切换 tab 时 Chat Buffer 是否保持打开
+                        -- 当前效果：切换 tab 时 Chat Buffer 会跟随保持
+                        -- 可选取值：true（跟随）、false（不跟随）
+                        sticky = true,
+
+                        -- 是否为每个 tab 单独维护一个 Chat Buffer
+                        -- 当前效果：所有 tab 共用一个 Chat Buffer
+                        -- 可选取值：true（每个 tab 独立）、false（共用）
+                        pertab = false,
+
+                        -- Chat Buffer 的布局方式
+                        -- 当前效果：竖直分屏显示在右侧
+                        -- 可选取值：float（浮动窗口）、vertical（竖直分屏）、horizontal（水平分屏）、tab（新 tab）、buffer（普通 buffer）
+                        layout = "vertical",
+
+                        -- 在竖直分屏布局下是否占满整个高度
+                        -- 当前效果：Chat Buffer 占满编辑器高度
+                        -- 可选取值：true（占满）、false（只占部分高度）
+                        full_height = true,
+
+                        -- Chat Buffer 的位置
+                        -- 当前效果：固定在右侧分屏
+                        -- 可选取值：left、right、top、bottom、nil（根据 splitright/splitbelow 自动决定）
+                        position = "right",
+
+                        -- Chat Buffer 的宽度比例
+                        -- 当前效果：占编辑器宽度的 40%
+                        -- 可选取值：0–1 的浮点数（比例），或函数动态计算
+                        width = 0.4,
+
+                        -- Chat Buffer 的高度比例
+                        -- 当前效果：占编辑器高度的 80%（竖直分屏时可忽略）
+                        -- 可选取值：0–1 的浮点数（比例），或函数动态计算
+                        height = 0.8,
+
+                        -- 窗口边框样式
+                        -- 当前效果：圆角边框，美观柔和
+                        -- 可选取值：single、double、rounded、shadow
+                        border = "rounded",
+
+                        -- 窗口定位方式
+                        -- 当前效果：相对于整个编辑器定位
+                        -- 可选取值：editor（相对编辑器）、win（相对某个窗口）
                         relative = "editor",
-                        full_height = true, -- when set to false, vsplit will be used to open the chat buffer vs. botright/topleft vsplit
-                        sticky = false, -- when set to true and `layout` is not `"buffer"`, the chat buffer will remain opened when switching tabs
+
                         opts = {
+                            -- 保持缩进换行
                             breakindent = true,
-                            cursorcolumn = false,
-                            cursorline = false,
-                            foldcolumn = "0",
+
+                            -- 在单词边界换行
                             linebreak = true,
-                            list = false,
-                            numberwidth = 1,
-                            signcolumn = "no",
-                            spell = false,
+
+                            -- 长段落自动换行，避免横向滚动
                             wrap = true,
+
+                            -- 不高亮当前行，避免干扰
+                            cursorline = false,
+
+                            -- 不显示标记列
+                            signcolumn = "no",
                         },
                     },
 
-                    ---Customize how tokens are displayed
-                    ---@param tokens number
-                    ---@param adapter CodeCompanion.Adapter
-                    ---@return string
-                    token_count = function(tokens, adapter)
-                        return " (" .. tokens .. " tokens)"
-                    end,
+                    roles = {
+                        -- LLM 消息的标题名称
+                        -- 当前效果：显示为 "CodeCompanion (适配器名称)"
+                        -- 可选取值：字符串，或函数返回字符串
+                        -- 如果是函数，第一个参数始终是当前适配器
+                        llm = function(adapter)
+                            return "CodeCompanion (" .. adapter.formatted_name .. ")"
+                        end,
+
+                        -- 用户消息的标题名称
+                        -- 当前效果：显示为 "Me"
+                        -- 可选取值：字符串（目前仅支持字符串）
+                        user = "Me",
+                    },
+
+                    -- 其他 UI 选项
+                    -- 聊天缓冲区的欢迎提示信息
+                    -- 当前效果：显示 "Welcome to CodeCompanion ✨! Press ? for options"
+                    -- 可选取值：任意字符串
+                    intro_message = "Welcome to CodeCompanion ✨! Press ? for options",
+
+                    -- 聊天消息之间的分隔符
+                    -- 当前效果：使用 "─" 作为分隔符
+                    -- 可选取值：任意字符串或符号
+                    separator = "─",
+
+                    -- 是否在聊天缓冲区显示上下文（来自编辑器和斜杠命令）
+                    -- 当前效果：true → 显示上下文
+                    -- 可选取值：true（显示）、false（隐藏）
+                    show_context = true,
+
+                    -- 是否显示标题分隔符
+                    -- 当前效果：false → 不显示标题分隔符
+                    -- 可选取值：true（显示）、false（隐藏）
+                    -- 建议：如果使用外部 markdown 渲染插件，设为 false
+                    show_header_separator = false,
+
+                    -- 是否在聊天缓冲区顶部显示 LLM 设置
+                    -- 当前效果：false → 不显示设置
+                    -- 可选取值：true（显示）、false（隐藏）
+                    show_settings = false,
+
+                    -- 是否显示每个回复的 token 数量
+                    -- 当前效果：true → 显示 token 数
+                    -- 可选取值：true（显示）、false（隐藏）
+                    show_token_count = true,
+
+                    -- 是否显示工具执行时的加载提示
+                    -- 当前效果：true → 显示工具执行中的提示信息
+                    -- 可选取值：true（显示）、false（隐藏）
+                    show_tools_processing = true,
+
+                    -- 打开聊天缓冲区时是否直接进入插入模式
+                    -- 当前效果：false → 打开时处于普通模式
+                    -- 可选取值：true（插入模式）、false（普通模式）
+                    start_in_insert_mode = false,
                 },
             },
             interactions = {
@@ -204,37 +297,75 @@ return -- lazy.nvim
                     -- adapter = "siliconflow_r1",
                     -- adapter = "qwen2_coder_local",
                     adapter = "claude_opus_online",
+                    -- adapter = {
+                    --     -- 适配器名称
+                    --     -- 当前效果：使用 "anthropic" 适配器
+                    --     -- 可选取值：copilot、acp、http 或其他自定义适配器名称
+                    --     name = "claude_opus_online",
+                    --
+                    --     -- 模型名称
+                    --     -- 当前效果：使用 "claude-haiku-4-5-20251001" 模型
+                    --     -- 可选取值：根据适配器支持的模型名称而定
+                    --     -- model = "claude-haiku-4-5-20251001",
+                    -- },
+                    editor_context = {
+                        ["buffer"] = {
+                            description = "Share the current buffer with the LLM(diff)",
+                            opts = {
+                                -- 默认参数设置为 "diff"
+                                -- 当前效果：每次对话时自动同步 buffer 的差异部分
+                                -- 可选取值："diff"（只共享修改部分）、"all"（共享整个 buffer）
+                                default_params = "diff",
+                            },
+                        },
+                        ["buffer-all"] = {
+                            description = "Share the current buffer with the LLM(all)",
+                            opts = {
+                                -- 默认参数设置为 "diff"
+                                -- 当前效果：每次对话时自动同步整个 buffer
+                                -- 可选取值："diff"（只共享修改部分）、"all"（共享整个 buffer）
+                                default_params = "all",
+                            },
+                        },
+                    },
                     keymaps = {
                         close = {
                             modes = { n = "<C-q>", i = "<C-q>" },
                             opts = { silent = true, desc = "Close chat" },
                         },
                     },
-                    variables = {
-                        ["buffer"] = {
-                            opts = {
-                                default_params = "watch", -- or 'watch'
-                            },
-                        },
-                    },
                     slash_commands = {
                         ["file"] = {
-                            -- Location to the slash command in CodeCompanion
-                            callback = "strategies.chat.slash_commands.file",
-                            description = "Select a file using Telescope",
                             opts = {
-                                provider = "telescope", -- Can be "default", "telescope", "fzf_lua", "mini_pick" or "snacks"
-                                contains_code = true,
+                                -- 指定 /file 命令的 provider
+                                -- 当前效果：使用 telescope 作为 provider
+                                -- 可选取值：
+                                --   "default"   → 内置默认 provider
+                                --   "telescope" → 使用 telescope 插件
+                                --   "fzf_lua"   → 使用 fzf-lua 插件
+                                --   "mini_pick" → 使用 mini_pick 插件
+                                --   "snacks"    → 使用 snacks.nvim 插件
+                                provider = "telescope",
                             },
                         },
                     },
                     opts = {
-                        ---Decorate the user message before it's sent to the LLM
-                        ---@param message string
-                        ---@param adapter CodeCompanion.Adapter
-                        ---@param context table
-                        ---@return string
+                        -- 指定补全引擎
+                        -- 当前效果：使用 "blink" 作为补全引擎
+                        -- 可选取值：
+                        --   "blink"   → 使用 blink.cmp
+                        --   "cmp"     → 使用 nvim-cmp
+                        --   "coc"     → 使用 coc.nvim
+                        --   "default" → 使用内置默认补全引擎
+                        completion_provider = "blink",
+                        -- 修饰用户消息的函数
+                        -- 参数：
+                        --   message → 用户输入的消息
+                        --   adapter → 当前适配器
+                        --   context → 当前上下文表
+                        -- 返回值：修饰后的字符串
                         prompt_decorator = function(message, adapter, context)
+                            -- 当前效果：将用户消息包裹在 <prompt></prompt> 标签中
                             return string.format([[<prompt>%s</prompt>]], message)
                         end,
                         ---@param opts { adapter: CodeCompanion.HTTPAdapter, language: string }
@@ -247,17 +378,67 @@ return -- lazy.nvim
                                 return build_default_prompt()
                             end
                         end,
+
+                        context_management = {
+                            -- 是否启用上下文管理
+                            -- 当前效果：true → 启用上下文管理
+                            -- 可选取值：true（启用）、false（禁用）
+                            enabled = true,
+                            editing = {
+                                -- 编辑操作触发阈值
+                                -- 当前效果：当上下文窗口使用达到 65% 时，删除旧的工具结果
+                                -- 可选取值：小数（百分比）、整数（绝对 token 数）
+                                trigger = 0.65, -- 65% of the context window
+                                -- 排除的工具列表
+                                -- 当前效果：memory 工具的输出不会被编辑
+                                -- 可选取值：工具名称数组
+                                exclude_tools = { "memory" }, -- Output from these tools is never edited
+
+                                -- 保留的循环数
+                                -- 当前效果：保留最近 3 个循环的完整工具结果
+                                -- 可选取值：整数（循环数量）
+                                keep_cycles = 3, -- Keep the last N cycles of tool results
+                            },
+                            compaction = {
+                                -- 压缩操作触发阈值
+                                -- 当前效果：当上下文窗口使用达到 85% 时，对消息历史进行摘要
+                                -- 可选取值：小数（百分比）、整数（绝对 token 数）
+                                trigger = 0.85, -- 85% of the context window
+                                -- 最小 token 节省量
+                                -- 当前效果：只有在至少节省 10000 token 时才进行压缩
+                                -- 可选取值：整数（token 数）
+                                min_token_savings = 10000, -- Only compact when at least this amount of tokens will be saved
+
+                                -- 压缩使用的适配器
+                                -- 当前效果：nil → 默认使用当前聊天适配器
+                                -- 可选取值：nil（默认）、字符串（适配器名称）、表（包含 name 和 model）
+                                adapter = nil,
+
+                                -- 压缩失败时是否回退到聊天适配器
+                                -- 当前效果：false → 不回退
+                                -- 可选取值：true（回退）、false（不回退）
+                                fallback_to_chat_adapter = false, -- on failure, retry with the chat adapter?
+                            },
+                        },
                     },
                 },
                 inline = {
-                    -- adapter = "siliconflow_r1",
+                    -- 作用: 配置内联模式下使用的 AI 适配器后端
+                    -- 当前: 使用 Claude Opus 在线版作为内联模式适配器
+                    -- 可选: "copilot" | "openai" | "claude" | "gemini" | "siliconflow_r1" | "claude_opus_online"
                     adapter = "claude_opus_online",
                     keymaps = {
                         accept_change = {
+                            -- 作用: 接受 AI 内联建议的代码更改
+                            -- 当前: 普通模式下按 `ga` 触发接受操作
+                            -- 可选: 任意合法的 Neovim 按键映射字符串，如 "<CR>" | "<leader>a" 等
                             modes = { n = "ga" },
                             description = "Accept the suggested change",
                         },
                         reject_change = {
+                            -- 作用: 拒绝 AI 内联建议的代码更改
+                            -- 当前: 普通模式下按 `gr` 触发拒绝操作，并设置 nowait 立即响应
+                            -- 可选: 任意合法的 Neovim 按键映射字符串，如 "<Esc>" | "<leader>r" 等
                             modes = { n = "gr" },
                             opts = { nowait = true },
                             description = "Reject the suggested change",
