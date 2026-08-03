@@ -3,7 +3,7 @@ name: Kimi Generate Digest
 interaction: chat
 description: 使用Kimi对当前Buffer或已选中内容生成摘要
 opts:
-  alias: generate_digest
+  alias: kimi_generate_digest_buffer
   auto_submit: true
   user_prompt: false
   stop_context_insertion: true

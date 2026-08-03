@@ -235,10 +235,8 @@ if codecompanion_ok then
         { noremap = true, silent = true }
     )
     vim.keymap.set("v", "ga", "<cmd>CodeCompanionChat Add<cr>", { noremap = true, silent = true })
-    -- Expand 'cc' into 'CodeCompanion' in the command line
-    vim.cmd([[cab cc CodeCompanion]])
     vim.keymap.set({ "v" }, "<LocalLeader>ae", function()
-        require("codecompanion").prompt("explain_in_chinese")
+        require("codecompanion").prompt("claude_explain_code_view")
     end, { noremap = true, silent = true })
 end
 

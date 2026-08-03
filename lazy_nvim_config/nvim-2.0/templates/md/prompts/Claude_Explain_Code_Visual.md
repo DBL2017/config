@@ -3,7 +3,7 @@ name: Claude Explain Code
 interaction: chat
 description: 使用 Claude 中文解释选中的代码，并指出潜在问题与改进建议
 opts:
-  alias: explain_in_chinese
+  alias: claude_explain_code_view
   is_slash_cmd: true
   auto_submit: false
   user_prompt: false
