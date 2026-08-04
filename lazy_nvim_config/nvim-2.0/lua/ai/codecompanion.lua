@@ -461,13 +461,17 @@ return -- lazy.nvim
                     },
                     -- Define your custom adapters here
                     copilot_acp = function()
-                        return require("codecompanion.adapters").extend("acp", {
+                        return require("codecompanion.adapters").extend("copilot_acp", {
                             name = "copilot",
                             commands = {
                                 default = {
                                     "copilot",
                                     "--acp",
                                 },
+                            },
+                            env = {
+                                COPILOT_PROVIDER = "github",
+                                COPILOT_API_KEY = os.getenv("GITHUB_TOKEN"),
                             },
                         })
                     end,
