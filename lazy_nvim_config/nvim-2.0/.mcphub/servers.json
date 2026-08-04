@@ -1,0 +1,21 @@
+{
+    "mcpServers": {
+        "filesystem": {
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-filesystem",
+                "."
+            ],
+            "command": "npx"
+        },
+        "git": {
+            "command": "/home/blduan/.venvs/mcp-git/bin/python",
+            "args": [
+                "-m",
+                "mcp_server_git",
+                "--repository",
+                "/home/blduan/open_source/config/config"
+            ]
+        }
+    }
+}

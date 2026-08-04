@@ -460,6 +460,17 @@ return -- lazy.nvim
                         show_defaults = false,
                     },
                     -- Define your custom adapters here
+                    copilot_acp = function()
+                        return require("codecompanion.adapters").extend("acp", {
+                            name = "copilot",
+                            commands = {
+                                default = {
+                                    "copilot",
+                                    "--acp",
+                                },
+                            },
+                        })
+                    end,
                 },
                 http = {
                     opts = {
