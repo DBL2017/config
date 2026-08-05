@@ -95,7 +95,7 @@ return -- lazy.nvim
         "nvim-treesitter/nvim-treesitter",
         --other plugins
         "ravitemer/codecompanion-history.nvim",
-        "cairijun/codecompanion-agentskills.nvim",
+        "bahaaza/codecompanion-agentskills.nvim",
     },
     version = "^19.22.0",
     config = function()
@@ -741,8 +741,9 @@ return -- lazy.nvim
                 agentskills = {
                     opts = {
                         paths = {
-                            { "~/.config/nvim/skills", recursive = true }, -- Recursive search
+                            { "~/.config/skills", recursive = true }, -- Recursive search
                         },
+                        notify_on_discovery = true, -- Show a notification when skills are discovered
                     },
                 },
             },
