@@ -246,11 +246,10 @@ return {
                 "dictionary",
                 "buffer",
                 "lsp",
-                "codecompanion",
                 "path",
                 "snippets",
                 "avante",
-                "minuet",
+                -- "minuet",
             },
             providers = {
                 -- score_offset设置优先级数字越大优先级越高
@@ -281,12 +280,6 @@ return {
                     max_items = 3, -- Maximum number of items to display in the menu
                     min_keyword_length = 3, -- Minimum number of characters in the keyword to trigger the provider
                     score_offset = 4,
-                },
-                codecompanion = {
-                    name = "CodeCompanion",
-                    module = "codecompanion.providers.completion.blink",
-                    enabled = true,
-                    score_offset = 6,
                 },
 
                 path = { name = "PTH", score_offset = 3 },
