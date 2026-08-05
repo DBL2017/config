@@ -238,6 +238,13 @@ if codecompanion_ok then
     vim.keymap.set({ "v" }, "<LocalLeader>ae", function()
         require("codecompanion").prompt("claude_explain_code_view")
     end, { noremap = true, silent = true })
+
+    vim.keymap.set(
+        { "n" },
+        "<LocalLeader>ah",
+        "<cmd>CodeCompanionHistory<cr>",
+        { desc = "Open chat history list", noremap = true, silent = true }
+    )
 end
 
 -- telescope

@@ -95,6 +95,7 @@ return -- lazy.nvim
         "nvim-treesitter/nvim-treesitter",
         --other plugins
         "ravitemer/codecompanion-history.nvim",
+        "cairijun/codecompanion-agentskills.nvim",
     },
     version = "^19.22.0",
     config = function()
@@ -123,6 +124,7 @@ return -- lazy.nvim
                     opts = {
                         show_default_actions = true, -- Show the default actions in the action palette?
                         show_default_prompt_library = true, -- Show the default prompt library in the action palette?
+                        show_preset_prompts = false, -- 不显示预设的prompt
                         title = "CodeCompanion actions", -- The title of the action palette
                     },
                 },
@@ -733,6 +735,13 @@ return -- lazy.nvim
                             -- Index all existing memories on startup
                             -- (requires VectorCode 0.6.12+ for efficient incremental indexing)
                             index_on_startup = false,
+                        },
+                    },
+                },
+                agentskills = {
+                    opts = {
+                        paths = {
+                            { "~/.config/nvim/skills", recursive = true }, -- Recursive search
                         },
                     },
                 },
