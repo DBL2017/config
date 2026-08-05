@@ -9,7 +9,7 @@ return {
                 -- 结果窗口的内容从窗口顶部开始
                 sorting_strategy = "ascending",
                 -- 打开弹窗后进入的初始模式，默认为 insert，也可以是 normal
-                initial_mode = "normal",
+                initial_mode = "insert",
                 -- 窗口内快捷键
                 -- mappings = require("keybindings").telescopeList,
                 mappings = {
@@ -48,7 +48,13 @@ return {
                     -- theme = "dropdown", -- 可选参数： dropdown, cursor, ivy
                 },
             },
-            extensions = {},
+            extensions = {
+                frecency = {
+                    auto_validate = false,
+                    matcher = "fuzzy",
+                    path_display = { "filename_first" },
+                },
+            },
         })
     end,
 }

@@ -253,23 +253,23 @@ if telescope_ok then
     --     require("telescope.builtin").oldfiles()
     -- end, { silent = true, desc = "Lists previously open files" })
 
-    vim.keymap.set("n", "tfh", function()
+    vim.keymap.set("n", "tht", function()
         require("telescope.builtin").help_tags()
     end, { silent = true, desc = "Lists available help tags" })
 
-    vim.keymap.set("n", "tfg", function()
+    vim.keymap.set("n", "tgs", function()
         require("telescope.builtin").grep_string({ cwd = vim.fn.expand("%:p:h") })
     end, { silent = true, desc = "Searches for the string under your cursor in your current working directory" })
 
-    vim.keymap.set("n", "tff", function()
+    vim.keymap.set("n", "tlg", function()
         require("telescope.builtin").live_grep({ cwd = vim.fn.expand("%:p:h") })
     end, { silent = true, desc = "Search for a string and get results live as you type" })
 
-    vim.keymap.set("n", "tfb", function()
+    vim.keymap.set("n", "tlb", function()
         require("telescope.builtin").buffers()
     end, { silent = true, desc = "Lists open buffers in current neovim instance" })
 
-    vim.keymap.set("n", "tft", function()
+    vim.keymap.set("n", "tts", function()
         require("telescope.builtin").treesitter()
     end, {
         silent = true,
@@ -300,16 +300,33 @@ if telescope_ok then
         require("telescope.builtin").colorscheme({ enable_preview = true })
     end, { silent = true, desc = "Change colorscheme and preview" })
 
-    vim.keymap.set("n", "tgc", function()
-        require("telescope.builtin").git_commits()
-    end, { silent = true, desc = "Lists commits for current directory with diff preview" })
-
     vim.keymap.set("n", "tic", function()
         require("telescope.builtin").lsp_incoming_calls()
     end, { silent = true, desc = "Lists LSP incoming calls for word under the cursor, jumps to reference on" })
     vim.keymap.set("n", "toc", function()
         require("telescope.builtin").lsp_outgoing_calls()
     end, { silent = true, desc = "Lists LSP outgoing calls for word under the cursor, jumps to reference on" })
+
+    local telescope_frecency_ok, telescope_frecency_err = pcall(require, "telescope._extensions.frecency")
+    if telescope_frecency_ok then
+        -- vim.keymap.set("n", "tff", function()
+        --     require("telescope").extensions.frecency.frecency({})
+        -- end)
+        -- Use a specific workspace tag:
+        vim.keymap.set("n", "tfw", function()
+            require("telescope").extensions.frecency.frecency({
+                workspace = "CWD",
+            })
+        end)
+        -- You can use with telescope's options
+        vim.keymap.set("n", "tff", function()
+            require("telescope").extensions.frecency.frecency({
+                workspace = "CWD",
+                path_display = { "shorten" },
+                theme = "ivy",
+            })
+        end)
+    end
 end
 
 -- FzfLua
