@@ -204,14 +204,22 @@ if conform_ok then
 
             require("conform").format({
                 lsp_fallback = false,
-                async = false,
+                -- async: 是否异步执行格式化。
+                -- 作用: 控制 conform 是否以异步方式运行格式化程序以避免阻塞 UI。
+                -- 取值范围: boolean (true/false)。
+                -- 当前取值含义: true -> 异步执行，格式化在后台进行，不会阻塞编辑器交互。
+                async = true,
                 timeout_ms = 5000,
                 range = range,
             })
         else -- 普通模式（格式化整个文件）
             require("conform").format({
                 lsp_fallback = false,
-                async = false,
+                -- async: 是否异步执行格式化。
+                -- 作用: 控制 conform 是否以异步方式运行格式化程序以避免阻塞 UI。
+                -- 取值范围: boolean (true/false)。
+                -- 当前取值含义: true -> 异步执行，格式化在后台进行，不会阻塞编辑器交互。
+                async = true,
                 timeout_ms = 5000,
             })
         end

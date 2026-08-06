@@ -38,8 +38,11 @@ vim.o.shiftwidth = 4
 vim.bo.autoindent = true
 vim.bo.smartindent = true
 
--- 缓冲区更新时间
-vim.g.updatetime = 100
+-- updatetime: 插件和诊断触发相关的延迟时间（毫秒）。
+-- 作用: 控制 CursorHold、lint、gitsigns 等基于时间的事件触发间隔，影响响应频率与资源消耗。
+-- 取值范围: 正整数（单位毫秒），典型值 100-1000。
+-- 当前取值含义: 300 -> 相比更低值减少事件触发频率，有助于降低 CPU 使用，同时保持较为及时的事件响应。
+vim.g.updatetime = 300
 
 -- 查找结果高亮
 vim.g.hlsearch = true
@@ -120,8 +123,11 @@ vim.opt.clipboard = "unnamed,unnamedplus"
 --     },
 -- }
 
--- 启用高亮
--- vim.opt.termguicolors = true
+-- termguicolors: 启用 24-bit 颜色支持（True color）。
+-- 作用: 允许 Neovim 使用终端的真彩色，确保主题和高亮按预期显示。
+-- 取值范围: boolean (true/false)，依赖于终端是否支持 true color。
+-- 当前取值含义: true -> 启用真实颜色渲染，若终端支持会获得更好的配色效果。
+vim.opt.termguicolors = true
 
 ------------------------------- 自定义折叠功能-----------------------------------------------------------------------------
 vim.opt.foldmethod = "manual"
@@ -164,15 +170,38 @@ vim.g.omni_sql_default_compl_type = "syntax"
 
 vim.g.backspace = "indent, eol, start"
 
-vim.o.exrc = true
+-- exrc: 是否允许在工作目录中执行项目特定的 vimrc 文件（如 .nvimrc / .exrc）。
+-- 作用: 若启用，Neovim 会在打开文件时执行当前目录下的配置文件，可能改变运行时配置。
+-- 取值范围: boolean (true/false)。
+-- 当前取值含义: 禁用（注释掉） -> 为安全考虑关闭，避免不受信任项目中的配置造成命令执行风险或环境污染。
+-- vim.o.exrc = true  -- disabled for security: avoid executing project-local rc files
 
--- 启用swapfile
+-- swapfile: 是否启用交换文件（swap），用于恢复崩溃时的缓冲区内容。
+-- 作用: 当编辑器意外退出时，swap 文件可用于恢复未保存的更改。
+-- 取值范围: boolean (true/false)。
+-- 当前取值含义: true -> 启用 swapfile，配合专用目录可防止在工作目录生成临时文件。
 vim.go.swapfile = true
--- 允许 Neovim 自动检测外部更改（如其他编辑器修改文件）
+-- autoread: 是否自动在外部修改文件时重新加载缓冲区。
+-- 作用: 提高与其他工具/编辑器协作时的同步性。
+-- 取值范围: boolean (true/false)。
+-- 当前取值含义: true -> 当文件在外部被修改时自动重新加载。
 vim.opt.autoread = true
--- 设置swap文件位置
--- vim.go.directory = vim.fn.expand("~/.nvim/swapfiles//")
-vim.go.directory = "."
+-- swap/undo 存放目录（使用 stdpath('state') 避免污染当前工作目录）
+-- 作用: 指定 swap 和 undo 文件的存放位置。
+-- 取值范围: 文件路径字符串。
+-- 当前取值含义: 使用 stdpath('state') 下的 swap/ 和 undo/ 子目录。
+vim.go.directory = vim.fn.stdpath('state') .. '/swap//'
+-- undofile: 是否启用持久 undo（撤销历史保存到磁盘）。
+-- 作用: 允许跨会话保留撤销历史。
+-- 取值范围: boolean (true/false)。
+-- 当前取值含义: true -> 启用持久 undo，撤销历史写入 undodir 指定的目录。
+vim.opt.undofile = true
+-- undodir: 持久 undo 文件的存放目录。
+-- 作用: 保存 undo 文件以便会话间恢复撤销历史。
+-- 取值范围: 文件路径字符串。
+-- 当前取值含义: 使用 stdpath('state') 下的 undo/ 子目录。
+vim.go.undodir = vim.fn.stdpath('state') .. '/undo//'
+
 
 -- 该值指定tab line是否被显示，2表示总是显示
 vim.go.showtabline = 2

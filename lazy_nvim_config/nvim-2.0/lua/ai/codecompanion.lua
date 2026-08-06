@@ -90,6 +90,11 @@ local default_prompt = [[
 return -- lazy.nvim
 {
     "olimorris/codecompanion.nvim",
+    -- module: 通过 module 字段指定按需加载的模块名。
+    -- 作用: 当第一次 require('codecompanion') 时才加载该插件，避免在启动时立即下载/初始化大型 AI 插件。
+    -- 取值范围: 字符串（插件导出的模块名）或 nil。
+    -- 当前取值含义: "codecompanion" -> 插件会在调用 require('codecompanion') 时被加载，从而延迟启动开销。
+    module = "codecompanion",
     dependencies = {
         "nvim-lua/plenary.nvim",
         "nvim-treesitter/nvim-treesitter",
@@ -466,7 +471,7 @@ return -- lazy.nvim
                     -- Define your custom adapters here
                     copilot_acp = function()
                         return require("codecompanion.adapters").extend("copilot_acp", {
-                            name = "copilot",
+                            name = "copilot_acp",
                             commands = {
                                 default = {
                                     "copilot",

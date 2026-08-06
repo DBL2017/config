@@ -42,9 +42,11 @@ end
 require("lazy").setup({
     root = vim.fn.stdpath("data") .. "/lazy", -- directory where plugins will be installed
     defaults = {
-        -- Set this to `true` to have all your plugins lazy-loaded by default.
-        -- Only do this if you know what you are doing, as it can lead to unexpected behavior.
-        lazy = false, -- should plugins be lazy-loaded?
+        -- lazy: 是否默认对插件使用懒加载。
+        -- 作用: 控制 lazy.nvim 是否把插件设为懒加载以延迟加载，从而减少启动时立即加载的插件数量并加快启动。
+        -- 取值范围: boolean (true/false)。
+        -- 当前取值含义: true -> 默认让插件懒加载，未明确指定的插件会在被调用时按需加载，能显著降低启动时间。
+        lazy = true, -- should plugins be lazy-loaded?
         -- It's recommended to leave version=false for now, since a lot the plugin that support versioning,
         -- have outdated releases, which may break your Neovim install.
         -- version = nil, -- always use the latest git commit
@@ -59,7 +61,11 @@ require("lazy").setup({
     local_spec = true, -- load project specific .lazy.lua spec files. They will be added at the end of the spec.
     lockfile = vim.fn.stdpath("config") .. "/lazy-lock.json", -- lockfile generated after running update.
     ---@type number? limit the maximum amount of concurrent tasks
-    concurrency = 1,
+    -- concurrency: 控制 lazy.nvim 并行执行 git/安装等任务的最大并发数。
+    -- 作用: 限制并发任务以平衡网络/CPU 使用和速度。
+    -- 取值范围: 正整数（通常 1-16，根据网络/CPU 决定）。
+    -- 当前取值含义: 4 -> 同时最多允许 4 个并发任务，较低的并发有助于稳定网络但较高并提高安装速度。
+    concurrency = 4,
     git = {
         -- defaults for the `Lazy log` command
         -- log = { "--since=3 days ago" }, -- show commits from the last 3 days

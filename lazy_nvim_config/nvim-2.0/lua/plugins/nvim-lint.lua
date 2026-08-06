@@ -1,5 +1,6 @@
 return {
     "mfussenegger/nvim-lint",
+    event = { "BufWritePost", "TextChanged", "InsertEnter", "BufEnter" },
     enabled = true,
     config = function()
         vim.api.nvim_create_autocmd({ "BufWritePost", "TextChanged", "InsertEnter", "BufEnter" }, {

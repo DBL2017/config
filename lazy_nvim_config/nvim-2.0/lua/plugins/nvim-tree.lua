@@ -22,7 +22,7 @@ return {
             },
             view = {
                 side = "left",
-                width = 40,
+                width = 30,
                 number = true,
             },
             renderer = {
@@ -61,7 +61,7 @@ return {
                 git_clean = false,
                 no_buffer = false,
                 no_bookmark = false,
-                custom = { ".swp" },
+                custom = { ".swp", "*.o" },
                 exclude = {},
             },
 

@@ -213,6 +213,7 @@ local opts = {
 return {
     {
         "nvim-lualine/lualine.nvim",
+        lazy = false, -- load at startup so statusline is available
         config = function()
             require("lualine").setup(opts)
         end,

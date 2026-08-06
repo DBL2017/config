@@ -1,10 +1,16 @@
 is_win = require("config.custom_function").check_win()
 return {
     enabled = not is_win,
+    -- event: 指定触发插件加载的事件。
+    -- 作用: 当发生这些 Neovim 事件时才加载插件，避免启动时立即加载重型插件。
+    -- 取值范围: 事件名字符串或事件数组，例如 "BufReadPost", "VimEnter", {"BufReadPre", "BufNewFile"}。
+    -- 当前取值含义: { "BufReadPost", "BufNewFile" } -> 打开或新建文件时加载 treesitter，通常能延迟启动时的开销。
+    event = { "BufReadPost", "BufNewFile" },
     "nvim-treesitter/nvim-treesitter",
     dependencies = {
         "nvim-tree/nvim-web-devicons",
     },
+
     config = function()
         -- 解决默认使用curl下载报错的问题
         -- nvim-treesitter[query]: 
