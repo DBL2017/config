@@ -2,8 +2,8 @@
 local custom_function = require("config.custom_function")
 local custom_comment
 local custom_lsp
-local os = require("config.os")
-if os.is_linux or os.is_mac then
+local platform = require("config.platform")
+if platform.is_linux or platform.is_mac then
     custom_comment = require("config.custom_comment")
     custom_lsp = require("config.custom_lsp")
 end
@@ -177,7 +177,7 @@ vim.keymap.set("n", "[[", "[[zt", {
 -- vim.keymap.set("n", "zR", require("ufo").openAllFolds, { silent = true, desc = "Open all folds" })
 -- vim.keymap.set("n", "zM", require("ufo").closeAllFolds, { silent = true, desc = "Close all folds" })
 
-if os.is_linux or os.is_mac then
+if platform.is_linux or platform.is_mac then
     -- 格式化
     -- vim.keymap.set({ "n", "v" }, "<space>f", require("conform").format, { desc = "Format current buffer" })
     -- 快捷键配置
@@ -238,7 +238,7 @@ end
 -- 文件树
 vim.keymap.set({ "n", "v", "i" }, "<F2>", "<cmd>NvimTreeToggle<CR>", { desc = "Open file explore" })
 
-if os.is_linux or os.is_mac then
+if platform.is_linux or platform.is_mac then
     -- CodeCompanion
     vim.keymap.set({ "n", "v" }, "<LocalLeader>aa", "<cmd>CodeCompanionActions<cr>", { noremap = true, silent = true })
     vim.keymap.set(
@@ -430,7 +430,7 @@ vim.keymap.set("n", "tfw", function()
     })
 end)
 
-if os.is_linux or os.is_mac then
+if platform.is_linux or platform.is_mac then
     -- FzfLua
     vim.keymap.set("n", "fgd", "<cmd>FzfLua lsp_definitions<CR>", { silent = true, desc = "Definitions" })
     vim.keymap.set("n", "fgD", "<cmd>FzfLua lsp_declarations<CR>", { silent = true, desc = "Declarations" })
@@ -573,7 +573,7 @@ end
 vim.keymap.set("n", "<LocalLeader>ng", "<cmd>Neogit<CR>", { silent = true, desc = "Neogit" })
 
 --lspconfig
-if os.is_linux or os.is_mac then
+if platform.is_linux or platform.is_mac then
     vim.keymap.set("n", "<LocalLeader>sl", function()
         if not custom_lsp then
             vim.notify("custom_lsp not loaded", vim.log.levels.WARN)

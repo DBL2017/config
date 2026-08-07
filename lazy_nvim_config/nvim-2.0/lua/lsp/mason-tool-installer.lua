@@ -1,6 +1,6 @@
-local os = require("config.os")
+local platform = require("config.platform")
 
-if os.is_windows then
+if platform.is_windows then
     return {}
 end
 
