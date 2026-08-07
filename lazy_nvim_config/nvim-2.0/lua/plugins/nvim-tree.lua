@@ -26,7 +26,7 @@ return {
             },
             view = {
                 side = "left",
-                width = 30,
+                width = 40,
                 number = true,
             },
             renderer = {

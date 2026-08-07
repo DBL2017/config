@@ -1,3 +1,9 @@
+local os = require("config.os")
+
+if os.is_windows then
+    return {}
+end
+
 return {
     "stevearc/conform.nvim",
     lazy = false,

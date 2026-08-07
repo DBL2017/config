@@ -1,3 +1,9 @@
+local os = require("config.os")
+
+if os.is_windows then
+    return {}
+end
+
 local utils = {}
 
 function utils.machine()

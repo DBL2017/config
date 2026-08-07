@@ -1,7 +1,10 @@
 ----------------------------------------------------------Basic-------------------------------------------------------------
 local custom_function = require("config.custom_function")
-local custom_comment = require("config.custom_comment")
-local custom_lsp = require("config.custom_lsp")
+local os = require("config.os")
+if os.is_linux or os.is_mac then
+    local custom_comment = require("config.custom_comment")
+    local custom_lsp = require("config.custom_lsp")
+end
 
 function save_all_and_quit()
     -- wirte all buffers first
@@ -172,82 +175,91 @@ vim.keymap.set("n", "[[", "[[zt", {
 -- vim.keymap.set("n", "zR", require("ufo").openAllFolds, { silent = true, desc = "Open all folds" })
 -- vim.keymap.set("n", "zM", require("ufo").closeAllFolds, { silent = true, desc = "Close all folds" })
 
--- 格式化
--- vim.keymap.set({ "n", "v" }, "<space>f", require("conform").format, { desc = "Format current buffer" })
--- 快捷键配置
-vim.keymap.set({ "n", "v" }, "<space>f", function(args)
-    local ok, conform = pcall(require, "conform")
-    if not ok then
-        vim.notify("conform not installed or enabled", vim.log.levels.WARN)
-        return
-    end
-    local mode = vim.api.nvim_get_mode().mode
-
-    if mode == "v" or mode == "V" then
-        -- 用 getpos 获取可视选区起止：{bufnum, lnum, col, off}
-        local vpos = vim.fn.getpos("v") -- {buf, lnum, col, off}
-        local cpos = vim.fn.getpos(".") -- {buf, lnum, col, off}
-
-        local srow, erow = vpos[2], cpos[2]
-
-        if srow > erow then
-            srow, erow = erow, srow
+if os.is_linux or os.is_mac then
+    -- 格式化
+    -- vim.keymap.set({ "n", "v" }, "<space>f", require("conform").format, { desc = "Format current buffer" })
+    -- 快捷键配置
+    vim.keymap.set({ "n", "v" }, "<space>f", function(args)
+        local ok, conform = pcall(require, "conform")
+        if not ok then
+            vim.notify("conform not installed or enabled", vim.log.levels.WARN)
+            return
         end
+        local mode = vim.api.nvim_get_mode().mode
 
-        -- 取结束行长度作为“行末列”
-        local end_line = vim.api.nvim_buf_get_lines(0, erow - 1, erow, true)[1] or ""
-        local end_col = #end_line
+        if mode == "v" or mode == "V" then
+            -- 用 getpos 获取可视选区起止：{bufnum, lnum, col, off}
+            local vpos = vim.fn.getpos("v") -- {buf, lnum, col, off}
+            local cpos = vim.fn.getpos(".") -- {buf, lnum, col, off}
 
-        local range = {
-            start = { srow - 1, 0 },
-            ["end"] = { erow - 1, end_col },
-        }
+            local srow, erow = vpos[2], cpos[2]
 
-        -- print("格式化范围:", vim.inspect(range))
+            if srow > erow then
+                srow, erow = erow, srow
+            end
 
-        conform.format({
-            lsp_fallback = false,
-            -- async: 是否异步执行格式化。
-            -- 作用: 控制 conform 是否以异步方式运行格式化程序以避免阻塞 UI。
-            -- 取值范围: boolean (true/false)。
-            -- 当前取值含义: true -> 异步执行，格式化在后台进行，不会阻塞编辑器交互。
-            async = true,
-            timeout_ms = 5000,
-            range = range,
-        })
-    else -- 普通模式（格式化整个文件）
-        conform.format({
-            lsp_fallback = false,
-            -- async: 是否异步执行格式化。
-            -- 作用: 控制 conform 是否以异步方式运行格式化程序以避免阻塞 UI。
-            -- 取值范围: boolean (true/false)。
-            -- 当前取值含义: true -> 异步执行，格式化在后台进行，不会阻塞编辑器交互。
-            async = true,
-            timeout_ms = 5000,
-        })
-    end
-end, { desc = "格式化文件或选中区域" })
+            -- 取结束行长度作为“行末列”
+            local end_line = vim.api.nvim_buf_get_lines(0, erow - 1, erow, true)[1] or ""
+            local end_col = #end_line
+
+            local range = {
+                start = { srow - 1, 0 },
+                ["end"] = { erow - 1, end_col },
+            }
+
+            -- print("格式化范围:", vim.inspect(range))
+
+            conform.format({
+                lsp_fallback = false,
+                -- async: 是否异步执行格式化。
+                -- 作用: 控制 conform 是否以异步方式运行格式化程序以避免阻塞 UI。
+                -- 取值范围: boolean (true/false)。
+                -- 当前取值含义: true -> 异步执行，格式化在后台进行，不会阻塞编辑器交互。
+                async = true,
+                timeout_ms = 5000,
+                range = range,
+            })
+        else -- 普通模式（格式化整个文件）
+            conform.format({
+                lsp_fallback = false,
+                -- async: 是否异步执行格式化。
+                -- 作用: 控制 conform 是否以异步方式运行格式化程序以避免阻塞 UI。
+                -- 取值范围: boolean (true/false)。
+                -- 当前取值含义: true -> 异步执行，格式化在后台进行，不会阻塞编辑器交互。
+                async = true,
+                timeout_ms = 5000,
+            })
+        end
+    end, { desc = "格式化文件或选中区域" })
+end
 
 -- 文件树
 vim.keymap.set({ "n", "v", "i" }, "<F2>", "<cmd>NvimTreeToggle<CR>", { desc = "Open file explore" })
 
--- CodeCompanion
-vim.keymap.set({ "n", "v" }, "<LocalLeader>aa", "<cmd>CodeCompanionActions<cr>", { noremap = true, silent = true })
-vim.keymap.set({ "n", "v" }, "<LocalLeader>at", "<cmd>CodeCompanionChat Toggle<cr>", { noremap = true, silent = true })
-vim.keymap.set("v", "ga", "<cmd>CodeCompanionChat Add<cr>", { noremap = true, silent = true })
-vim.keymap.set({ "v" }, "<LocalLeader>ae", function()
-    local ok, cc = pcall(require, "codecompanion")
-    if ok then
-        cc.prompt("claude_explain_code_view")
-    else
-        vim.notify("CodeCompanion not installed or enabled", vim.log.levels.WARN)
-    end
-end, { noremap = true, silent = true })
-vim.keymap.set({ "n" }, "<LocalLeader>ah", "<cmd>CodeCompanionHistory<cr>", {
-    desc = "Open chat history list",
-    noremap = true,
-    silent = true,
-})
+if os.is_linux or os.is_mac then
+    -- CodeCompanion
+    vim.keymap.set({ "n", "v" }, "<LocalLeader>aa", "<cmd>CodeCompanionActions<cr>", { noremap = true, silent = true })
+    vim.keymap.set(
+        { "n", "v" },
+        "<LocalLeader>at",
+        "<cmd>CodeCompanionChat Toggle<cr>",
+        { noremap = true, silent = true }
+    )
+    vim.keymap.set("v", "ga", "<cmd>CodeCompanionChat Add<cr>", { noremap = true, silent = true })
+    vim.keymap.set({ "v" }, "<LocalLeader>ae", function()
+        local ok, cc = pcall(require, "codecompanion")
+        if ok then
+            cc.prompt("claude_explain_code_view")
+        else
+            vim.notify("CodeCompanion not installed or enabled", vim.log.levels.WARN)
+        end
+    end, { noremap = true, silent = true })
+    vim.keymap.set({ "n" }, "<LocalLeader>ah", "<cmd>CodeCompanionHistory<cr>", {
+        desc = "Open chat history list",
+        noremap = true,
+        silent = true,
+    })
+end
 
 -- telescope
 -- " Find files using Telescope command-line sugar.
@@ -416,66 +428,78 @@ vim.keymap.set("n", "tfw", function()
     })
 end)
 
--- FzfLua
-vim.keymap.set("n", "fgd", "<cmd>FzfLua lsp_definitions<CR>", { silent = true, desc = "Definitions" })
-vim.keymap.set("n", "fgD", "<cmd>FzfLua lsp_declarations<CR>", { silent = true, desc = "Declarations" })
-vim.keymap.set("n", "flr", "<cmd>FzfLua lsp_references<CR>", { silent = true, desc = "References" })
-vim.keymap.set("n", "flf", "<cmd>FzfLua lsp_finder<CR>", { silent = true, desc = "All lsp locations" })
-vim.keymap.set("n", "fli", "<cmd>FzfLua lsp_implementations<CR>", { silent = true, desc = "Implementations" })
-vim.keymap.set("n", "flt", "<cmd>FzfLua lsp_typedefs<CR>", { silent = true, desc = "Type definitions" })
-vim.keymap.set("n", "fca", "<cmd>FzfLua code_action<CR>", { silent = true, desc = "Code actions" })
-vim.keymap.set("n", "fic", "<cmd>FzfLua lsp_incoming_calls<CR>", { silent = true, desc = "Show incomming calls" })
-vim.keymap.set("n", "foc", "<cmd>FzfLua lsp_outgoing_calls<CR>", { silent = true, desc = "Show outgoging calls" })
+if os.is_linux or os.is_mac then
+    -- FzfLua
+    vim.keymap.set("n", "fgd", "<cmd>FzfLua lsp_definitions<CR>", { silent = true, desc = "Definitions" })
+    vim.keymap.set("n", "fgD", "<cmd>FzfLua lsp_declarations<CR>", { silent = true, desc = "Declarations" })
+    vim.keymap.set("n", "flr", "<cmd>FzfLua lsp_references<CR>", { silent = true, desc = "References" })
+    vim.keymap.set("n", "flf", "<cmd>FzfLua lsp_finder<CR>", { silent = true, desc = "All lsp locations" })
+    vim.keymap.set("n", "fli", "<cmd>FzfLua lsp_implementations<CR>", { silent = true, desc = "Implementations" })
+    vim.keymap.set("n", "flt", "<cmd>FzfLua lsp_typedefs<CR>", { silent = true, desc = "Type definitions" })
+    vim.keymap.set("n", "fca", "<cmd>FzfLua code_action<CR>", { silent = true, desc = "Code actions" })
+    vim.keymap.set("n", "fic", "<cmd>FzfLua lsp_incoming_calls<CR>", { silent = true, desc = "Show incomming calls" })
+    vim.keymap.set("n", "foc", "<cmd>FzfLua lsp_outgoing_calls<CR>", { silent = true, desc = "Show outgoging calls" })
 
-vim.keymap.set("n", "fgc", "<cmd>FzfLua git_commits<CR>", { silent = true, desc = "Git commit log(project)" })
-vim.keymap.set("n", "fgb", "<cmd>FzfLua git_bcommits<CR>", { silent = true, desc = "Git commit log(buffer)" })
-vim.keymap.set("n", "fgr", "<cmd>FzfLua grep_cword<CR>", { silent = true, desc = "Search word under cursor" })
+    vim.keymap.set("n", "fgc", "<cmd>FzfLua git_commits<CR>", { silent = true, desc = "Git commit log(project)" })
+    vim.keymap.set("n", "fgb", "<cmd>FzfLua git_bcommits<CR>", { silent = true, desc = "Git commit log(buffer)" })
+    vim.keymap.set("n", "fgr", "<cmd>FzfLua grep_cword<CR>", { silent = true, desc = "Search word under cursor" })
 
--- Outline
-vim.keymap.set("n", "<F12>", "<cmd>Outline<CR>", { silent = true, desc = "Toggle outline" })
+    -- Outline
+    vim.keymap.set("n", "<F12>", "<cmd>Outline<CR>", { silent = true, desc = "Toggle outline" })
 
--- Toggleterm
--- 设置toggleterm的快捷键，使其能够在打开终端的情况下切换到其他窗口
-function _G.set_terminal_keymaps()
-    vim.keymap.set("t", "<esc>", [[<C-\><C-n>]], { buffer = 0 })
-    vim.keymap.set("t", "jk", [[<C-\><C-n>]], { buffer = 0 })
-    -- 有些终端模拟器上，<Backspace>按键会发送0x08，与<C-h>一致，下面的映射就可能导致<BS>失效，需要修改终端模拟对<BS>的配置
-    vim.keymap.set("t", "<C-h>", [[<cmd>wincmd h<CR>]], { buffer = 0 })
-    vim.keymap.set("t", "<C-j>", [[<cmd>wincmd j<CR>]], { buffer = 0 })
-    vim.keymap.set("t", "<C-k>", [[<cmd>wincmd k<CR>]], { buffer = 0 })
-    vim.keymap.set("t", "<C-l>", [[<cmd>wincmd l<CR>]], { buffer = 0 })
-    vim.keymap.set("t", "<C-w>", [[<C-\><C-n><C-w>]], { buffer = 0 })
+    -- Toggleterm
+    -- 设置toggleterm的快捷键，使其能够在打开终端的情况下切换到其他窗口
+    function _G.set_terminal_keymaps()
+        vim.keymap.set("t", "<esc>", [[<C-\><C-n>]], { buffer = 0 })
+        vim.keymap.set("t", "jk", [[<C-\><C-n>]], { buffer = 0 })
+        -- 有些终端模拟器上，<Backspace>按键会发送0x08，与<C-h>一致，下面的映射就可能导致<BS>失效，需要修改终端模拟对<BS>的配置
+        vim.keymap.set("t", "<C-h>", [[<cmd>wincmd h<CR>]], { buffer = 0 })
+        vim.keymap.set("t", "<C-j>", [[<cmd>wincmd j<CR>]], { buffer = 0 })
+        vim.keymap.set("t", "<C-k>", [[<cmd>wincmd k<CR>]], { buffer = 0 })
+        vim.keymap.set("t", "<C-l>", [[<cmd>wincmd l<CR>]], { buffer = 0 })
+        vim.keymap.set("t", "<C-w>", [[<C-\><C-n><C-w>]], { buffer = 0 })
+    end
+
+    -- Trouble
+    -- diagnostic键映射
+    vim.keymap.set(
+        "n",
+        "<LocalLeader>xx",
+        "<cmd>Trouble diagnostics toggle filter.buf=0<cr>",
+        { silent = true, desc = "Trouble diagnostic toggle" }
+    )
+    vim.keymap.set(
+        "n",
+        "<LocalLeader>xw",
+        "<cmd>Trouble workspace_diagnostics toggle<cr>",
+        { silent = true, desc = "" }
+    )
+    vim.keymap.set("n", "<LocalLeader>xd", "<cmd>Trouble document_diagnostics toggle<cr>", { silent = true, desc = "" })
+    vim.keymap.set("n", "<LocalLeader>xl", "<cmd>Trouble loclist toggle<cr>", { silent = true, desc = "" })
+    vim.keymap.set("n", "<LocalLeader>xq", "<cmd>Trouble quickfix toggle<cr>", { silent = true, desc = "" })
+    vim.keymap.set("n", "gR", "<cmd>Trouble lsp_references toggle<cr>", { silent = true, desc = "" })
+
+    -- lspsaga
+    vim.keymap.set("n", "K", "<cmd>Lspsaga hover_doc<CR>", { silent = true, desc = "Lspsaga hover" })
+    vim.keymap.set("n", "pd", "<cmd>Lspsaga peek_definition<CR>", { silent = true, desc = "Lspsaga peek_definition" })
+    vim.keymap.set(
+        "n",
+        "<LocalLeader>ca",
+        "<cmd>Lspsaga code_action<CR>",
+        { silent = true, desc = "Lspsaga code actions" }
+    )
+
+    -- nvim-dap
+    vim.keymap.set("n", "<F5>", "<cmd>DapContinue<CR>", { silent = true, desc = "launch/continue debug" })
+    vim.keymap.set("n", "<F29>", "<cmd>DapTerminate<CR>", { silent = true, desc = "terminate debug" })
+    vim.keymap.set("n", "<F6>", "<cmd>DapToggleBreakpoint<CR>", { silent = true, desc = "toggle breakpoint" })
+    vim.keymap.set("n", "<F30>", "<cmd>DapClearBreakpoints<CR>", { silent = true, desc = "clear breakpoints" })
+    vim.keymap.set("n", "<F10>", "<cmd>DapStepOver<CR>", { silent = true, desc = "step over" })
+    vim.keymap.set("n", "<F11>", "<cmd>DapStepInto<CR>", { silent = true, desc = "step into" })
+    vim.keymap.set("n", "<F23>", "<cmd>DapStepOut<CR>", { silent = true, desc = "step out" })
+    -- nvim-view-dap
+    vim.keymap.set("n", "<LocalLeader>dw", "<cmd>DapViewWatch<CR>", { silent = true, desc = "step out" })
 end
-
--- Trouble
--- diagnostic键映射
-vim.keymap.set(
-    "n",
-    "<LocalLeader>xx",
-    "<cmd>Trouble diagnostics toggle filter.buf=0<cr>",
-    { silent = true, desc = "Trouble diagnostic toggle" }
-)
-vim.keymap.set("n", "<LocalLeader>xw", "<cmd>Trouble workspace_diagnostics toggle<cr>", { silent = true, desc = "" })
-vim.keymap.set("n", "<LocalLeader>xd", "<cmd>Trouble document_diagnostics toggle<cr>", { silent = true, desc = "" })
-vim.keymap.set("n", "<LocalLeader>xl", "<cmd>Trouble loclist toggle<cr>", { silent = true, desc = "" })
-vim.keymap.set("n", "<LocalLeader>xq", "<cmd>Trouble quickfix toggle<cr>", { silent = true, desc = "" })
-vim.keymap.set("n", "gR", "<cmd>Trouble lsp_references toggle<cr>", { silent = true, desc = "" })
-
--- lspsaga
-vim.keymap.set("n", "K", "<cmd>Lspsaga hover_doc<CR>", { silent = true, desc = "Lspsaga hover" })
-vim.keymap.set("n", "pd", "<cmd>Lspsaga peek_definition<CR>", { silent = true, desc = "Lspsaga peek_definition" })
-vim.keymap.set("n", "<LocalLeader>ca", "<cmd>Lspsaga code_action<CR>", { silent = true, desc = "Lspsaga code actions" })
-
--- nvim-dap
-vim.keymap.set("n", "<F5>", "<cmd>DapContinue<CR>", { silent = true, desc = "launch/continue debug" })
-vim.keymap.set("n", "<F29>", "<cmd>DapTerminate<CR>", { silent = true, desc = "terminate debug" })
-vim.keymap.set("n", "<F6>", "<cmd>DapToggleBreakpoint<CR>", { silent = true, desc = "toggle breakpoint" })
-vim.keymap.set("n", "<F30>", "<cmd>DapClearBreakpoints<CR>", { silent = true, desc = "clear breakpoints" })
-vim.keymap.set("n", "<F10>", "<cmd>DapStepOver<CR>", { silent = true, desc = "step over" })
-vim.keymap.set("n", "<F11>", "<cmd>DapStepInto<CR>", { silent = true, desc = "step into" })
-vim.keymap.set("n", "<F23>", "<cmd>DapStepOut<CR>", { silent = true, desc = "step out" })
--- nvim-view-dap
-vim.keymap.set("n", "<LocalLeader>dw", "<cmd>DapViewWatch<CR>", { silent = true, desc = "step out" })
 
 -- gitsigns
 _G.set_gitsign_keymap = function(bufnr)
@@ -547,24 +571,26 @@ end
 vim.keymap.set("n", "<LocalLeader>ng", "<cmd>Neogit<CR>", { silent = true, desc = "Neogit" })
 
 --lspconfig
-vim.keymap.set("n", "<LocalLeader>sl", function()
-    custom_lsp.start_lsp()
-end, { buffer = bufnr, desc = "Start lsp client" })
-vim.keymap.set("n", "<LocalLeader>abc", function()
-    custom_lsp.attach_buffer()
-end, { buffer = bufnr, desc = "Attach current buffer" })
-vim.keymap.set("n", "<LocalLeader>aba", function()
-    custom_lsp.attach_all()
-end, { buffer = bufnr, desc = "Attach all buffer" })
-vim.keymap.set("n", "<LocalLeader>dbc", function()
-    custom_lsp.detach_current()
-end, { buffer = bufnr, desc = "Detach current buffer from client" })
-vim.keymap.set("n", "<LocalLeader>dba", function()
-    custom_lsp.detach_all()
-end, { buffer = bufnr, desc = "Detach all buffers from client" })
-vim.keymap.set("n", "<LocalLeader>dbo", function()
-    custom_lsp.detach_others()
-end, { buffer = bufnr, desc = "Detach other buffers from client" })
+if os.is_linux or os.is_mac then
+    vim.keymap.set("n", "<LocalLeader>sl", function()
+        custom_lsp.start_lsp()
+    end, { buffer = bufnr, desc = "Start lsp client" })
+    vim.keymap.set("n", "<LocalLeader>abc", function()
+        custom_lsp.attach_buffer()
+    end, { buffer = bufnr, desc = "Attach current buffer" })
+    vim.keymap.set("n", "<LocalLeader>aba", function()
+        custom_lsp.attach_all()
+    end, { buffer = bufnr, desc = "Attach all buffer" })
+    vim.keymap.set("n", "<LocalLeader>dbc", function()
+        custom_lsp.detach_current()
+    end, { buffer = bufnr, desc = "Detach current buffer from client" })
+    vim.keymap.set("n", "<LocalLeader>dba", function()
+        custom_lsp.detach_all()
+    end, { buffer = bufnr, desc = "Detach all buffers from client" })
+    vim.keymap.set("n", "<LocalLeader>dbo", function()
+        custom_lsp.detach_others()
+    end, { buffer = bufnr, desc = "Detach other buffers from client" })
+end
 
 -- nvim-treesitter-textobject
 -- -- 快捷键映射

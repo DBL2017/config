@@ -1,3 +1,9 @@
+local os = require("config.os")
+
+if os.is_windows then
+    return {}
+end
+
 return {
     "rcarriga/nvim-dap-ui",
     dependencies = { "mfussenegger/nvim-dap", "nvim-neotest/nvim-nio" },

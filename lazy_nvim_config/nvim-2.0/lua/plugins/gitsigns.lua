@@ -1,6 +1,10 @@
 return {
     "lewis6991/gitsigns.nvim",
     lazy = false, -- load at startup so statusline is available
+    event = {
+        "BufReadPre",
+        "BufNewFile",
+    },
     config = function()
         require("gitsigns").setup({
             signs = {

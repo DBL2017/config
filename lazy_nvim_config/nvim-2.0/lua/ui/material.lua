@@ -74,7 +74,7 @@ local opts = {
 return {
     {
         "marko-cerovac/material.nvim",
-        lazy = false,    -- make sure we load this during startup if it is your main colorscheme
+        event = "VimEnter",
         priority = 1000, -- make sure to load this before all the other start plugins
         config = function()
             require("material").setup(opts)
@@ -87,5 +87,5 @@ return {
             -- require("material.functions").change_style("darker")
             -- vim.cmd({ cmd = "colorscheme", args = { "material" } })
         end,
-    }
+    },
 }

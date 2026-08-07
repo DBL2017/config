@@ -1,3 +1,9 @@
+local os = require("config.os")
+
+if os.is_windows then
+    return {}
+end
+
 -- 该插件用于安装lsp server或其他代码工具
 return {
     "williamboman/mason.nvim",

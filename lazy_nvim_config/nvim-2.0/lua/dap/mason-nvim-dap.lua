@@ -1,3 +1,9 @@
+local os = require("config.os")
+
+if os.is_windows then
+    return {}
+end
+
 return {
     "jay-babu/mason-nvim-dap.nvim",
     enabled = true,
@@ -9,7 +15,7 @@ return {
         require("mason-nvim-dap").setup({
             -- A list of adapters to install if they're not already installed.
             -- This setting has no relation with the `automatic_installation` setting.
-            ensure_installed = {"python"},
+            ensure_installed = { "python" },
 
             -- NOTE: this is left here for future porting in case needed
             -- Whether adapters that are set up (via dap) should be automatically installed if they're not already installed.

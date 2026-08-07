@@ -1,3 +1,9 @@
+local os = require("config.os")
+
+if os.is_windows then
+    return {}
+end
+
 -- 该插件为代码补全工具，补全数据来源有LSP，BUFFER，CMDLine等
 return {
     "hrsh7th/nvim-cmp",

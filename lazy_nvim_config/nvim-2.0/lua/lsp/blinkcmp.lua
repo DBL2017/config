@@ -1,3 +1,9 @@
+local os = require("config.os")
+
+if os.is_windows then
+    return {}
+end
+
 return {
     "saghen/blink.cmp",
     enabled = not vim.g.vscode, -- 在vscode-neovim禁用
