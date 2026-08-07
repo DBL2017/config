@@ -1,9 +1,11 @@
 ----------------------------------------------------------Basic-------------------------------------------------------------
 local custom_function = require("config.custom_function")
+local custom_comment
+local custom_lsp
 local os = require("config.os")
 if os.is_linux or os.is_mac then
-    local custom_comment = require("config.custom_comment")
-    local custom_lsp = require("config.custom_lsp")
+    custom_comment = require("config.custom_comment")
+    custom_lsp = require("config.custom_lsp")
 end
 
 function save_all_and_quit()
@@ -56,7 +58,7 @@ vim.keymap.set("n", "<LocalLeader>gd", custom_function.git_diff_with_commit_sha,
 })
 
 -- 普通模式下在当前位置插入时间
-vim.keymap.set("n", "<LocalLeader>ti", "i<C-R>=strftime('%Y-%m-%d %H:%M:%S')<CR><ESC>", {
+vim.keymap.set("n", "<LocalLeader>ta", "a<C-R>=strftime('%Y-%m-%d %H:%M:%S')<CR><ESC>", {
     silent = true,
     desc = "插入本地化时间",
 })
@@ -573,21 +575,50 @@ vim.keymap.set("n", "<LocalLeader>ng", "<cmd>Neogit<CR>", { silent = true, desc 
 --lspconfig
 if os.is_linux or os.is_mac then
     vim.keymap.set("n", "<LocalLeader>sl", function()
+        if not custom_lsp then
+            vim.notify("custom_lsp not loaded", vim.log.levels.WARN)
+            return
+        end
         custom_lsp.start_lsp()
     end, { buffer = bufnr, desc = "Start lsp client" })
+
     vim.keymap.set("n", "<LocalLeader>abc", function()
+        if not custom_lsp then
+            vim.notify("custom_lsp not loaded", vim.log.levels.WARN)
+            return
+        end
         custom_lsp.attach_buffer()
     end, { buffer = bufnr, desc = "Attach current buffer" })
+
     vim.keymap.set("n", "<LocalLeader>aba", function()
+        if not custom_lsp then
+            vim.notify("custom_lsp not loaded", vim.log.levels.WARN)
+            return
+        end
         custom_lsp.attach_all()
     end, { buffer = bufnr, desc = "Attach all buffer" })
+
     vim.keymap.set("n", "<LocalLeader>dbc", function()
+        if not custom_lsp then
+            vim.notify("custom_lsp not loaded", vim.log.levels.WARN)
+            return
+        end
         custom_lsp.detach_current()
     end, { buffer = bufnr, desc = "Detach current buffer from client" })
+
     vim.keymap.set("n", "<LocalLeader>dba", function()
+        if not custom_lsp then
+            vim.notify("custom_lsp not loaded", vim.log.levels.WARN)
+            return
+        end
         custom_lsp.detach_all()
     end, { buffer = bufnr, desc = "Detach all buffers from client" })
+
     vim.keymap.set("n", "<LocalLeader>dbo", function()
+        if not custom_lsp then
+            vim.notify("custom_lsp not loaded", vim.log.levels.WARN)
+            return
+        end
         custom_lsp.detach_others()
     end, { buffer = bufnr, desc = "Detach other buffers from client" })
 end
