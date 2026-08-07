@@ -112,6 +112,7 @@ return -- lazy.nvim
         "CodeCompanion",
         "CodeCompanionChat",
         "CodeCompanionActions",
+        "CodeCompanionHistory",
     },
     version = "^19.22.0",
     config = function()
@@ -316,7 +317,7 @@ return -- lazy.nvim
                 chat = {
                     -- adapter = "siliconflow_r1",
                     -- adapter = "qwen2_coder_local",
-                    adapter = "claude_opus_online",
+                    adapter = "copilot_acp",
                     -- adapter = {
                     --     -- 适配器名称
                     --     -- 当前效果：使用 "anthropic" 适配器

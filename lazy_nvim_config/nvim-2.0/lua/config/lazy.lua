@@ -119,7 +119,8 @@ require("lazy").setup({
     },
     install = {
         -- install missing plugins on startup. This doesn't increase startup time.
-        missing = true,
+        -- changed to false: defer installation to background job to avoid blocking the UI
+        missing = false,
         -- try to load one of these colorschemes when starting an installation during startup
         colorscheme = { "material", "neon", "tokyonight", "habamax" },
     },
