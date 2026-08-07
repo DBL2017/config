@@ -173,268 +173,309 @@ vim.keymap.set("n", "[[", "[[zt", {
 -- vim.keymap.set("n", "zM", require("ufo").closeAllFolds, { silent = true, desc = "Close all folds" })
 
 -- 格式化
-local conform_ok, conform_err = pcall(require, "conform")
-if conform_ok then
-    -- vim.keymap.set({ "n", "v" }, "<space>f", require("conform").format, { desc = "Format current buffer" })
-    -- 快捷键配置
-    vim.keymap.set({ "n", "v" }, "<space>f", function(args)
-        local mode = vim.api.nvim_get_mode().mode
+-- vim.keymap.set({ "n", "v" }, "<space>f", require("conform").format, { desc = "Format current buffer" })
+-- 快捷键配置
+vim.keymap.set({ "n", "v" }, "<space>f", function(args)
+    local ok, conform = pcall(require, "conform")
+    if not ok then
+        vim.notify("conform not installed or enabled", vim.log.levels.WARN)
+        return
+    end
+    local mode = vim.api.nvim_get_mode().mode
 
-        if mode == "v" or mode == "V" then
-            -- 用 getpos 获取可视选区起止：{bufnum, lnum, col, off}
-            local vpos = vim.fn.getpos("v") -- {buf, lnum, col, off}
-            local cpos = vim.fn.getpos(".") -- {buf, lnum, col, off}
+    if mode == "v" or mode == "V" then
+        -- 用 getpos 获取可视选区起止：{bufnum, lnum, col, off}
+        local vpos = vim.fn.getpos("v") -- {buf, lnum, col, off}
+        local cpos = vim.fn.getpos(".") -- {buf, lnum, col, off}
 
-            local srow, erow = vpos[2], cpos[2]
+        local srow, erow = vpos[2], cpos[2]
 
-            if srow > erow then
-                srow, erow = erow, srow
-            end
-
-            -- 取结束行长度作为“行末列”
-            local end_line = vim.api.nvim_buf_get_lines(0, erow - 1, erow, true)[1] or ""
-            local end_col = #end_line
-
-            local range = {
-                start = { srow - 1, 0 },
-                ["end"] = { erow - 1, end_col },
-            }
-
-            -- print("格式化范围:", vim.inspect(range))
-
-            require("conform").format({
-                lsp_fallback = false,
-                -- async: 是否异步执行格式化。
-                -- 作用: 控制 conform 是否以异步方式运行格式化程序以避免阻塞 UI。
-                -- 取值范围: boolean (true/false)。
-                -- 当前取值含义: true -> 异步执行，格式化在后台进行，不会阻塞编辑器交互。
-                async = true,
-                timeout_ms = 5000,
-                range = range,
-            })
-        else -- 普通模式（格式化整个文件）
-            require("conform").format({
-                lsp_fallback = false,
-                -- async: 是否异步执行格式化。
-                -- 作用: 控制 conform 是否以异步方式运行格式化程序以避免阻塞 UI。
-                -- 取值范围: boolean (true/false)。
-                -- 当前取值含义: true -> 异步执行，格式化在后台进行，不会阻塞编辑器交互。
-                async = true,
-                timeout_ms = 5000,
-            })
+        if srow > erow then
+            srow, erow = erow, srow
         end
-    end, { desc = "格式化文件或选中区域" })
-end
+
+        -- 取结束行长度作为“行末列”
+        local end_line = vim.api.nvim_buf_get_lines(0, erow - 1, erow, true)[1] or ""
+        local end_col = #end_line
+
+        local range = {
+            start = { srow - 1, 0 },
+            ["end"] = { erow - 1, end_col },
+        }
+
+        -- print("格式化范围:", vim.inspect(range))
+
+        conform.format({
+            lsp_fallback = false,
+            -- async: 是否异步执行格式化。
+            -- 作用: 控制 conform 是否以异步方式运行格式化程序以避免阻塞 UI。
+            -- 取值范围: boolean (true/false)。
+            -- 当前取值含义: true -> 异步执行，格式化在后台进行，不会阻塞编辑器交互。
+            async = true,
+            timeout_ms = 5000,
+            range = range,
+        })
+    else -- 普通模式（格式化整个文件）
+        conform.format({
+            lsp_fallback = false,
+            -- async: 是否异步执行格式化。
+            -- 作用: 控制 conform 是否以异步方式运行格式化程序以避免阻塞 UI。
+            -- 取值范围: boolean (true/false)。
+            -- 当前取值含义: true -> 异步执行，格式化在后台进行，不会阻塞编辑器交互。
+            async = true,
+            timeout_ms = 5000,
+        })
+    end
+end, { desc = "格式化文件或选中区域" })
 
 -- 文件树
-local nvimtree_ok, nvimtree_err = pcall(require, "nvim-tree")
-if nvimtree_ok then
-    vim.keymap.set({ "n", "v", "i" }, "<F2>", "<cmd>NvimTreeToggle<CR>", { desc = "Open file explore" })
-end
+vim.keymap.set({ "n", "v", "i" }, "<F2>", "<cmd>NvimTreeToggle<CR>", { desc = "Open file explore" })
 
 -- CodeCompanion
-local codecompanion_ok, codecompanion_err = pcall(require, "codecompanion")
-if codecompanion_ok then
-    vim.keymap.set({ "n", "v" }, "<LocalLeader>aa", "<cmd>CodeCompanionActions<cr>", { noremap = true, silent = true })
-    vim.keymap.set(
-        { "n", "v" },
-        "<LocalLeader>at",
-        "<cmd>CodeCompanionChat Toggle<cr>",
-        { noremap = true, silent = true }
-    )
-    vim.keymap.set("v", "ga", "<cmd>CodeCompanionChat Add<cr>", { noremap = true, silent = true })
-    vim.keymap.set({ "v" }, "<LocalLeader>ae", function()
-        require("codecompanion").prompt("claude_explain_code_view")
-    end, { noremap = true, silent = true })
-
-    vim.keymap.set(
-        { "n" },
-        "<LocalLeader>ah",
-        "<cmd>CodeCompanionHistory<cr>",
-        { desc = "Open chat history list", noremap = true, silent = true }
-    )
-end
+vim.keymap.set({ "n", "v" }, "<LocalLeader>aa", "<cmd>CodeCompanionActions<cr>", { noremap = true, silent = true })
+vim.keymap.set({ "n", "v" }, "<LocalLeader>at", "<cmd>CodeCompanionChat Toggle<cr>", { noremap = true, silent = true })
+vim.keymap.set("v", "ga", "<cmd>CodeCompanionChat Add<cr>", { noremap = true, silent = true })
+vim.keymap.set({ "v" }, "<LocalLeader>ae", function()
+    local ok, cc = pcall(require, "codecompanion")
+    if ok then
+        cc.prompt("claude_explain_code_view")
+    else
+        vim.notify("CodeCompanion not installed or enabled", vim.log.levels.WARN)
+    end
+end, { noremap = true, silent = true })
+vim.keymap.set({ "n" }, "<LocalLeader>ah", "<cmd>CodeCompanionHistory<cr>", {
+    desc = "Open chat history list",
+    noremap = true,
+    silent = true,
+})
 
 -- telescope
 -- " Find files using Telescope command-line sugar.
 -- live-grep 依赖于外部工具ripgrep， sudo apt install ripgrep
-local telescope_ok, telescope_err = pcall(require, "telescope.builtin")
-if telescope_ok then
-    vim.keymap.set("n", "tfr", function()
-        require("telescope.builtin").find_files()
-    end, { silent = true, desc = "Search for files" })
-
-    -- vim.keymap.set("n", "tfr", function()
-    --     require("telescope.builtin").oldfiles()
-    -- end, { silent = true, desc = "Lists previously open files" })
-
-    vim.keymap.set("n", "tht", function()
-        require("telescope.builtin").help_tags()
-    end, { silent = true, desc = "Lists available help tags" })
-
-    vim.keymap.set("n", "tgs", function()
-        require("telescope.builtin").grep_string({ cwd = vim.fn.expand("%:p:h") })
-    end, { silent = true, desc = "Searches for the string under your cursor in your current working directory" })
-
-    vim.keymap.set("n", "tlg", function()
-        require("telescope.builtin").live_grep({ cwd = vim.fn.expand("%:p:h") })
-    end, { silent = true, desc = "Search for a string and get results live as you type" })
-
-    vim.keymap.set("n", "tlb", function()
-        require("telescope.builtin").buffers()
-    end, { silent = true, desc = "Lists open buffers in current neovim instance" })
-
-    vim.keymap.set("n", "tts", function()
-        require("telescope.builtin").treesitter()
-    end, {
-        silent = true,
-        desc = "Lists function names, variables, and other symbols from treesitter queries",
-    })
-
-    vim.keymap.set("n", "tgd", function()
-        require("telescope.builtin").lsp_definitions({ jump_type = "never" })
-    end, { silent = true, desc = "Goto the definition of the word under the cursor" })
-
-    vim.keymap.set("n", "tgb", function()
-        require("telescope.builtin").git_branches({ jump_type = "never" })
-    end, { silent = true, desc = "List branches for current directory, shown in the preview window" })
-
-    vim.keymap.set("n", "tgc", function()
-        require("telescope.builtin").git_commits({ jump_type = "never" })
-    end, { silent = true, desc = "List commits for current directory with diff preview" })
-
-    vim.keymap.set("n", "tbc", function()
-        require("telescope.builtin").git_bcommits({ jump_type = "never" })
-    end, { silent = true, desc = "Lists commits for current buffer with diff preview" })
-
-    vim.keymap.set("n", "tlr", function()
-        require("telescope.builtin").lsp_references()
-    end, { silent = true, desc = "Lists LSP references for word under the cursor" })
-
-    vim.keymap.set("n", "tcs", function()
-        require("telescope.builtin").colorscheme({ enable_preview = true })
-    end, { silent = true, desc = "Change colorscheme and preview" })
-
-    vim.keymap.set("n", "tic", function()
-        require("telescope.builtin").lsp_incoming_calls()
-    end, { silent = true, desc = "Lists LSP incoming calls for word under the cursor, jumps to reference on" })
-    vim.keymap.set("n", "toc", function()
-        require("telescope.builtin").lsp_outgoing_calls()
-    end, { silent = true, desc = "Lists LSP outgoing calls for word under the cursor, jumps to reference on" })
-
-    local telescope_frecency_ok, telescope_frecency_err = pcall(require, "telescope._extensions.frecency")
-    if telescope_frecency_ok then
-        -- vim.keymap.set("n", "tff", function()
-        --     require("telescope").extensions.frecency.frecency({})
-        -- end)
-        -- Use a specific workspace tag:
-        vim.keymap.set("n", "tfw", function()
-            require("telescope").extensions.frecency.frecency({
-                workspace = "CWD",
-            })
-        end)
-        -- You can use with telescope's options
-        vim.keymap.set("n", "tff", function()
-            require("telescope").extensions.frecency.frecency({
-                workspace = "CWD",
-                path_display = { "shorten" },
-                theme = "ivy",
-            })
-        end)
+vim.keymap.set("n", "tfr", function()
+    local ok, telescope = pcall(require, "telescope.builtin")
+    if not ok then
+        vim.notify("telescope not installed or enabled", vim.log.levels.WARN)
+        return
     end
-end
+    telescope.find_files()
+end, { silent = true, desc = "Search for files" })
+
+vim.keymap.set("n", "tht", function()
+    local ok, telescope = pcall(require, "telescope.builtin")
+    if not ok then
+        vim.notify("telescope not installed or enabled", vim.log.levels.WARN)
+        return
+    end
+    telescope.help_tags()
+end, { silent = true, desc = "Lists available help tags" })
+
+vim.keymap.set("n", "tgs", function()
+    local ok, telescope = pcall(require, "telescope.builtin")
+    if not ok then
+        vim.notify("telescope not installed or enabled", vim.log.levels.WARN)
+        return
+    end
+    telescope.grep_string({ cwd = vim.fn.expand("%:p:h") })
+end, { silent = true, desc = "Searches for the string under your cursor in your current working directory" })
+
+vim.keymap.set("n", "tlg", function()
+    local ok, telescope = pcall(require, "telescope.builtin")
+    if not ok then
+        vim.notify("telescope not installed or enabled", vim.log.levels.WARN)
+        return
+    end
+    telescope.live_grep({ cwd = vim.fn.expand("%:p:h") })
+end, { silent = true, desc = "Search for a string and get results live as you type" })
+
+vim.keymap.set("n", "tlb", function()
+    local ok, telescope = pcall(require, "telescope.builtin")
+    if not ok then
+        vim.notify("telescope not installed or enabled", vim.log.levels.WARN)
+        return
+    end
+    telescope.buffers()
+end, { silent = true, desc = "Lists open buffers in current neovim instance" })
+
+vim.keymap.set("n", "tts", function()
+    local ok, telescope = pcall(require, "telescope.builtin")
+    if not ok then
+        vim.notify("telescope not installed or enabled", vim.log.levels.WARN)
+        return
+    end
+    telescope.treesitter()
+end, {
+    silent = true,
+    desc = "Lists function names, variables, and other symbols from treesitter queries",
+})
+
+vim.keymap.set("n", "tgd", function()
+    local ok, telescope = pcall(require, "telescope.builtin")
+    if not ok then
+        vim.notify("telescope not installed or enabled", vim.log.levels.WARN)
+        return
+    end
+    telescope.lsp_definitions({ jump_type = "never" })
+end, { silent = true, desc = "Goto the definition of the word under the cursor" })
+
+vim.keymap.set("n", "tgb", function()
+    local ok, telescope = pcall(require, "telescope.builtin")
+    if not ok then
+        vim.notify("telescope not installed or enabled", vim.log.levels.WARN)
+        return
+    end
+    telescope.git_branches({ jump_type = "never" })
+end, { silent = true, desc = "List branches for current directory, shown in the preview window" })
+
+vim.keymap.set("n", "tgc", function()
+    local ok, telescope = pcall(require, "telescope.builtin")
+    if not ok then
+        vim.notify("telescope not installed or enabled", vim.log.levels.WARN)
+        return
+    end
+    telescope.git_commits({ jump_type = "never" })
+end, { silent = true, desc = "List commits for current directory with diff preview" })
+
+vim.keymap.set("n", "tbc", function()
+    local ok, telescope = pcall(require, "telescope.builtin")
+    if not ok then
+        vim.notify("telescope not installed or enabled", vim.log.levels.WARN)
+        return
+    end
+    telescope.git_bcommits({ jump_type = "never" })
+end, { silent = true, desc = "Lists commits for current buffer with diff preview" })
+
+vim.keymap.set("n", "tlr", function()
+    local ok, telescope = pcall(require, "telescope.builtin")
+    if not ok then
+        vim.notify("telescope not installed or enabled", vim.log.levels.WARN)
+        return
+    end
+    telescope.lsp_references()
+end, { silent = true, desc = "Lists LSP references for word under the cursor" })
+
+vim.keymap.set("n", "tcs", function()
+    local ok, telescope = pcall(require, "telescope.builtin")
+    if not ok then
+        vim.notify("telescope not installed or enabled", vim.log.levels.WARN)
+        return
+    end
+    telescope.colorscheme({ enable_preview = true })
+end, { silent = true, desc = "Change colorscheme and preview" })
+
+vim.keymap.set("n", "tic", function()
+    local ok, telescope = pcall(require, "telescope.builtin")
+    if not ok then
+        vim.notify("telescope not installed or enabled", vim.log.levels.WARN)
+        return
+    end
+    telescope.lsp_incoming_calls()
+end, { silent = true, desc = "Lists LSP incoming calls for word under the cursor, jumps to reference on" })
+vim.keymap.set("n", "toc", function()
+    local ok, telescope = pcall(require, "telescope.builtin")
+    if not ok then
+        vim.notify("telescope not installed or enabled", vim.log.levels.WARN)
+        return
+    end
+    telescope.lsp_outgoing_calls()
+end, { silent = true, desc = "Lists LSP outgoing calls for word under the cursor, jumps to reference on" })
+
+vim.keymap.set("n", "tff", function()
+    local ok, _ = pcall(require, "telescope._extensions.frecency")
+    if not ok then
+        vim.notify("telescope-frecency not installed or enabled", vim.log.levels.WARN)
+        return
+    end
+
+    local ok, telescope = pcall(require, "telescope")
+    if not ok then
+        vim.notify("telescope not installed or enabled", vim.log.levels.WARN)
+        return
+    end
+    telescope.extensions.frecency.frecency({
+        workspace = "CWD",
+        path_display = { "shorten" },
+        theme = "ivy",
+    })
+end)
+vim.keymap.set("n", "tfw", function()
+    local ok, _ = pcall(require, "telescope._extensions.frecency")
+    if not ok then
+        vim.notify("telescope-frecency not installed or enabled", vim.log.levels.WARN)
+        return
+    end
+
+    local ok, telescope = pcall(require, "telescope")
+    if not ok then
+        vim.notify("telescope not installed or enabled", vim.log.levels.WARN)
+        return
+    end
+
+    telescope.extensions.frecency.frecency({
+        workspace = "CWD",
+    })
+end)
 
 -- FzfLua
-local fzflua_ok, fzflua_err = pcall(require, "fzf-lua")
-if fzflua_ok then
-    vim.keymap.set("n", "fgd", "<cmd>FzfLua lsp_definitions<CR>", { silent = true, desc = "Definitions" })
-    vim.keymap.set("n", "fgD", "<cmd>FzfLua lsp_declarations<CR>", { silent = true, desc = "Declarations" })
-    vim.keymap.set("n", "flr", "<cmd>FzfLua lsp_references<CR>", { silent = true, desc = "References" })
-    vim.keymap.set("n", "flf", "<cmd>FzfLua lsp_finder<CR>", { silent = true, desc = "All lsp locations" })
-    vim.keymap.set("n", "fli", "<cmd>FzfLua lsp_implementations<CR>", { silent = true, desc = "Implementations" })
-    vim.keymap.set("n", "flt", "<cmd>FzfLua lsp_typedefs<CR>", { silent = true, desc = "Type definitions" })
-    vim.keymap.set("n", "fca", "<cmd>FzfLua code_action<CR>", { silent = true, desc = "Code actions" })
-    vim.keymap.set("n", "fic", "<cmd>FzfLua lsp_incoming_calls<CR>", { silent = true, desc = "Show incomming calls" })
-    vim.keymap.set("n", "foc", "<cmd>FzfLua lsp_outgoing_calls<CR>", { silent = true, desc = "Show outgoging calls" })
+vim.keymap.set("n", "fgd", "<cmd>FzfLua lsp_definitions<CR>", { silent = true, desc = "Definitions" })
+vim.keymap.set("n", "fgD", "<cmd>FzfLua lsp_declarations<CR>", { silent = true, desc = "Declarations" })
+vim.keymap.set("n", "flr", "<cmd>FzfLua lsp_references<CR>", { silent = true, desc = "References" })
+vim.keymap.set("n", "flf", "<cmd>FzfLua lsp_finder<CR>", { silent = true, desc = "All lsp locations" })
+vim.keymap.set("n", "fli", "<cmd>FzfLua lsp_implementations<CR>", { silent = true, desc = "Implementations" })
+vim.keymap.set("n", "flt", "<cmd>FzfLua lsp_typedefs<CR>", { silent = true, desc = "Type definitions" })
+vim.keymap.set("n", "fca", "<cmd>FzfLua code_action<CR>", { silent = true, desc = "Code actions" })
+vim.keymap.set("n", "fic", "<cmd>FzfLua lsp_incoming_calls<CR>", { silent = true, desc = "Show incomming calls" })
+vim.keymap.set("n", "foc", "<cmd>FzfLua lsp_outgoing_calls<CR>", { silent = true, desc = "Show outgoging calls" })
 
-    vim.keymap.set("n", "fgc", "<cmd>FzfLua git_commits<CR>", { silent = true, desc = "Git commit log(project)" })
-    vim.keymap.set("n", "fgb", "<cmd>FzfLua git_bcommits<CR>", { silent = true, desc = "Git commit log(buffer)" })
-    vim.keymap.set("n", "fgr", "<cmd>FzfLua grep_cword<CR>", { silent = true, desc = "Search word under cursor" })
-end
+vim.keymap.set("n", "fgc", "<cmd>FzfLua git_commits<CR>", { silent = true, desc = "Git commit log(project)" })
+vim.keymap.set("n", "fgb", "<cmd>FzfLua git_bcommits<CR>", { silent = true, desc = "Git commit log(buffer)" })
+vim.keymap.set("n", "fgr", "<cmd>FzfLua grep_cword<CR>", { silent = true, desc = "Search word under cursor" })
 
 -- Outline
-local outline_ok, outline_err = pcall(require, "outline")
-if outline_ok then
-    vim.keymap.set("n", "<F12>", "<cmd>Outline<CR>", { silent = true, desc = "Toggle outline" })
-end
+vim.keymap.set("n", "<F12>", "<cmd>Outline<CR>", { silent = true, desc = "Toggle outline" })
 
 -- Toggleterm
 -- 设置toggleterm的快捷键，使其能够在打开终端的情况下切换到其他窗口
-local toggleterm_ok, toggleterm_err = pcall(require, "toggleterm")
-if toggleterm_ok then
-    function _G.set_terminal_keymaps()
-        vim.keymap.set("t", "<esc>", [[<C-\><C-n>]], { buffer = 0 })
-        vim.keymap.set("t", "jk", [[<C-\><C-n>]], { buffer = 0 })
-        -- 有些终端模拟器上，<Backspace>按键会发送0x08，与<C-h>一致，下面的映射就可能导致<BS>失效，需要修改终端模拟对<BS>的配置
-        vim.keymap.set("t", "<C-h>", [[<cmd>wincmd h<CR>]], { buffer = 0 })
-        vim.keymap.set("t", "<C-j>", [[<cmd>wincmd j<CR>]], { buffer = 0 })
-        vim.keymap.set("t", "<C-k>", [[<cmd>wincmd k<CR>]], { buffer = 0 })
-        vim.keymap.set("t", "<C-l>", [[<cmd>wincmd l<CR>]], { buffer = 0 })
-        vim.keymap.set("t", "<C-w>", [[<C-\><C-n><C-w>]], { buffer = 0 })
-    end
+function _G.set_terminal_keymaps()
+    vim.keymap.set("t", "<esc>", [[<C-\><C-n>]], { buffer = 0 })
+    vim.keymap.set("t", "jk", [[<C-\><C-n>]], { buffer = 0 })
+    -- 有些终端模拟器上，<Backspace>按键会发送0x08，与<C-h>一致，下面的映射就可能导致<BS>失效，需要修改终端模拟对<BS>的配置
+    vim.keymap.set("t", "<C-h>", [[<cmd>wincmd h<CR>]], { buffer = 0 })
+    vim.keymap.set("t", "<C-j>", [[<cmd>wincmd j<CR>]], { buffer = 0 })
+    vim.keymap.set("t", "<C-k>", [[<cmd>wincmd k<CR>]], { buffer = 0 })
+    vim.keymap.set("t", "<C-l>", [[<cmd>wincmd l<CR>]], { buffer = 0 })
+    vim.keymap.set("t", "<C-w>", [[<C-\><C-n><C-w>]], { buffer = 0 })
 end
 
 -- Trouble
 -- diagnostic键映射
-local trouble_ok, trouble_err = pcall(require, "trouble")
-if trouble_ok then
-    vim.keymap.set(
-        "n",
-        "<LocalLeader>xx",
-        "<cmd>Trouble diagnostics toggle filter.buf=0<cr>",
-        { silent = true, desc = "Trouble diagnostic toggle" }
-    )
-    vim.keymap.set(
-        "n",
-        "<LocalLeader>xw",
-        "<cmd>Trouble workspace_diagnostics toggle<cr>",
-        { silent = true, desc = "" }
-    )
-    vim.keymap.set("n", "<LocalLeader>xd", "<cmd>Trouble document_diagnostics toggle<cr>", { silent = true, desc = "" })
-    vim.keymap.set("n", "<LocalLeader>xl", "<cmd>Trouble loclist toggle<cr>", { silent = true, desc = "" })
-    vim.keymap.set("n", "<LocalLeader>xq", "<cmd>Trouble quickfix toggle<cr>", { silent = true, desc = "" })
-    vim.keymap.set("n", "gR", "<cmd>Trouble lsp_references toggle<cr>", { silent = true, desc = "" })
-end
+vim.keymap.set(
+    "n",
+    "<LocalLeader>xx",
+    "<cmd>Trouble diagnostics toggle filter.buf=0<cr>",
+    { silent = true, desc = "Trouble diagnostic toggle" }
+)
+vim.keymap.set("n", "<LocalLeader>xw", "<cmd>Trouble workspace_diagnostics toggle<cr>", { silent = true, desc = "" })
+vim.keymap.set("n", "<LocalLeader>xd", "<cmd>Trouble document_diagnostics toggle<cr>", { silent = true, desc = "" })
+vim.keymap.set("n", "<LocalLeader>xl", "<cmd>Trouble loclist toggle<cr>", { silent = true, desc = "" })
+vim.keymap.set("n", "<LocalLeader>xq", "<cmd>Trouble quickfix toggle<cr>", { silent = true, desc = "" })
+vim.keymap.set("n", "gR", "<cmd>Trouble lsp_references toggle<cr>", { silent = true, desc = "" })
 
 -- lspsaga
-local lspsaga_ok, lspsaga_err = pcall(require, "lspsaga")
-if lspsaga_ok then
-    vim.keymap.set("n", "K", "<cmd>Lspsaga hover_doc<CR>", { silent = true, desc = "Lspsaga hover" })
-    vim.keymap.set("n", "pd", "<cmd>Lspsaga peek_definition<CR>", { silent = true, desc = "Lspsaga peek_definition" })
-    vim.keymap.set(
-        "n",
-        "<LocalLeader>ca",
-        "<cmd>Lspsaga code_action<CR>",
-        { silent = true, desc = "Lspsaga code actions" }
-    )
-end
+vim.keymap.set("n", "K", "<cmd>Lspsaga hover_doc<CR>", { silent = true, desc = "Lspsaga hover" })
+vim.keymap.set("n", "pd", "<cmd>Lspsaga peek_definition<CR>", { silent = true, desc = "Lspsaga peek_definition" })
+vim.keymap.set("n", "<LocalLeader>ca", "<cmd>Lspsaga code_action<CR>", { silent = true, desc = "Lspsaga code actions" })
 
 -- nvim-dap
-local dap_ok, dap_err = pcall(require, "dap")
-if dap_ok then
-    vim.keymap.set("n", "<F5>", "<cmd>DapContinue<CR>", { silent = true, desc = "launch/continue debug" })
-    vim.keymap.set("n", "<F29>", "<cmd>DapTerminate<CR>", { silent = true, desc = "terminate debug" })
-    vim.keymap.set("n", "<F6>", "<cmd>DapToggleBreakpoint<CR>", { silent = true, desc = "toggle breakpoint" })
-    vim.keymap.set("n", "<F30>", "<cmd>DapClearBreakpoints<CR>", { silent = true, desc = "clear breakpoints" })
-    vim.keymap.set("n", "<F10>", "<cmd>DapStepOver<CR>", { silent = true, desc = "step over" })
-    vim.keymap.set("n", "<F11>", "<cmd>DapStepInto<CR>", { silent = true, desc = "step into" })
-    vim.keymap.set("n", "<F23>", "<cmd>DapStepOut<CR>", { silent = true, desc = "step out" })
-    -- nvim-view-dap
-    local view_dap_ok, view_dap_err = pcall(require, "dap-view")
-    if view_dap_ok then
-        vim.keymap.set("n", "<LocalLeader>dw", "<cmd>DapViewWatch<CR>", { silent = true, desc = "step out" })
-    end
-end
+vim.keymap.set("n", "<F5>", "<cmd>DapContinue<CR>", { silent = true, desc = "launch/continue debug" })
+vim.keymap.set("n", "<F29>", "<cmd>DapTerminate<CR>", { silent = true, desc = "terminate debug" })
+vim.keymap.set("n", "<F6>", "<cmd>DapToggleBreakpoint<CR>", { silent = true, desc = "toggle breakpoint" })
+vim.keymap.set("n", "<F30>", "<cmd>DapClearBreakpoints<CR>", { silent = true, desc = "clear breakpoints" })
+vim.keymap.set("n", "<F10>", "<cmd>DapStepOver<CR>", { silent = true, desc = "step over" })
+vim.keymap.set("n", "<F11>", "<cmd>DapStepInto<CR>", { silent = true, desc = "step into" })
+vim.keymap.set("n", "<F23>", "<cmd>DapStepOut<CR>", { silent = true, desc = "step out" })
+-- nvim-view-dap
+vim.keymap.set("n", "<LocalLeader>dw", "<cmd>DapViewWatch<CR>", { silent = true, desc = "step out" })
 
 -- gitsigns
 _G.set_gitsign_keymap = function(bufnr)
@@ -503,10 +544,7 @@ _G.set_gitsign_keymap = function(bufnr)
 end
 
 -- neogit
-local neogit_ok, neogit_err = pcall(require, "neogit")
-if neogit_ok then
-    vim.keymap.set("n", "<LocalLeader>ng", "<cmd>Neogit<CR>", { silent = true, desc = "Neogit" })
-end
+vim.keymap.set("n", "<LocalLeader>ng", "<cmd>Neogit<CR>", { silent = true, desc = "Neogit" })
 
 --lspconfig
 vim.keymap.set("n", "<LocalLeader>sl", function()
@@ -528,37 +566,69 @@ vim.keymap.set("n", "<LocalLeader>dbo", function()
     custom_lsp.detach_others()
 end, { buffer = bufnr, desc = "Detach other buffers from client" })
 
-local ts_textobject_ok, ts_textobject_err = pcall(require, "nvim-treesitter-textobjects")
-if ts_textobject_ok then
-    -- nvim-treesitter-textobject
-    -- -- 快捷键映射
-    vim.keymap.set("n", "]f", function()
-        require("nvim-treesitter-textobjects.move").goto_next_start("@function.outer")
-    end, { desc = "Next function" })
+-- nvim-treesitter-textobject
+-- -- 快捷键映射
+vim.keymap.set("n", "]f", function()
+    local ok, treesitter = pcall(require, "nvim-treesitter-textobjects.move")
+    if not ok then
+        vim.notify("nvim-treesitter-textobjects not installed or enabled", vim.log.levels.WARN)
+        return
+    end
+    treesitter.goto_next_start("@function.outer")
+end, { desc = "Next function" })
 
-    vim.keymap.set("n", "[f", function()
-        require("nvim-treesitter-textobjects.move").goto_previous_start("@function.outer")
-    end, { desc = "Previous function" })
+vim.keymap.set("n", "[f", function()
+    local ok, treesitter = pcall(require, "nvim-treesitter-textobjects.move")
+    if not ok then
+        vim.notify("nvim-treesitter-textobjects not installed or enabled", vim.log.levels.WARN)
+        return
+    end
+    treesitter.goto_previous_start("@function.outer")
+end, { desc = "Previous function" })
 
-    vim.keymap.set("n", "]i", function()
-        require("nvim-treesitter-textobjects.move").goto_next_start("@conditional.outer")
-    end, { desc = "Next if statement" })
+vim.keymap.set("n", "]i", function()
+    local ok, treesitter = pcall(require, "nvim-treesitter-textobjects.move")
+    if not ok then
+        vim.notify("nvim-treesitter-textobjects not installed or enabled", vim.log.levels.WARN)
+        return
+    end
+    treesitter.goto_next_start("@conditional.outer")
+end, { desc = "Next if statement" })
 
-    vim.keymap.set("n", "[i", function()
-        require("nvim-treesitter-textobjects.move").goto_previous_start("@conditional.outer")
-    end, { desc = "Previous if statement" })
+vim.keymap.set("n", "[i", function()
+    local ok, treesitter = pcall(require, "nvim-treesitter-textobjects.move")
+    if not ok then
+        vim.notify("nvim-treesitter-textobjects not installed or enabled", vim.log.levels.WARN)
+        return
+    end
+    treesitter.goto_previous_start("@conditional.outer")
+end, { desc = "Previous if statement" })
 
-    -- You can use the capture groups defined in `textobjects.scm`
-    vim.keymap.set({ "x", "o" }, "af", function()
-        require("nvim-treesitter-textobjects.select").select_textobject("@function.outer", "textobjects")
-    end)
-    vim.keymap.set({ "x", "o" }, "if", function()
-        require("nvim-treesitter-textobjects.select").select_textobject("@function.inner", "textobjects")
-    end)
-    vim.keymap.set({ "x", "o" }, "ai", function()
-        require("nvim-treesitter-textobjects.select").select_textobject("@conditional.outer", "textobjects")
-    end)
-end
+-- You can use the capture groups defined in `textobjects.scm`
+vim.keymap.set({ "x", "o" }, "af", function()
+    local ok, treesitter = pcall(require, "nvim-treesitter-textobjects.select")
+    if not ok then
+        vim.notify("nvim-treesitter-textobjects not installed or enabled", vim.log.levels.WARN)
+        return
+    end
+    treesitter.select_textobject("@function.outer", "textobjects")
+end)
+vim.keymap.set({ "x", "o" }, "if", function()
+    local ok, treesitter = pcall(require, "nvim-treesitter-textobjects.select")
+    if not ok then
+        vim.notify("nvim-treesitter-textobjects not installed or enabled", vim.log.levels.WARN)
+        return
+    end
+    treesitter.select_textobject("@function.inner", "textobjects")
+end)
+vim.keymap.set({ "x", "o" }, "ai", function()
+    local ok, treesitter = pcall(require, "nvim-treesitter-textobjects.select")
+    if not ok then
+        vim.notify("nvim-treesitter-textobjects not installed or enabled", vim.log.levels.WARN)
+        return
+    end
+    treesitter.select_textobject("@conditional.outer", "textobjects")
+end)
 
 -- 判断 bullets 是否可用
 local function has_bullets()
@@ -582,7 +652,4 @@ vim.keymap.set("i", "<S-Tab>", function()
 end, { expr = true })
 
 -- zen-mode
-local zen_mode_ok, zen_mode_err = pcall(require, "zen-mode")
-if zen_mode_ok then
-    vim.keymap.set("n", "<LocalLeader>z", "<cmd>ZenMode<cr>")
-end
+vim.keymap.set("n", "<LocalLeader>z", "<cmd>ZenMode<cr>")

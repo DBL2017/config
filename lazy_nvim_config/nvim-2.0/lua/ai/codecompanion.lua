@@ -102,6 +102,11 @@ return -- lazy.nvim
         "ravitemer/codecompanion-history.nvim",
         "bahaaza/codecompanion-agentskills.nvim",
     },
+    cmd = {
+        "CodeCompanion",
+        "CodeCompanionChat",
+        "CodeCompanionActions",
+    },
     version = "^19.22.0",
     config = function()
         local function build_default_prompt()

@@ -2,6 +2,10 @@ return {
     "akinsho/toggleterm.nvim",
     version = "*",
     event = "VeryLazy",
+    cmd = {
+        "ToggleTerm",
+        "TermExec",
+    },
     config = function()
         require("toggleterm").setup({
             -- size can be a number or function which is passed the current terminal
@@ -23,6 +27,9 @@ return {
             float_opts = {
                 border = "curved",
             },
+            on_open = function(term)
+                set_terminal_keymaps()
+            end,
         })
 
         -- local Terminal = require("toggleterm.terminal").Terminal
