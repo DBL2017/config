@@ -679,3 +679,21 @@ end, { expr = true })
 
 -- zen-mode
 vim.keymap.set("n", "<LocalLeader>z", "<cmd>ZenMode<cr>")
+
+vim.keymap.set("n", "]t", function()
+    local ok, todo = pcall(require, "todo-comments")
+    if not ok then
+        vim.notify("todo-comments not installed or enabled", vim.log.levels.WARN)
+        return
+    end
+    todo.jump_next()
+end)
+
+vim.keymap.set("n", "[t", function()
+    local ok, todo = pcall(require, "todo-comments")
+    if not ok then
+        vim.notify("todo-comments not installed or enabled", vim.log.levels.WARN)
+        return
+    end
+    todo.jump_prev()
+end)
