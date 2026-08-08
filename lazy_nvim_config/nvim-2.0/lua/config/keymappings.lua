@@ -105,8 +105,6 @@ vim.keymap.set({ "i", "n" }, "<A-.>", "<cmd>tabnext<CR>", { silent = true, desc 
 -- Re-order to previous/next
 vim.keymap.set({ "i", "n" }, "<A-Left>", "<cmd>-tabmove<CR>", { silent = true, desc = "-tabmove" })
 vim.keymap.set({ "i", "n" }, "<A-Right>", "<cmd>+tabmove<CR>", { silent = true, desc = "+tabmove" })
--- Close buffer
-vim.keymap.set({ "i", "n" }, "<A-c>", "<cmd>tabclose<CR>", { silent = true, desc = "tabclose" })
 -- tab
 -- 使用LocalLeader的原因防止误操作
 vim.keymap.set({ "i", "n" }, "<LocalLeader>tn", "<cmd>$tabnew<CR>", { silent = true, desc = "$tabnew" })
@@ -126,6 +124,8 @@ vim.keymap.set({ "i", "i", "n" }, "<A-9>", "<cmd>tabnext 9<CR>", { silent = true
 vim.keymap.set({ "i", "n" }, "<A-Down>", "<cmd>bnext<CR>", { silent = true, desc = "buffer next" })
 vim.keymap.set({ "i", "n" }, "<A-Up>", "<cmd>bprevious<CR>", { silent = true, desc = "buffer previous" })
 vim.keymap.set({ "i", "n" }, "<A-d>", "<cmd>bd<CR>", { silent = true, desc = "buffer delete" })
+-- Close buffer
+vim.keymap.set({ "i", "n" }, "<A-c>", "<cmd>bd<CR>", { silent = true, desc = "close current buffer" })
 
 -- 禁用方向键
 -- vim.keymap.set("n", "<Left>", "<NOP>", {silent=true,desc=""})
