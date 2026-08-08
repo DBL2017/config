@@ -814,6 +814,30 @@ return -- lazy.nvim
                     },
                 },
             },
+            mcp = {
+                servers = {
+                    ["filesystem"] = {
+                        cmd = { "npx", "-y", "@modelcontextprotocol/server-filesystem" },
+                        roots = function()
+                            return { { name = "project", path = vim.fn.getcwd() } }
+                        end,
+                    },
+                    ["obsidian"] = {
+                        -- 使用 mcp-remote 包装 HTTP MCP server
+                        cmd = {
+                            "mcp-remote",
+                            "http://192.168.100.1:27123/mcp/",
+                            "--allow-http",
+                            "--header",
+                            "Authorization: Bearer ${AUTH_TOKEN}",
+                        },
+                        env = {
+                            -- OBSIDIAN_TOKEN = os.getenv("OBSIDIAN_TOKEN"), -- 如果需要认证
+                            AUTH_TOKEN = os.getenv("OBSIDIAN_API_KEY"),
+                        },
+                    },
+                },
+            },
         })
     end,
 }
