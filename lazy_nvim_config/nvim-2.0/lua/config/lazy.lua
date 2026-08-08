@@ -28,6 +28,7 @@ local spec = {
     { import = "lsp" },
     { import = "dap" },
     { import = "ai" },
+    { import = "custom" },
 }
 
 is_windows = vim.loop.os_uname().version:match("Windows")

@@ -1,10 +1,6 @@
 ----------------------------------------------------------Basic-------------------------------------------------------------
 local custom_function = require("config.custom_function")
-local custom_comment
 local platform = require("config.platform")
-if platform.is_linux or platform.is_mac then
-    custom_comment = require("config.custom_comment")
-end
 
 function save_all_and_quit()
     -- wirte all buffers first
@@ -73,26 +69,26 @@ vim.keymap.set("n", "<LocalLeader>tO", "O<C-R>=strftime('%Y-%m-%d %H:%M:%S')<CR>
 })
 
 -- 在当前函数上方插入注释
-vim.keymap.set("n", "<LocalLeader>fO", function()
-    local ok, err = pcall(custom_comment.insert_comment, "function")
-    if not ok then
-        vim.notify("insert failed: " .. err, vim.log.levels.ERROR)
-    end
-end, { silent = true, desc = "在当前变量上方插入注释" })
+vim.keymap.set(
+    "n",
+    "<LocalLeader>fO",
+    "<cmd>NvimComment function<CR>",
+    { silent = true, desc = "在当前函数上方插入注释" }
+)
 -- 在当前变量上方插入注释
-vim.keymap.set("n", "<LocalLeader>vO", function()
-    local ok, err = pcall(custom_comment.insert_comment, "variable")
-    if not ok then
-        vim.notify("insert failed: " .. err, vim.log.levels.ERROR)
-    end
-end, { silent = true, desc = "在当前变量上方插入注释" })
+vim.keymap.set(
+    "n",
+    "<LocalLeader>vO",
+    "<cmd>NvimComment variable<CR>",
+    { silent = true, desc = "在当前变量上方插入注释" }
+)
 -- 在当前宏上方插入注释
-vim.keymap.set("n", "<LocalLeader>mO", function()
-    local ok, err = pcall(custom_comment.insert_comment, "macro")
-    if not ok then
-        vim.notify("insert failed: " .. err, vim.log.levels.ERROR)
-    end
-end, { silent = true, desc = "在当前宏上方插入注释" })
+vim.keymap.set(
+    "n",
+    "<LocalLeader>mO",
+    "<cmd>NvimComment macro<CR>",
+    { silent = true, desc = "在当前宏上方插入注释" }
+)
 
 -- 原生lsp
 vim.keymap.set("n", "<LocalLeader>lr", function()
@@ -572,11 +568,26 @@ vim.keymap.set("n", "<LocalLeader>ng", "<cmd>Neogit<CR>", { silent = true, desc 
 
 --lspconfig
 if platform.is_linux or platform.is_mac then
-    vim.keymap.set("n", "<LocalLeader>abc", "<cmd>LspAttachBuffer<CR>", { buffer = bufnr, desc = "Attach current buffer" })
+    vim.keymap.set(
+        "n",
+        "<LocalLeader>abc",
+        "<cmd>LspAttachBuffer<CR>",
+        { buffer = bufnr, desc = "Attach current buffer" }
+    )
     vim.keymap.set("n", "<LocalLeader>aba", "<cmd>LspAttachAll<CR>", { buffer = bufnr, desc = "Attach all buffer" })
-    vim.keymap.set("n", "<LocalLeader>dbc", "<cmd>LspDetachBuffer<CR>", { buffer = bufnr, desc = "Detach current buffer" })
+    vim.keymap.set(
+        "n",
+        "<LocalLeader>dbc",
+        "<cmd>LspDetachBuffer<CR>",
+        { buffer = bufnr, desc = "Detach current buffer" }
+    )
     vim.keymap.set("n", "<LocalLeader>dba", "<cmd>LspDetachAll<CR>", { buffer = bufnr, desc = "Detach all buffer" })
-    vim.keymap.set("n", "<LocalLeader>dbo", "<cmd>LspDetachOthers<CR>", { buffer = bufnr, desc = "Detach other buffer" })
+    vim.keymap.set(
+        "n",
+        "<LocalLeader>dbo",
+        "<cmd>LspDetachOthers<CR>",
+        { buffer = bufnr, desc = "Detach other buffer" }
+    )
 end
 
 -- nvim-treesitter-textobject

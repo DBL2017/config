@@ -5,7 +5,6 @@ return {
         "saghen/blink.cmp", -- 自动依赖 blink.cmp
     },
     cmd = { "LspAttachAll", "LspAttachBuffer", "LspDetachAll", "LspDetachBuffer", "LspDetachOthers" },
-    lazy = false,
     config = function()
         require("nvim-lsp").setup({
             auto_attach = false, -- 自动附加 LSP
