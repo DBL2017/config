@@ -1,3 +1,8 @@
+-- 文件: lua/ai/codecompanion.lua
+-- 说明: 为 codecompanion.nvim 插件提供 lazy.nvim 风格的配置项。
+--       本文件包含适配器、界面(display)、交互(interactions)、扩展(extensions)
+--       等配置，已以中文注释说明常用选项和可替换项。
+--       在 Windows 平台上返回空配置以避免加载不兼容的插件或适配器。
 local platform = require("config.platform")
 
 if platform.is_windows then
@@ -312,12 +317,20 @@ return -- lazy.nvim
                     -- 可选取值：true（插入模式）、false（普通模式）
                     start_in_insert_mode = false,
                 },
+                cli = {
+                    window = {
+                        layout = "vertical",
+                        width = 0.35,
+                        height = 0.6,
+                        opts = { list = false },
+                    },
+                },
             },
             interactions = {
                 chat = {
                     -- adapter = "siliconflow_r1",
                     -- adapter = "qwen2_coder_local",
-                    adapter = "copilot_acp",
+                    adapter = "claude_opus_online",
                     -- adapter = {
                     --     -- 适配器名称
                     --     -- 当前效果：使用 "anthropic" 适配器
@@ -469,6 +482,43 @@ return -- lazy.nvim
                 agent = {
                     --adapter = "siliconflow_r1"
                     adapter = "copilot_acp",
+                },
+                cli = {
+                    -- 默认 agent 可以设为 claude_code 或 copilot
+                    agent = "copilot",
+                    -- 定义 Copilot CLI agent
+                    agents = {
+                        copilot = {
+                            cmd = "copilot", -- GitHub Copilot CLI 命令
+                            args = {}, -- 启用 ACP 模式
+                            description = "GitHub Copilot CLI",
+                            provider = "terminal", -- 使用内置 terminal provider
+                        },
+                    },
+
+                    -- CLI 选项
+                    opts = {
+                        auto_insert = false,
+                        reload = true,
+                    },
+
+                    -- 快捷键配置
+                    keymaps = {
+                        next_chat = {
+                            modes = { n = "}" },
+                            callback = "keymaps.next_chat",
+                            description = "[Nav] Next interaction",
+                        },
+                        previous_chat = {
+                            modes = { n = "{" },
+                            callback = "keymaps.previous_chat",
+                            description = "[Nav] Previous interaction",
+                        },
+                    },
+                    -- 打开 CLI buffer 时调用 keymap 设置
+                    on_open = function()
+                        set_terminal_keymaps()
+                    end,
                 },
             },
             opts = {

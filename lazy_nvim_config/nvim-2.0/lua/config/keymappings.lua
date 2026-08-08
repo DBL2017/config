@@ -235,26 +235,73 @@ vim.keymap.set({ "n", "v", "i" }, "<F2>", "<cmd>NvimTreeToggle<CR>", { desc = "O
 if platform.is_linux or platform.is_mac then
     -- CodeCompanion
     vim.keymap.set({ "n", "v" }, "<LocalLeader>aa", "<cmd>CodeCompanionActions<cr>", { noremap = true, silent = true })
-    vim.keymap.set(
-        { "n", "v" },
-        "<LocalLeader>at",
-        "<cmd>CodeCompanionChat Toggle<cr>",
-        { noremap = true, silent = true }
-    )
-    vim.keymap.set("v", "ga", "<cmd>CodeCompanionChat Add<cr>", { noremap = true, silent = true })
-    vim.keymap.set({ "v" }, "<LocalLeader>ae", function()
-        local ok, cc = pcall(require, "codecompanion")
-        if ok then
-            cc.prompt("claude_explain_code_view")
-        else
-            vim.notify("CodeCompanion not installed or enabled", vim.log.levels.WARN)
-        end
-    end, { noremap = true, silent = true })
-    vim.keymap.set({ "n" }, "<LocalLeader>ah", "<cmd>CodeCompanionHistory<cr>", {
+
+    vim.keymap.set({ "n" }, "<LocalLeader>ch", "<cmd>CodeCompanionHistory<cr>", {
         desc = "Open chat history list",
         noremap = true,
         silent = true,
     })
+
+    vim.keymap.set({ "n", "v" }, "<LocalLeader>cl", function()
+        local ok, cc = pcall(require, "codecompanion")
+        if not ok then
+            vim.notify("CodeCompanion not installed or enabled", vim.log.levels.WARN)
+            return
+        end
+        cc.cli({ focus = true })
+    end, { desc = "Open CodeCompanion CLI" })
+
+    -- 如果你在 CLI 窗口里，调用 toggle() → 会隐藏 CLI，再次调用会重新显示。
+    -- 如果你在 chat 窗口里，调用 toggle() → 同样是隐藏/显示 chat。
+    -- 如果你同时有多个交互（chat + CLI），可以用 { 和 } 在它们之间循环切换，而 toggle() 是针对当前交互窗口的开关。
+    vim.keymap.set({ "n", "v" }, "<LocalLeader>ct", function()
+        local ok, cc = pcall(require, "codecompanion")
+        if not ok then
+            vim.notify("CodeCompanion not installed or enabled", vim.log.levels.WARN)
+        end
+        cc.toggle()
+    end, { desc = "" })
+
+    -- 在chat解释代码
+    -- vim.keymap.set({ "v" }, "<LocalLeader>ce", function()
+    --     local ok, cc = pcall(require, "codecompanion")
+    --     if ok then
+    --         cc.prompt("claude_explain_code_view")
+    --     else
+    --         vim.notify("CodeCompanion not installed or enabled", vim.log.levels.WARN)
+    --     end
+    -- end, { noremap = true, silent = true })
+
+    -- 在当前 buffer 或选区中触发 CodeCompanion 的 CLI 提示，弹出输入框以手动输入自定义提示并与代理交互。
+    -- #{this} → 普通模式下是当前 buffer，视觉模式下是选区。
+    -- #{terminal} -> 终端输出
+    -- 可以用 #{buffer}、#{buffers}、#{diagnostics} 等引用
+    vim.keymap.set({ "n", "v" }, "<LocalLeader>cp", function()
+        local ok, cc = pcall(require, "codecompanion")
+        if not ok then
+            vim.notify("CodeCompanion not installed or enabled", vim.log.levels.WARN)
+        end
+        cc.cli({
+            -- 是否打开输入缓冲区, true表示打开
+            -- 输入缓冲区 → 支持复杂提示和 slash 命令。
+            prompt = true,
+            -- 是否切入cli窗口，默认为true表示切入
+            focus = false,
+            -- 是否自动提交提示， 默认为false
+            -- prompt为true时，submit会失效，只有直接传入字符串才会生效
+            submit = true,
+        })
+    end, { desc = "Prompt the CLI agent" })
+
+    -- 解释这段代码
+    vim.keymap.set({ "n", "v" }, "<LocalLeader>ce", function()
+        local ok, cc = pcall(require, "codecompanion")
+        if not ok then
+            vim.notify("CodeCompanion not installed or enabled", vim.log.levels.WARN)
+            return
+        end
+        cc.cli("#{this} 请解释这段代码", { focus = false, submit = true })
+    end, { desc = "Explain this code" })
 end
 
 -- telescope
