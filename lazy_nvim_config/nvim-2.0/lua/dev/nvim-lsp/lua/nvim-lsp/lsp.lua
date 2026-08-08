@@ -148,7 +148,7 @@ M.tracker = {
     -- 获取缓冲区关联的所有客户端
     get_clients = function(self, bufnr)
         local result = {}
-        for client_id, data in pairs(self.clients) do
+        for _, data in pairs(self.clients) do
             if vim.tbl_contains(data.buffers, bufnr) then
                 table.insert(result, data.client)
             end
@@ -170,10 +170,10 @@ function M.start_lsp()
     local bufnr = vim.api.nvim_get_current_buf()
     if vim.api.nvim_buf_is_valid(bufnr) and vim.api.nvim_buf_is_loaded(bufnr) then
         local buf_name = vim.api.nvim_buf_get_name(bufnr)
-        local filetype = vim.api.nvim_buf_get_option(bufnr, "filetype")
+        local filetype = vim.bo[bufnr].filetype
 
         if buf_name ~= "" and filetype ~= "" then
-            local success = M.attach_buffer(bufnr)
+            M.attach_buffer(bufnr)
         end
     end
 end
@@ -182,7 +182,6 @@ end
 function M.stop_lsp()
     local bufnr = vim.api.nvim_get_current_buf()
     local clients = M.tracker:get_clients(bufnr)
-    local detached = 0
 
     for _, client in ipairs(clients) do
         vim.lsp.stop_client(client.id)
@@ -209,7 +208,7 @@ function M.attach_buffer(bufnr)
         return true
     end
 
-    local filetype = vim.api.nvim_buf_get_option(bufnr, "filetype")
+    local filetype = vim.bo[bufnr].filetype
     if filetype == "" then
         vim.notify("Buffer has no filetype", vim.log.levels.WARN)
         return false
@@ -235,9 +234,9 @@ function M.attach_buffer(bufnr)
 
     -- 获取当前文件的合理根目录
     local root_markers = M.lsp_servers[server_name].config.root_markers
-    local root_dir = vim.fs.dirname(
-        vim.fs.find(root_markers, { upward = true, path = vim.fn.expand("%:p:h") })[1] or vim.fn.getcwd()
-    )
+    -- local root_dir = vim.fs.dirname(
+    --     vim.fs.find(root_markers, { upward = true, path = vim.fn.expand("%:p:h") })[1] or vim.fn.getcwd()
+    -- )
     local buf_path = vim.api.nvim_buf_get_name(bufnr)
     if buf_path == "" then
         vim.notify("Buffer has no file path", vim.log.levels.WARN)
@@ -329,7 +328,7 @@ function M.attach_all()
     for _, bufnr in ipairs(buffers) do
         if vim.api.nvim_buf_is_valid(bufnr) and vim.api.nvim_buf_is_loaded(bufnr) then
             local buf_name = vim.api.nvim_buf_get_name(bufnr)
-            local filetype = vim.api.nvim_buf_get_option(bufnr, "filetype")
+            local filetype = vim.bo[bufnr].filetype
 
             -- 跳过特殊buffer
             if buf_name == "" or filetype == "" then
@@ -379,7 +378,7 @@ function M.detach_buffer(bufnr)
     return detached
 end
 
-function M.detach_current()
+function M.detach_current(bufnr)
     local bufnr = bufnr or vim.api.nvim_get_current_buf()
     local detached = M.detach_buffer(bufnr)
 

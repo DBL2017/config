@@ -1,11 +1,9 @@
 ----------------------------------------------------------Basic-------------------------------------------------------------
 local custom_function = require("config.custom_function")
 local custom_comment
-local custom_lsp
 local platform = require("config.platform")
 if platform.is_linux or platform.is_mac then
     custom_comment = require("config.custom_comment")
-    custom_lsp = require("config.custom_lsp")
 end
 
 function save_all_and_quit()
@@ -574,53 +572,11 @@ vim.keymap.set("n", "<LocalLeader>ng", "<cmd>Neogit<CR>", { silent = true, desc 
 
 --lspconfig
 if platform.is_linux or platform.is_mac then
-    vim.keymap.set("n", "<LocalLeader>sl", function()
-        if not custom_lsp then
-            vim.notify("custom_lsp not loaded", vim.log.levels.WARN)
-            return
-        end
-        custom_lsp.start_lsp()
-    end, { buffer = bufnr, desc = "Start lsp client" })
-
-    vim.keymap.set("n", "<LocalLeader>abc", function()
-        if not custom_lsp then
-            vim.notify("custom_lsp not loaded", vim.log.levels.WARN)
-            return
-        end
-        custom_lsp.attach_buffer()
-    end, { buffer = bufnr, desc = "Attach current buffer" })
-
-    vim.keymap.set("n", "<LocalLeader>aba", function()
-        if not custom_lsp then
-            vim.notify("custom_lsp not loaded", vim.log.levels.WARN)
-            return
-        end
-        custom_lsp.attach_all()
-    end, { buffer = bufnr, desc = "Attach all buffer" })
-
-    vim.keymap.set("n", "<LocalLeader>dbc", function()
-        if not custom_lsp then
-            vim.notify("custom_lsp not loaded", vim.log.levels.WARN)
-            return
-        end
-        custom_lsp.detach_current()
-    end, { buffer = bufnr, desc = "Detach current buffer from client" })
-
-    vim.keymap.set("n", "<LocalLeader>dba", function()
-        if not custom_lsp then
-            vim.notify("custom_lsp not loaded", vim.log.levels.WARN)
-            return
-        end
-        custom_lsp.detach_all()
-    end, { buffer = bufnr, desc = "Detach all buffers from client" })
-
-    vim.keymap.set("n", "<LocalLeader>dbo", function()
-        if not custom_lsp then
-            vim.notify("custom_lsp not loaded", vim.log.levels.WARN)
-            return
-        end
-        custom_lsp.detach_others()
-    end, { buffer = bufnr, desc = "Detach other buffers from client" })
+    vim.keymap.set("n", "<LocalLeader>abc", "<cmd>LspAttachBuffer<CR>", { buffer = bufnr, desc = "Attach current buffer" })
+    vim.keymap.set("n", "<LocalLeader>aba", "<cmd>LspAttachAll<CR>", { buffer = bufnr, desc = "Attach all buffer" })
+    vim.keymap.set("n", "<LocalLeader>dbc", "<cmd>LspDetachBuffer<CR>", { buffer = bufnr, desc = "Detach current buffer" })
+    vim.keymap.set("n", "<LocalLeader>dba", "<cmd>LspDetachAll<CR>", { buffer = bufnr, desc = "Detach all buffer" })
+    vim.keymap.set("n", "<LocalLeader>dbo", "<cmd>LspDetachOthers<CR>", { buffer = bufnr, desc = "Detach other buffer" })
 end
 
 -- nvim-treesitter-textobject
