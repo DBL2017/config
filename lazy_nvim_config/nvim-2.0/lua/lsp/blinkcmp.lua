@@ -13,10 +13,12 @@ return {
         "Kaiser-Yang/blink-cmp-avante",
         "Kaiser-Yang/blink-cmp-dictionary",
         dependencies = { "nvim-lua/plenary.nvim" },
+        "barrettruth/blink-cmp-tmux",
     },
     version = "*",
     ---@module 'blink.cmp'
     ---@type blink.cmp.Config
+    event = { "VimEnter" },
     opts = {
         cmdline = {
             keymap = {
@@ -40,13 +42,32 @@ return {
                 list = { selection = { preselect = false, auto_insert = false } },
                 -- 自动显示补全窗口，仅在输入命令时显示菜单，而搜索或使用其他输入菜单时则不显示
                 menu = {
-                    auto_show = function(ctx)
-                        return vim.fn.getcmdtype() == ":"
-                        -- enable for inputs as well, with:
-                        -- or vim.fn.getcmdtype() == '@'
-                    end,
+                    auto_show = true,
+                    -- auto_show = function(ctx)
+                    --     return vim.fn.getcmdtype() == ":"
+                    --     -- enable for inputs as well, with:
+                    --     -- or vim.fn.getcmdtype() == '@'
+                    -- end,
                 },
                 -- 不在当前行上显示所选项目的预览
+                ghost_text = { enabled = false },
+            },
+        },
+        term = {
+            enabled = true,
+            keymap = { preset = "inherit" }, -- Inherits from top level `keymap` config when not set
+            -- 目前没有源给terminal提供补全
+            sources = {},
+            completion = {
+                trigger = {
+                    show_on_blocked_trigger_characters = {},
+                    show_on_x_blocked_trigger_characters = nil, -- Inherits from top level `completion.trigger.show_on_blocked_trigger_characters` config when not set
+                },
+                -- Inherits from top level config options when not set
+                list = { selection = { preselect = false, auto_insert = false } },
+                -- Whether to automatically show the window when new completion items are available
+                menu = { auto_show = true },
+                -- Displays a preview of the selected item on the current line
                 ghost_text = { enabled = false },
             },
         },
@@ -251,14 +272,34 @@ return {
             default = {
                 "dictionary",
                 "buffer",
+                "copilot",
                 "lsp",
                 "path",
                 "snippets",
                 "avante",
                 -- "minuet",
             },
+            per_filetype = {
+                ["tmux"] = { inherit_defaults = true, "tmux" },
+                ["*"] = { inherit_defaults = true },
+            },
             providers = {
                 -- score_offset设置优先级数字越大优先级越高
+                copilot = {
+                    -- Use blink's generic lsp source but filter to only the Copilot language server client
+                    enabled = true,
+                    name = "COP",
+                    module = "blink.cmp.sources.lsp",
+                    -- Copilot suggestions often take longer; show other items asynchronously
+                    async = true,
+                    timeout_ms = 3000,
+                    should_show_items = true,
+                    max_items = 6,
+                    min_keyword_length = 0,
+                    -- Give Copilot a high score offset so its items are prioritized in the menu
+                    score_offset = 100,
+                },
+
                 lsp = {
                     name = "LSP",
                     module = "blink.cmp.sources.lsp",
@@ -280,6 +321,7 @@ return {
                     score_offset = 10, -- Boost/penalize the score of the items
                     override = nil, -- Override the source's functions
                 },
+
                 buffer = {
                     name = "BUF",
                     enabled = false,
@@ -298,7 +340,7 @@ return {
                     min_keyword_length = function(ctx)
                         -- when typing a command, only show when the keyword is 3 characters or longer
                         if ctx.mode == "cmdline" and string.find(ctx.line, " ") == nil then
-                            return 3
+                            return 2
                         end
                         return 0
                     end,
@@ -338,6 +380,10 @@ return {
                     -- since minuet.config.request_timeout is in seconds
                     timeout_ms = 3000,
                     score_offset = 50, -- Gives minuet higher priority among suggestions
+                },
+                tmux = {
+                    module = "blink-cmp-tmux",
+                    name = "TMX",
                 },
             },
         },

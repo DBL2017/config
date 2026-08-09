@@ -6,6 +6,7 @@ end
 
 return {
     "mason-org/mason-lspconfig.nvim",
+    cmd = { "Mason" },
     opts = {
         -- A list of servers to automatically install if they're not already installed. Example: { "rust_analyzer@nightly", "lua_ls" }
         ---@type string[]
