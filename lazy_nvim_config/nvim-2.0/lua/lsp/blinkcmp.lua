@@ -283,6 +283,7 @@ return {
             },
             per_filetype = {
                 ["tmux"] = { inherit_defaults = true, "tmux" },
+                ["lua"] = { inherit_defaults = true, "lazydev" },
                 ["*"] = { inherit_defaults = true },
             },
             providers = {
@@ -320,7 +321,7 @@ return {
                     -- If this provider returns 0 items, it will fallback to these providers.
                     -- If multiple providers fallback to the same provider, all of the providers must return 0 items for it to fallback
                     fallbacks = {},
-                    score_offset = 10, -- Boost/penalize the score of the items
+                    score_offset = 90, -- Boost/penalize the score of the items
                     override = nil, -- Override the source's functions
                 },
 
@@ -329,14 +330,14 @@ return {
                     enabled = false,
                     max_items = 3, -- Maximum number of items to display in the menu
                     min_keyword_length = 3, -- Minimum number of characters in the keyword to trigger the provider
-                    score_offset = 4,
+                    score_offset = 80,
                 },
 
-                path = { name = "PTH", score_offset = 3 },
+                path = { name = "PTH", score_offset = 70 },
                 snippets = {
                     name = "SNP",
                     min_keyword_length = 3, -- Minimum number of characters in the keyword to trigger the provider
-                    score_offset = 2,
+                    score_offset = 60,
                 },
                 cmdline = {
                     min_keyword_length = function(ctx)
@@ -360,6 +361,7 @@ return {
                     name = "Dict",
                     -- Make sure this is at least 2.
                     -- 3 is recommended
+                    max_items = 5, -- Maximum number of items to display in the menu
                     min_keyword_length = 3,
                     score_offset = 10,
                     opts = {
@@ -381,7 +383,7 @@ return {
                     -- Should match minuet.config.request_timeout * 1000,
                     -- since minuet.config.request_timeout is in seconds
                     timeout_ms = 3000,
-                    score_offset = 50, -- Gives minuet higher priority among suggestions
+                    score_offset = 100, -- Gives minuet higher priority among suggestions
                 },
                 tmux = {
                     module = "blink-cmp-tmux",
@@ -400,6 +402,12 @@ return {
                             triggers = { ":" },
                         },
                     },
+                },
+                lazydev = {
+                    name = "LazyDev",
+                    module = "lazydev.integrations.blink",
+                    -- make lazydev completions top priority (see `:h blink.cmp`)
+                    score_offset = 100,
                 },
             },
         },

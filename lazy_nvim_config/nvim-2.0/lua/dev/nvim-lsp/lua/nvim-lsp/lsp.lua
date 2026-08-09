@@ -35,7 +35,7 @@ M.lsp_servers = {
         config = {
             name = "lua-language-server",
             filetypes = { "lua" },
-            root_markers = { "stylua.toml", ".git" },
+            root_markers = { "stylua.toml", ".git", ".luarc.json" },
             cmd = {
                 "lua-language-server",
             },
