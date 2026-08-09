@@ -367,7 +367,9 @@ return {
                     opts = {
                         -- Specify the dictionary files' path
                         -- example: { vim.fn.expand('~/.config/nvim/dictionary/words.dict') }
-                        dictionary_files = { vim.fn.expand("~/.config/words.txt") },
+                        dictionary_files = {
+                            vim.fn.stdpath("config") .. "/words.txt",
+                        },
                         -- All .txt files in these directories will be treated as dictionary files
                         -- example: { vim.fn.expand('~/.config/nvim/dictionary') }
                         -- dictionary_directories = vim.fn.expand("~/.config/nvim/dict"),
