@@ -836,6 +836,14 @@ return -- lazy.nvim
                             AUTH_TOKEN = os.getenv("OBSIDIAN_API_KEY"),
                         },
                     },
+                    ["zotero-mcp"] = {
+                        -- 使用 mcp-remote 包装 HTTP MCP server
+                        cmd = {
+                            "mcp-remote",
+                            "http://192.168.100.1:23120/mcp",
+                            "--debug",
+                        },
+                    },
                 },
             },
         })
