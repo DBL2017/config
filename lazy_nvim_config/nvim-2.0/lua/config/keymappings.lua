@@ -501,6 +501,13 @@ if platform.is_linux or platform.is_mac then
         vim.keymap.set("t", "<C-k>", [[<cmd>wincmd k<CR>]], { buffer = 0 })
         vim.keymap.set("t", "<C-l>", [[<cmd>wincmd l<CR>]], { buffer = 0 })
         vim.keymap.set("t", "<C-w>", [[<C-\><C-n><C-w>]], { buffer = 0 })
+        vim.keymap.set("t", "<C-q>", function()
+            local job_id = vim.b.terminal_job_id
+            if job_id then
+                vim.fn.jobstop(job_id)
+            end
+            vim.api.nvim_buf_delete(0, { force = true })
+        end, { buffer = 0 })
     end
 
     -- Trouble
