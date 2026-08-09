@@ -14,6 +14,7 @@ return {
         "Kaiser-Yang/blink-cmp-dictionary",
         dependencies = { "nvim-lua/plenary.nvim" },
         "barrettruth/blink-cmp-tmux",
+        "Kaiser-Yang/blink-cmp-git",
     },
     version = "*",
     ---@module 'blink.cmp'
@@ -277,6 +278,7 @@ return {
                 "path",
                 "snippets",
                 "avante",
+                "git",
                 -- "minuet",
             },
             per_filetype = {
@@ -384,6 +386,20 @@ return {
                 tmux = {
                     module = "blink-cmp-tmux",
                     name = "TMX",
+                },
+                git = {
+                    module = "blink-cmp-git",
+                    name = "Git",
+                    opts = {
+                        -- options for the blink-cmp-git
+                        commit = {
+                            -- You may want to customize when it should be enabled
+                            -- The default will enable this when `git` is found and `cwd` is in a git repository
+                            -- enable = function() end
+                            -- You may want to change the triggers
+                            triggers = { ":" },
+                        },
+                    },
                 },
             },
         },
