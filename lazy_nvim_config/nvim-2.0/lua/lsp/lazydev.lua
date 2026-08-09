@@ -1,3 +1,9 @@
+local platform = require("config.platform")
+
+if platform.is_windows then
+    return {}
+end
+
 return {
     {
         "folke/lazydev.nvim",
