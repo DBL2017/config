@@ -278,7 +278,7 @@ return {
                 "path",
                 "snippets",
                 "avante",
-                "git",
+                -- "git",
                 -- "minuet",
             },
             per_filetype = {
@@ -402,6 +402,24 @@ return {
                             -- enable = function() end
                             -- You may want to change the triggers
                             triggers = { ":" },
+                        },
+                        git_centers = {
+                            github = {
+                                pull_request = {
+                                    enable = false,
+                                },
+                                issue = {
+                                    enable = false,
+                                },
+                            },
+                            gitlab = {
+                                pull_request = {
+                                    enable = false,
+                                },
+                                issue = {
+                                    enable = false,
+                                },
+                            },
                         },
                     },
                 },
