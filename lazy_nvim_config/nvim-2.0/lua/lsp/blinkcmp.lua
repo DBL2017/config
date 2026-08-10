@@ -1,9 +1,3 @@
-local platform = require("config.platform")
-
-if platform.is_windows then
-    return {}
-end
-
 return {
     "saghen/blink.cmp",
     enabled = not vim.g.vscode, -- 在vscode-neovim禁用

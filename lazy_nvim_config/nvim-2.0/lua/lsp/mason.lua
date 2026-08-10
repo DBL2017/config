@@ -1,9 +1,3 @@
-local platform = require("config.platform")
-
-if platform.is_windows then
-    return {}
-end
-
 -- 该插件用于安装lsp server或其他代码工具
 return {
     "williamboman/mason.nvim",

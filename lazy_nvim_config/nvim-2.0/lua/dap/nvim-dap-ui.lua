@@ -1,9 +1,3 @@
-local platform = require("config.platform")
-
-if platform.is_windows then
-    return {}
-end
-
 return {
     "rcarriga/nvim-dap-ui",
     dependencies = { "mfussenegger/nvim-dap", "nvim-neotest/nvim-nio" },

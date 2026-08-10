@@ -1,9 +1,3 @@
-local platform = require("config.platform")
-
-if platform.is_windows then
-    return {}
-end
-
 -- 该插件用于配置要安装非lsp server的其他工具
 return {
     "WhoIsSethDaniel/mason-tool-installer.nvim",

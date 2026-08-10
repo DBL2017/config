@@ -1,6 +1,4 @@
-is_win = require("config.custom_function").check_win()
 return {
-    enabled = not is_win,
     -- event: 指定触发插件加载的事件。
     -- 作用: 当发生这些 Neovim 事件时才加载插件，避免启动时立即加载重型插件。
     -- 取值范围: 事件名字符串或事件数组，例如 "BufReadPost", "VimEnter", {"BufReadPre", "BufNewFile"}。

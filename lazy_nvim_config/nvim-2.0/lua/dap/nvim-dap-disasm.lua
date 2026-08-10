@@ -1,9 +1,3 @@
-local platform = require("config.platform")
-
-if platform.is_windows then
-    return {}
-end
-
 return {
     "Jorenar/nvim-dap-disasm",
     dependencies = { "mfussenegger/nvim-dap", "igorlfs/nvim-dap-view" },

@@ -1,9 +1,3 @@
-local platform = require("config.platform")
-
-if platform.is_windows then
-    return {}
-end
-
 return {
     "stevearc/conform.nvim",
     lazy = false,
@@ -109,8 +103,9 @@ return {
                 custom_json = {
                     command = "jq",
                     args = {
-                        "--indent",
-                        "4",
+                        -- "--indent",
+                        -- "4",
+                        "--tab",
                     },
                     stdin = true,
                 },

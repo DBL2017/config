@@ -3,12 +3,6 @@
 --       本文件包含适配器、界面(display)、交互(interactions)、扩展(extensions)
 --       等配置，已以中文注释说明常用选项和可替换项。
 --       在 Windows 平台上返回空配置以避免加载不兼容的插件或适配器。
-local platform = require("config.platform")
-
-if platform.is_windows then
-    return {}
-end
-
 local utils = {}
 
 function utils.machine()

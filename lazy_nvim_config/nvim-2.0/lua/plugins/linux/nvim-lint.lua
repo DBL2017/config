@@ -1,9 +1,3 @@
-local platform = require("config.platform")
-
-if platform.is_windows then
-    return {}
-end
-
 return {
     "mfussenegger/nvim-lint",
     event = { "BufWritePost", "TextChanged", "InsertEnter", "BufEnter" },
