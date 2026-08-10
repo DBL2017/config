@@ -741,6 +741,7 @@ vim.keymap.set("n", "]t", function()
     todo.jump_next()
 end)
 
+-- todo-comments
 vim.keymap.set("n", "[t", function()
     local ok, todo = pcall(require, "todo-comments")
     if not ok then
@@ -749,3 +750,12 @@ vim.keymap.set("n", "[t", function()
     end
     todo.jump_prev()
 end)
+
+-- gerrit
+vim.keymap.set("n", "<LocalLeader>grd", "<cmd>Gerrit dashboard<CR>", { desc = "gerrit dashboard" })
+vim.keymap.set("n", "<LocalLeader>grf", function()
+    local change = vim.fn.input("Change: ")
+    if change ~= "" then
+        vim.cmd("Gerrit diff " .. change)
+    end
+end, { desc = "gerrit diff" })
