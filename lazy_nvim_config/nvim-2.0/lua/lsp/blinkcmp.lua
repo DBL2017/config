@@ -9,6 +9,7 @@ return {
         dependencies = { "nvim-lua/plenary.nvim" },
         "barrettruth/blink-cmp-tmux",
         "Kaiser-Yang/blink-cmp-git",
+        "fang2hou/blink-copilot",
     },
     version = "*",
     ---@module 'blink.cmp'
@@ -268,6 +269,7 @@ return {
                 "dictionary",
                 "buffer",
                 "copilot",
+                "copilot_ns",
                 "lsp",
                 "path",
                 "snippets",
@@ -296,7 +298,12 @@ return {
                     -- Give Copilot a high score offset so its items are prioritized in the menu
                     score_offset = 100,
                 },
-
+                copilot_ns = {
+                    name = "COP_NS",
+                    module = "blink-copilot",
+                    score_offset = 100,
+                    async = true,
+                },
                 lsp = {
                     name = "LSP",
                     module = "blink.cmp.sources.lsp",
