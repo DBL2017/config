@@ -20,6 +20,6 @@ return {
             },
         })
         -- 设置 colorscheme
-        vim.cmd("colorscheme kanagawa-wave")
+        -- vim.cmd("colorscheme kanagawa-wave")
     end,
 }
