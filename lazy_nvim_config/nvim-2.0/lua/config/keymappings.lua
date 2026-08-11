@@ -752,6 +752,12 @@ vim.keymap.set("n", "[t", function()
 end)
 
 -- gerrit
+vim.keymap.set("n", "<LocalLeader>gr", function()
+    local change = vim.fn.input("Change: ")
+    if change ~= "" then
+        vim.cmd("Gerrit " .. change)
+    end
+end, { desc = "gerrit diff" })
 vim.keymap.set("n", "<LocalLeader>grd", "<cmd>Gerrit dashboard<CR>", { desc = "gerrit dashboard" })
 vim.keymap.set("n", "<LocalLeader>grf", function()
     local change = vim.fn.input("Change: ")
