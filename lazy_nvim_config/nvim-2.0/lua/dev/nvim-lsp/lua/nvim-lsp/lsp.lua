@@ -58,6 +58,40 @@ M.lsp_servers = {
             },
         },
     },
+    copilot = {
+        config = {
+            name = "copilot",
+            -- empty filetypes => treat as global/completion provider for all filetypes
+            filetypes = {},
+            root_markers = { ".git" },
+            -- executable name: ensure 'copilot' (or the right binary) is in PATH
+            cmd = { "copilot-language-server", "--stdio" }, -- 注意只保留一个 --stdio
+            settings = {
+                ["github-enterprise"] = {
+                    uri = nil,
+                },
+                http = {
+                    proxy = nil,
+                    proxyStrictSSL = nil,
+                },
+                copilot = {
+                    enable = true,
+                    suggestion = { enable = false},
+                    panel = { enable = true },
+                },
+            },
+            init_options = {
+                editorInfo = {
+                    name = "neovim",
+                    version = vim.version().major .. "." .. vim.version().minor .. "." .. vim.version().patch,
+                },
+                editorPluginInfo = {
+                    name = "copilot.nvim",
+                    version = "1.0.0", -- 可以根据实际插件版本调整
+                },
+            },
+        },
+    },
     bashls = {
         config = {
             name = "bash-language-server",
@@ -107,11 +141,21 @@ M.lsp_servers = {
 -- 获取适合当前文件的 LSP
 function M.get_lsp_for_filetype(filetype)
     local ft = filetype or vim.bo.filetype
+    -- 首先查找显式声明支持该 filetype 的服务器
     for server_name, server_config in pairs(M.lsp_servers) do
-        if vim.tbl_contains(server_config.config.filetypes, ft) then
+        local fts = server_config.config.filetypes or {}
+        if #fts > 0 and vim.tbl_contains(fts, ft) then
             return server_name
         end
     end
+    -- 回退：查找那些未指定 filetypes 的服务器（例如 Copilot），作为通用/补全提供者
+    for server_name, server_config in pairs(M.lsp_servers) do
+        local fts = server_config.config.filetypes or {}
+        if #fts == 0 then
+            return server_name
+        end
+    end
+    return nil
 end
 
 function M.start_lsp()
@@ -153,9 +197,16 @@ function M.attach_buffer(bufnr)
         return false
     end
 
-    -- 检查是否已经附加到client
+    -- 检查是否已经附加到client（忽略 Copilot 类型的客户端）
     local existing_clients = vim.lsp.get_clients({ bufnr = bufnr })
-    if #existing_clients > 0 then
+    local real_clients = {}
+    for _, c in ipairs(existing_clients) do
+        local lname = (c.name or ""):lower()
+        if not lname:match("copilot") then
+            table.insert(real_clients, c)
+        end
+    end
+    if #real_clients > 0 then
         vim.notify("Buffer already has LSP attached", vim.log.levels.INFO)
         return true
     end
@@ -198,29 +249,34 @@ function M.attach_buffer(bufnr)
 
     local root_dir = root_marker and vim.fs.dirname(root_marker) or vim.fn.getcwd()
 
-    -- 检查是否已存在可复用的客户端
+    -- 检查是否已存在可复用的客户端（跳过 Copilot 客户端）
     for _, client in ipairs(vim.lsp.get_clients()) do
-        if client.name == server_config.config.name and client.config.root_dir == root_dir then
-            -- 检查客户端是否支持当前buffer的文件类型
-            local supported_filetypes = server_config.config.filetypes or {}
-            local is_supported = false
+        local lname = (client.name or ""):lower()
+        if lname:match("copilot") then
+            -- skip copilot-like clients
+        else
+            if client.name == server_config.config.name and client.config.root_dir == root_dir then
+                -- 检查客户端是否支持当前buffer的文件类型
+                local supported_filetypes = server_config.config.filetypes or {}
+                local is_supported = false
 
-            -- 如果客户端没有指定filetypes，假设它支持所有
-            if #supported_filetypes == 0 then
-                is_supported = true
-            else
-                for _, ft in ipairs(supported_filetypes) do
-                    if ft == filetype then
-                        is_supported = true
-                        break
+                -- 如果客户端没有指定filetypes，假设它支持所有
+                if #supported_filetypes == 0 then
+                    is_supported = true
+                else
+                    for _, ft in ipairs(supported_filetypes) do
+                        if ft == filetype then
+                            is_supported = true
+                            break
+                        end
                     end
                 end
+                if is_supported then
+                    vim.lsp.buf_attach_client(bufnr, client.id)
+                    vim.notify("Attached to existing LSP client", vim.log.levels.INFO)
+                end
+                return true
             end
-            if is_supported then
-                vim.lsp.buf_attach_client(bufnr, client.id)
-                vim.notify("Attached to existing LSP client", vim.log.levels.INFO)
-            end
-            return true
         end
     end
 
