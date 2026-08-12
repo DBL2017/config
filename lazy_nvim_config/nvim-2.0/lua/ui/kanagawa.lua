@@ -1,7 +1,9 @@
 return {
     "rebelot/kanagawa.nvim",
     name = "kanagawa",
-    event = "VimEnter",
+    -- event = "VimEnter",
+    event = "VeryLazy",
+    enabled = false,
     priority = 1000, -- 提高优先级，避免被其他主题覆盖
     config = function()
         require("kanagawa").setup({

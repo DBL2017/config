@@ -74,7 +74,9 @@ local opts = {
 return {
     {
         "marko-cerovac/material.nvim",
-        event = "VimEnter",
+	enabled = false,
+        -- event = "VimEnter",
+	event = "VeryLazy",
         priority = 1000, -- make sure to load this before all the other start plugins
         config = function()
             require("material").setup(opts)

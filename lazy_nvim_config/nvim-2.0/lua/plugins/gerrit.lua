@@ -2,6 +2,7 @@ return {
     "SafaeOuajih/gerrit.nvim",
     cmd = "Gerrit",
     opts = {},
+    branch = "master",
     config = function()
         require("gerrit").setup({
 

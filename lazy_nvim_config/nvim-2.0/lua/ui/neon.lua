@@ -1,6 +1,8 @@
 return {
     "rafamadriz/neon",
-    event = "VimEnter",
+    enabled = false,
+    -- event = "VimEnter",
+    event = "VeryLazy",
     priority = 1000, -- make sure to load this before all the other start plugins
     config = function()
         vim.g.neon_style = "dark"
