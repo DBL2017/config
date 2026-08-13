@@ -5,6 +5,7 @@ return {
     priority = 1000, -- make sure to load this before all the other start plugins
     config = function()
         require("tokyonight").setup({
+            cache = true,
             style = "night", -- storm night day moon
             light_style = "day", -- The theme is used when the background is set to light
             transparent = false, -- Enable this to disable setting the background color

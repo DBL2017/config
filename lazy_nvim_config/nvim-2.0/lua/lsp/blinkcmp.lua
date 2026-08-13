@@ -14,7 +14,7 @@ return {
     version = "*",
     ---@module 'blink.cmp'
     ---@type blink.cmp.Config
-    event = { "VimEnter" },
+    event = { "InsertEnter", "CmdlineEnter" },
     opts = {
         cmdline = {
             keymap = {

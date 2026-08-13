@@ -1,6 +1,6 @@
 return {
     "windwp/nvim-autopairs",
-    event = { "BufWritePost", "TextChanged", "InsertEnter", "BufEnter" },
+    event = { "TextChanged", "InsertEnter" },
     config = function()
         require("nvim-autopairs").setup({
             disable_filetype = { "TelescopePrompt", "vim" },

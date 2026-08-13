@@ -1,7 +1,15 @@
 return {
     {
         "numToStr/Comment.nvim",
-        lazy = false,
+        keys = {
+            { "gc", mode = { "n", "x" } },
+            { "gb", mode = { "n", "x" } },
+            { "gcc", mode = { "n", "x" } },
+            { "gbc", mode = { "n", "x" } },
+            { "gbO", mode = { "n", "x" } },
+            { "gbo", mode = { "n", "x" } },
+            { "gbA", mode = { "n", "x" } },
+        },
         config = function()
             require("Comment").setup({
                 ---Add a space b/w comment and the line
