@@ -785,7 +785,7 @@ if platform.is_linux or platform.is_mac then
 
     -- nvim-dap
     vim.keymap.set("n", "<F5>", "<cmd>DapContinue<CR>", { noremap = true, silent = true, desc = "启动/继续调试" })
-    vim.keymap.set("n", "<F29>", "<cmd>DapTerminate<CR>", { noremap = true, silent = true, desc = "终止调试" })
+    vim.keymap.set("n", "<C-F5>", "<cmd>DapTerminate<CR>", { noremap = true, silent = true, desc = "终止调试" })
     vim.keymap.set(
         "n",
         "<F6>",
@@ -794,13 +794,13 @@ if platform.is_linux or platform.is_mac then
     )
     vim.keymap.set(
         "n",
-        "<F30>",
+        "<C-F6>",
         "<cmd>DapClearBreakpoints<CR>",
         { noremap = true, silent = true, desc = "清除断点" }
     )
     vim.keymap.set("n", "<F10>", "<cmd>DapStepOver<CR>", { noremap = true, silent = true, desc = "单步跳过" })
     vim.keymap.set("n", "<F11>", "<cmd>DapStepInto<CR>", { noremap = true, silent = true, desc = "单步进入" })
-    vim.keymap.set("n", "<F23>", "<cmd>DapStepOut<CR>", { noremap = true, silent = true, desc = "单步跳出" })
+    vim.keymap.set("n", "<S-F11>", "<cmd>DapStepOut<CR>", { noremap = true, silent = true, desc = "单步跳出" })
     -- nvim-view-dap
     vim.keymap.set(
         "n",
