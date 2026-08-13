@@ -1,6 +1,7 @@
 return {
     "nanozuki/tabby.nvim",
-    event = "VimEnter",
+    -- 解决tabby高亮和主题colorscheme出现的竟态问题
+    event = "VeryLazy",
     enabled = true,
     dependencies = "nvim-tree/nvim-web-devicons",
     config = function()
@@ -25,73 +26,17 @@ return {
                     },
                     line.tabs().foreach(function(tab)
                         local hl = tab.is_current() and theme.current_tab or theme.tab
-                        -- if
-                        --     tab.number() == line.api.get_tab_number(line.api.get_current_tab()) - 1 or tab.is_current()
-                        -- then
-                        --     return {
-                        --         -- line.sep('', hl, theme.fill),
-                        --         line.sep(" ", hl, theme.fill),
-                        --         tab.is_current() and "" or "",
-                        --         tab.number(),
-                        --         tab.name(),
-                        --         tab.is_current() and "~" or "",
-                        --         -- tab.close_btn(''),
-                        --         -- line.sep('', hl, theme.fill),
-                        --         line.sep(" ", hl, theme.fill),
-                        --         hl = hl,
-                        --         margin = " ",
-                        --     }
-                        -- end
                         return {
-                            -- line.sep('', hl, theme.fill),
                             line.sep(" ", hl, theme.fill),
-                            tab.is_current() and "" or "",
+                            tab.is_current() and "" or "",
                             tab.number(),
                             tab.name(),
                             tab.is_current() and "~" or "",
-                            -- tab.close_btn(''),
-                            -- line.sep('', hl, theme.fill),
                             line.sep(" ", hl, theme.fill),
                             hl = hl,
                             margin = " ",
                         }
                     end),
-                    -- line.tabs().foreach(function(tab)
-                    --     local hl = tab.is_current() and theme.current_tab or theme.tab
-                    --     if tab.number() > line.api.get_tab_number(line.api.get_current_tab()) then
-                    --         return {
-                    --             -- line.sep('', hl, theme.fill),
-                    --             line.sep(" ", hl, theme.fill),
-                    --             tab.is_current() and "" or "",
-                    --             tab.number(),
-                    --             tab.name(),
-                    --             tab.is_current() and "~" or "",
-                    --             -- tab.close_btn(''),
-                    --             -- line.sep('', hl, theme.fill),
-                    --             line.sep(" ", hl, theme.fill),
-                    --             hl = hl,
-                    --             margin = " ",
-                    --         }
-                    --     end
-                    -- end),
-                    -- line.tabs().foreach(function(tab)
-                    --     local hl = tab.is_current() and theme.current_tab or theme.tab
-                    --     if tab.number() < line.api.get_tab_number(line.api.get_current_tab()) - 1 then
-                    --         return {
-                    --             -- line.sep('', hl, theme.fill),
-                    --             line.sep(" ", hl, theme.fill),
-                    --             tab.is_current() and "" or "",
-                    --             tab.number(),
-                    --             tab.name(),
-                    --             tab.is_current() and "~" or "",
-                    --             -- tab.close_btn(''),
-                    --             -- line.sep('', hl, theme.fill),
-                    --             line.sep(" ", hl, theme.fill),
-                    --             hl = hl,
-                    --             margin = " ",
-                    --         }
-                    --     end
-                    -- end),
                     line.spacer(),
                     line.wins_in_tab(line.api.get_current_tab()).foreach(function(win)
                         return {
@@ -100,17 +45,11 @@ return {
                             win.tab().number(),
                             win.buf_name(),
                             line.sep(" ", theme.win, theme.fill),
-                            -- line.sep('', theme.win, theme.fill),
                             hl = win.is_current() and theme.current_win or theme.win,
                             margin = " ",
                         }
                     end),
                     {
-                        -- line.sep('', theme.tail, theme.fill),
-                        -- line.sep(" ", theme.tail, theme.fill),
-                        -- { os.date(), hl = theme.fill },
-                        -- line.sep(" ", theme.tail, theme.fill),
-                        -- { '  ', hl = theme.tail },
                         line.sep("<", theme.head, theme.fill),
                         { "  ", hl = theme.head },
                     },
