@@ -8,64 +8,79 @@ function save_all_and_quit()
     -- quit all buffers
     vim.api.nvim_command(":qa")
 end
-vim.keymap.set({ "n", "v" }, "<LocalLeader>wq", "<cmd>lua save_all_and_quit()<CR>", { silent = true })
-vim.keymap.set({ "n", "v" }, "<LocalLeader>q", "<cmd>q!<CR>", { silent = true })
-vim.keymap.set({ "n", "v" }, "<LocalLeader>w", "<cmd>w<CR>", { silent = true })
-vim.keymap.set({ "n", "v" }, "<LocalLeader>qa", "<cmd>qa!<CR>", { silent = true })
-vim.keymap.set({ "n", "v" }, "<C-q>", "<cmd>q!<CR>", { silent = true })
-vim.keymap.set({ "n", "v" }, "<C-s>", "<cmd>w<CR>", { silent = true })
+vim.keymap.set({ "n", "v" }, "<LocalLeader>wq", "<cmd>lua save_all_and_quit()<CR>", { noremap = true, silent = true })
+vim.keymap.set({ "n", "v" }, "<LocalLeader>q", "<cmd>q!<CR>", { noremap = true, silent = true })
+vim.keymap.set({ "n", "v" }, "<LocalLeader>w", "<cmd>w<CR>", { noremap = true, silent = true })
+vim.keymap.set({ "n", "v" }, "<LocalLeader>qa", "<cmd>qa!<CR>", { noremap = true, silent = true })
+vim.keymap.set({ "n", "v" }, "<C-q>", "<cmd>q!<CR>", { noremap = true, silent = true })
+vim.keymap.set({ "n", "v" }, "<C-s>", "<cmd>w<CR>", { noremap = true, silent = true })
 
 -- 查找
 -- 自动将查找到的字符串设置到屏幕中央
-vim.keymap.set("n", "n", "nzz", { silent = true })
-vim.keymap.set("n", "N", "Nzz", { silent = true })
+vim.keymap.set("n", "n", "nzz", { noremap = true, silent = true })
+vim.keymap.set("n", "N", "Nzz", { noremap = true, silent = true })
 
 -- 将单行内选中的字符串当作文件打开
-vim.keymap.set("v", "<LocalLeader>of", custom_function.open_selected_file, { desc = "Open file" })
+vim.keymap.set(
+    "v",
+    "<LocalLeader>of",
+    custom_function.open_selected_file,
+    { noremap = true, silent = true, desc = "打开文件" }
+)
 
 -- 扩展复制
 vim.keymap.set({ "n", "x" }, "<LocalLeader>yy", function()
     custom_function.copy_with_metadata(0)
 end, {
-    desc = "Copy with filename and linenu",
+    noremap = true,
+    silent = true,
+    desc = "复制（含文件名和行号）",
 })
 vim.keymap.set({ "n", "x" }, "<LocalLeader>yf", function()
     custom_function.copy_with_metadata(1)
 end, {
-    desc = "Copy with fullpath filename and linenu",
+    noremap = true,
+    silent = true,
+    desc = "复制（含完整路径和行号）",
 })
 vim.keymap.set({ "n", "x" }, "<LocalLeader>yr", function()
     custom_function.copy_with_metadata(2)
 end, {
-    desc = "Copy with relative filename and linenu",
+    noremap = true,
+    silent = true,
+    desc = "复制（含相对路径和行号）",
 })
 -- 获取当前文件所在的路径名
 vim.keymap.set("n", "<LocalLeader>yp", custom_function.copy_current_filepath, {
-    desc = "Copy current file path",
+    noremap = true,
+    silent = true,
+    desc = "复制当前文件路径",
 })
 -- 拷贝当前行的commit sha
-vim.keymap.set("n", "<LocalLeader>yc", custom_function.get_line_commit, { desc = "Get line commit SHA" })
+vim.keymap.set("n", "<LocalLeader>yc", custom_function.get_line_commit, {
+    noremap = true,
+    silent = true,
+    desc = "获取当前行的提交 SHA",
+})
 
 -- 对比当前行的commit与当前buffer的文件差异
 vim.keymap.set("n", "<LocalLeader>gd", custom_function.git_diff_with_commit_sha, {
-    desc = "Diff current line's Git commit",
+    noremap = true,
+    silent = true,
+    desc = "对比当前行与git commit的差异",
 })
 
 -- 普通模式下在当前位置插入时间
 vim.keymap.set("n", "<LocalLeader>ta", "a<C-R>=strftime('%Y-%m-%d %H:%M:%S')<CR><ESC>", {
+    noremap = true,
     silent = true,
-    desc = "插入本地化时间",
+    desc = "追加插入本地化时间",
 })
--- 普通模式下在下一行插入时间
--- 和tab only快捷键冲突，去掉该快捷键
--- vim.keymap.set("n", "<LocalLeader>to", "o<C-R>=strftime('%Y-%m-%d %H:%M:%S')<CR><ESC>", {
---     silent = true,
---     desc = "插入本地化时间",
--- })
 -- 普通模式下在上一行插入时间
 vim.keymap.set("n", "<LocalLeader>tO", "O<C-R>=strftime('%Y-%m-%d %H:%M:%S')<CR><ESC>", {
+    noremap = true,
     silent = true,
-    desc = "插入本地化时间",
+    desc = "在上一行插入本地化时间",
 })
 
 -- 在当前函数上方插入注释
@@ -73,71 +88,176 @@ vim.keymap.set(
     "n",
     "<LocalLeader>fO",
     "<cmd>NvimComment function<CR>",
-    { silent = true, desc = "在当前函数上方插入注释" }
+    { noremap = true, silent = true, desc = "在当前函数上方插入注释" }
 )
 -- 在当前变量上方插入注释
 vim.keymap.set(
     "n",
     "<LocalLeader>vO",
     "<cmd>NvimComment variable<CR>",
-    { silent = true, desc = "在当前变量上方插入注释" }
+    { noremap = true, silent = true, desc = "在当前变量上方插入注释" }
 )
 -- 在当前宏上方插入注释
 vim.keymap.set(
     "n",
     "<LocalLeader>mO",
     "<cmd>NvimComment macro<CR>",
-    { silent = true, desc = "在当前宏上方插入注释" }
+    { noremap = true, silent = true, desc = "在当前宏上方插入注释" }
 )
 
 -- 原生lsp
 vim.keymap.set("n", "<LocalLeader>lr", function()
     vim.lsp.buf.references()
 end, {
+    noremap = true,
     silent = true,
-    desc = "lsp_reference",
+    desc = "LSP 引用",
 })
 
 -- tab快捷键
 -- Move to previous/next
-vim.keymap.set({ "i", "n" }, "<A-,>", "<cmd>tabprevious<CR>", { silent = true, desc = "tabprevious" })
-vim.keymap.set({ "i", "n" }, "<A-.>", "<cmd>tabnext<CR>", { silent = true, desc = "tabnext" })
+vim.keymap.set(
+    { "i", "n" },
+    "<A-,>",
+    "<cmd>tabprevious<CR>",
+    { noremap = true, silent = true, desc = "上一个标签页" }
+)
+vim.keymap.set(
+    { "i", "n" },
+    "<A-.>",
+    "<cmd>tabnext<CR>",
+    { noremap = true, silent = true, desc = "下一个标签页" }
+)
 -- Re-order to previous/next
-vim.keymap.set({ "i", "n" }, "<A-Left>", "<cmd>-tabmove<CR>", { silent = true, desc = "-tabmove" })
-vim.keymap.set({ "i", "n" }, "<A-Right>", "<cmd>+tabmove<CR>", { silent = true, desc = "+tabmove" })
+vim.keymap.set(
+    { "i", "n" },
+    "<A-Left>",
+    "<cmd>-tabmove<CR>",
+    { noremap = true, silent = true, desc = "向前移动标签页" }
+)
+vim.keymap.set(
+    { "i", "n" },
+    "<A-Right>",
+    "<cmd>+tabmove<CR>",
+    { noremap = true, silent = true, desc = "向后移动标签页" }
+)
 -- tab
 -- 使用LocalLeader的原因防止误操作
-vim.keymap.set({ "i", "n" }, "<LocalLeader>tn", "<cmd>$tabnew<CR>", { silent = true, desc = "$tabnew" })
-vim.keymap.set({ "i", "n" }, "<LocalLeader>to", "<cmd>tabonly<CR>", { silent = true, desc = "tabonly" })
+vim.keymap.set(
+    { "i", "n" },
+    "<LocalLeader>tn",
+    "<cmd>$tabnew<CR>",
+    { noremap = true, silent = true, desc = "在末尾新建标签页" }
+)
+vim.keymap.set(
+    { "i", "n" },
+    "<LocalLeader>to",
+    "<cmd>tabonly<CR>",
+    { noremap = true, silent = true, desc = "仅保留当前标签页" }
+)
 
-vim.keymap.set({ "i", "n" }, "<A-0>", "<cmd>tablast<CR>", { silent = true, desc = "tablast" })
-vim.keymap.set({ "i", "n" }, "<A-1>", "<cmd>tabnext 1<CR>", { silent = true, desc = "tabnext 1" })
-vim.keymap.set({ "i", "n" }, "<A-2>", "<cmd>tabnext 2<CR>", { silent = true, desc = "tabnext 2" })
-vim.keymap.set({ "i", "n" }, "<A-3>", "<cmd>tabnext 3<CR>", { silent = true, desc = "tabnext 3" })
-vim.keymap.set({ "i", "n" }, "<A-4>", "<cmd>tabnext 4<CR>", { silent = true, desc = "tabnext 4" })
-vim.keymap.set({ "i", "n" }, "<A-5>", "<cmd>tabnext 5<CR>", { silent = true, desc = "tabnext 5" })
-vim.keymap.set({ "i", "n" }, "<A-6>", "<cmd>tabnext 6<CR>", { silent = true, desc = "tabnext 6" })
-vim.keymap.set({ "i", "n" }, "<A-7>", "<cmd>tabnext 7<CR>", { silent = true, desc = "tabnext 7" })
-vim.keymap.set({ "i", "i", "n" }, "<A-8>", "<cmd>tabnext 8<CR>", { silent = true, desc = "tabnext 8" })
-vim.keymap.set({ "i", "i", "n" }, "<A-9>", "<cmd>tabnext 9<CR>", { silent = true, desc = "tabnext 9" })
+vim.keymap.set(
+    { "i", "n" },
+    "<A-0>",
+    "<cmd>tablast<CR>",
+    { noremap = true, silent = true, desc = "最后一个标签页" }
+)
+vim.keymap.set(
+    { "i", "n" },
+    "<A-1>",
+    "<cmd>tabnext 1<CR>",
+    { noremap = true, silent = true, desc = "切换到第1个标签页" }
+)
+vim.keymap.set(
+    { "i", "n" },
+    "<A-2>",
+    "<cmd>tabnext 2<CR>",
+    { noremap = true, silent = true, desc = "切换到第2个标签页" }
+)
+vim.keymap.set(
+    { "i", "n" },
+    "<A-3>",
+    "<cmd>tabnext 3<CR>",
+    { noremap = true, silent = true, desc = "切换到第3个标签页" }
+)
+vim.keymap.set(
+    { "i", "n" },
+    "<A-4>",
+    "<cmd>tabnext 4<CR>",
+    { noremap = true, silent = true, desc = "切换到第4个标签页" }
+)
+vim.keymap.set(
+    { "i", "n" },
+    "<A-5>",
+    "<cmd>tabnext 5<CR>",
+    { noremap = true, silent = true, desc = "切换到第5个标签页" }
+)
+vim.keymap.set(
+    { "i", "n" },
+    "<A-6>",
+    "<cmd>tabnext 6<CR>",
+    { noremap = true, silent = true, desc = "切换到第6个标签页" }
+)
+vim.keymap.set(
+    { "i", "n" },
+    "<A-7>",
+    "<cmd>tabnext 7<CR>",
+    { noremap = true, silent = true, desc = "切换到第7个标签页" }
+)
+vim.keymap.set(
+    { "i", "i", "n" },
+    "<A-8>",
+    "<cmd>tabnext 8<CR>",
+    { noremap = true, silent = true, desc = "切换到第8个标签页" }
+)
+vim.keymap.set(
+    { "i", "i", "n" },
+    "<A-9>",
+    "<cmd>tabnext 9<CR>",
+    { noremap = true, silent = true, desc = "切换到第9个标签页" }
+)
 
-vim.keymap.set({ "i", "n" }, "<A-Down>", "<cmd>bnext<CR>", { silent = true, desc = "buffer next" })
-vim.keymap.set({ "i", "n" }, "<A-Up>", "<cmd>bprevious<CR>", { silent = true, desc = "buffer previous" })
-vim.keymap.set({ "i", "n" }, "<A-d>", "<cmd>bd<CR>", { silent = true, desc = "buffer delete" })
+vim.keymap.set(
+    { "i", "n" },
+    "<A-Down>",
+    "<cmd>bnext<CR>",
+    { noremap = true, silent = true, desc = "下一个缓冲区" }
+)
+vim.keymap.set(
+    { "i", "n" },
+    "<A-Up>",
+    "<cmd>bprevious<CR>",
+    { noremap = true, silent = true, desc = "上一个缓冲区" }
+)
+vim.keymap.set({ "i", "n" }, "<A-d>", "<cmd>bd<CR>", { noremap = true, silent = true, desc = "删除缓冲区" })
 -- Close buffer
-vim.keymap.set({ "i", "n" }, "<A-c>", "<cmd>bd<CR>", { silent = true, desc = "close current buffer" })
-
--- 禁用方向键
--- vim.keymap.set("n", "<Left>", "<NOP>", {silent=true,desc=""})
--- vim.keymap.set("n", "<Right>", "<NOP>", {silent=true,desc=""})
--- vim.keymap.set("n", "<Up>", "<NOP>", {silent=true,desc=""})
--- vim.keymap.set("n", "<Down>", "<NOP>", {silent=true,desc=""})
+vim.keymap.set({ "i", "n" }, "<A-c>", "<cmd>bd<CR>", { noremap = true, silent = true, desc = "关闭当前缓冲区" })
 
 -- 调整窗口小
-vim.keymap.set("n", "<C-Up>", "<cmd>resize -1<CR>", { silent = true, desc = "resize -1" })
-vim.keymap.set("n", "<C-Down>", "<cmd>resize +1<CR>", { silent = true, desc = "resize +1" })
-vim.keymap.set("n", "<C-Left>", "<cmd>vertical resize -3<CR>", { silent = true, desc = "vertical resize -3" })
-vim.keymap.set("n", "<C-Right>", "<cmd>vertical resize +3<CR>", { silent = true, desc = "vertical resize +3" })
+vim.keymap.set(
+    "n",
+    "<C-Up>",
+    "<cmd>resize -1<CR>",
+    { noremap = true, silent = true, desc = "窗口高度减少大小 -1" }
+)
+vim.keymap.set(
+    "n",
+    "<C-Down>",
+    "<cmd>resize +1<CR>",
+    { noremap = true, silent = true, desc = "窗口高度增加大小 +1" }
+)
+vim.keymap.set(
+    "n",
+    "<C-Left>",
+    "<cmd>vertical resize -3<CR>",
+    { noremap = true, silent = true, desc = "窗口宽度调整 -3" }
+)
+vim.keymap.set(
+    "n",
+    "<C-Right>",
+    "<cmd>vertical resize +3<CR>",
+    { noremap = true, silent = true, desc = "窗口宽度调整 +3" }
+)
 
 -- diagnostics
 -- 2. 优化 float 窗口打开行为（通过自定义函数封装）
@@ -151,13 +271,37 @@ local function open_optimized_diagnostic_float()
         max_height = math.floor(vim.o.lines * 0.4), -- 最大高度为屏幕40%
     })
 end
-vim.keymap.set("n", "<space>e", open_optimized_diagnostic_float, { desc = "Open optimized diagnostics" })
--- vim.keymap.set("n", "<space>e", vim.diagnostic.open_float, {silent=true, desc=""})
-vim.keymap.set("n", "[d", custom_function.diagnostic_goto_prev, { silent = true, desc = "Jump prev diagnostic" })
-vim.keymap.set("n", "]d", custom_function.diagnostic_goto_next, { silent = true, desc = "Jump next diagnostic" })
-vim.keymap.set("n", "<space>q", vim.diagnostic.setloclist, { silent = true, desc = "" })
+vim.keymap.set(
+    "n",
+    "<space>e",
+    open_optimized_diagnostic_float,
+    { noremap = true, silent = true, desc = "打开诊断浮动窗口" }
+)
+vim.keymap.set(
+    "n",
+    "[d",
+    custom_function.diagnostic_goto_prev,
+    { noremap = true, silent = true, desc = "跳转到上一个诊断" }
+)
+vim.keymap.set(
+    "n",
+    "]d",
+    custom_function.diagnostic_goto_next,
+    { noremap = true, silent = true, desc = "跳转到下一个诊断" }
+)
+vim.keymap.set(
+    "n",
+    "<space>q",
+    vim.diagnostic.setloclist,
+    { noremap = true, silent = true, desc = "将诊断加入位置列表" }
+)
 
-vim.keymap.set("n", "<LocalLeader>ac", custom_function.align_column, { silent = true, desc = "Align columns end" })
+vim.keymap.set(
+    "n",
+    "<LocalLeader>ac",
+    custom_function.align_column,
+    { noremap = true, silent = true, desc = "对齐列（末端对齐）" }
+)
 
 vim.keymap.set("n", "[[", "[[zt", {
     noremap = true,
@@ -168,12 +312,12 @@ vim.keymap.set("n", "[[", "[[zt", {
 ----------------------------------------------------------Plugins-------------------------------------------------------------
 -- nvim-ufo
 -- Using ufo provider need remap `zR` and `zM`. If Neovim is 0.6.1, remap yourself
--- vim.keymap.set("n", "zR", require("ufo").openAllFolds, { silent = true, desc = "Open all folds" })
--- vim.keymap.set("n", "zM", require("ufo").closeAllFolds, { silent = true, desc = "Close all folds" })
+-- vim.keymap.set("n", "zR", require("ufo").openAllFolds, { noremap=true,silent = true, desc = "展开所有折叠" })
+-- vim.keymap.set("n", "zM", require("ufo").closeAllFolds, { noremap=true,silent = true, desc = "关闭所有折叠" })
 
 if platform.is_linux or platform.is_mac then
     -- 格式化
-    -- vim.keymap.set({ "n", "v" }, "<space>f", require("conform").format, { desc = "Format current buffer" })
+    -- vim.keymap.set({ "n", "v" }, "<space>f", require("conform").format, {noremap=true, silent=true, desc = "格式化当前缓冲区" })
     -- 快捷键配置
     vim.keymap.set({ "n", "v" }, "<space>f", function(args)
         local ok, conform = pcall(require, "conform")
@@ -226,18 +370,28 @@ if platform.is_linux or platform.is_mac then
                 timeout_ms = 5000,
             })
         end
-    end, { desc = "格式化文件或选中区域" })
+    end, { noremap = true, silent = true, desc = "格式化文件或选中区域" })
 end
 
 -- 文件树
-vim.keymap.set({ "n", "v", "i" }, "<F2>", "<cmd>NvimTreeToggle<CR>", { desc = "Open file explore" })
+vim.keymap.set(
+    { "n", "v", "i" },
+    "<F2>",
+    "<cmd>NvimTreeToggle<CR>",
+    { noremap = true, silent = ture, desc = "打开文件树" }
+)
 
 if platform.is_linux or platform.is_mac then
     -- CodeCompanion
-    vim.keymap.set({ "n", "v" }, "<LocalLeader>aa", "<cmd>CodeCompanionActions<cr>", { noremap = true, silent = true })
+    vim.keymap.set(
+        { "n", "v" },
+        "<LocalLeader>aa",
+        "<cmd>CodeCompanionActions<CR>",
+        { noremap = true, silent = true, desc = "打开 CodeCompanion Actions" }
+    )
 
-    vim.keymap.set({ "n" }, "<LocalLeader>ch", "<cmd>CodeCompanionHistory<cr>", {
-        desc = "Open chat history list",
+    vim.keymap.set({ "n" }, "<LocalLeader>ch", "<cmd>CodeCompanionHistory<CR>", {
+        desc = "打开聊天历史列表",
         noremap = true,
         silent = true,
     })
@@ -249,7 +403,11 @@ if platform.is_linux or platform.is_mac then
             return
         end
         cc.cli({ focus = true })
-    end, { desc = "Open CodeCompanion CLI" })
+    end, {
+        desc = "打开 CodeCompanion CLI",
+        noremap = true,
+        silent = true,
+    })
 
     -- 如果你在 CLI 窗口里，调用 toggle() → 会隐藏 CLI，再次调用会重新显示。
     -- 如果你在 chat 窗口里，调用 toggle() → 同样是隐藏/显示 chat。
@@ -260,17 +418,11 @@ if platform.is_linux or platform.is_mac then
             vim.notify("CodeCompanion not installed or enabled", vim.log.levels.WARN)
         end
         cc.toggle()
-    end, { desc = "" })
-
-    -- 在chat解释代码
-    -- vim.keymap.set({ "v" }, "<LocalLeader>ce", function()
-    --     local ok, cc = pcall(require, "codecompanion")
-    --     if ok then
-    --         cc.prompt("claude_explain_code_view")
-    --     else
-    --         vim.notify("CodeCompanion not installed or enabled", vim.log.levels.WARN)
-    --     end
-    -- end, { noremap = true, silent = true })
+    end, {
+        desc = "切换当前 CodeCompanion 窗口",
+        noremap = true,
+        silent = true,
+    })
 
     -- 在当前 buffer 或选区中触发 CodeCompanion 的 CLI 提示，弹出输入框以手动输入自定义提示并与代理交互。
     -- #{this} → 普通模式下是当前 buffer，视觉模式下是选区。
@@ -291,9 +443,19 @@ if platform.is_linux or platform.is_mac then
             -- prompt为true时，submit会失效，只有直接传入字符串才会生效
             submit = true,
         })
-    end, { desc = "Prompt the CLI agent" })
+    end, { noremap = true, silent = true, desc = "向 CLI 代理发送提示" })
 
     -- 解释这段代码
+    -- 在chat解释代码
+    vim.keymap.set({ "v" }, "<LocalLeader>ae", function()
+        local ok, cc = pcall(require, "codecompanion")
+        if ok then
+            cc.prompt("claude_explain_code_view")
+        else
+            vim.notify("CodeCompanion not installed or enabled", vim.log.levels.WARN)
+        end
+    end, { noremap = true, silent = true, desc = "通过Chat Prompt解释当前代码" })
+
     vim.keymap.set({ "n", "v" }, "<LocalLeader>ce", function()
         local ok, cc = pcall(require, "codecompanion")
         if not ok then
@@ -301,7 +463,7 @@ if platform.is_linux or platform.is_mac then
             return
         end
         cc.cli("#{this} 请解释这段代码", { focus = false, submit = true })
-    end, { desc = "Explain this code" })
+    end, { noremap = true, silent = true, desc = "通过CLI解释当前代码" })
 end
 
 -- telescope
@@ -314,7 +476,7 @@ vim.keymap.set("n", "tfr", function()
         return
     end
     telescope.find_files()
-end, { silent = true, desc = "Search for files" })
+end, { noremap = true, silent = true, desc = "搜索文件" })
 
 vim.keymap.set("n", "tht", function()
     local ok, telescope = pcall(require, "telescope.builtin")
@@ -323,7 +485,7 @@ vim.keymap.set("n", "tht", function()
         return
     end
     telescope.help_tags()
-end, { silent = true, desc = "Lists available help tags" })
+end, { noremap = true, silent = true, desc = "列出可用的帮助标签" })
 
 vim.keymap.set("n", "tgs", function()
     local ok, telescope = pcall(require, "telescope.builtin")
@@ -332,7 +494,11 @@ vim.keymap.set("n", "tgs", function()
         return
     end
     telescope.grep_string({ cwd = vim.fn.expand("%:p:h") })
-end, { silent = true, desc = "Searches for the string under your cursor in your current working directory" })
+end, {
+    noremap = true,
+    silent = true,
+    desc = "在当前工作目录中搜索光标下的字符串",
+})
 
 vim.keymap.set("n", "tlg", function()
     local ok, telescope = pcall(require, "telescope.builtin")
@@ -341,7 +507,7 @@ vim.keymap.set("n", "tlg", function()
         return
     end
     telescope.live_grep({ cwd = vim.fn.expand("%:p:h") })
-end, { silent = true, desc = "Search for a string and get results live as you type" })
+end, { noremap = true, silent = true, desc = "实时搜索字符串并显示结果" })
 
 vim.keymap.set("n", "tlb", function()
     local ok, telescope = pcall(require, "telescope.builtin")
@@ -350,7 +516,7 @@ vim.keymap.set("n", "tlb", function()
         return
     end
     telescope.buffers()
-end, { silent = true, desc = "Lists open buffers in current neovim instance" })
+end, { noremap = true, silent = true, desc = "列出当前 Neovim 实例中的打开缓冲区" })
 
 vim.keymap.set("n", "tts", function()
     local ok, telescope = pcall(require, "telescope.builtin")
@@ -360,8 +526,9 @@ vim.keymap.set("n", "tts", function()
     end
     telescope.treesitter()
 end, {
+    noremap = true,
     silent = true,
-    desc = "Lists function names, variables, and other symbols from treesitter queries",
+    desc = "列出来自 treesitter 查询的函数名、变量和其他符号",
 })
 
 vim.keymap.set("n", "tgd", function()
@@ -371,7 +538,7 @@ vim.keymap.set("n", "tgd", function()
         return
     end
     telescope.lsp_definitions({ jump_type = "never" })
-end, { silent = true, desc = "Goto the definition of the word under the cursor" })
+end, { noremap = true, silent = true, desc = "跳转到光标下单词的定义" })
 
 vim.keymap.set("n", "tgb", function()
     local ok, telescope = pcall(require, "telescope.builtin")
@@ -380,7 +547,11 @@ vim.keymap.set("n", "tgb", function()
         return
     end
     telescope.git_branches({ jump_type = "never" })
-end, { silent = true, desc = "List branches for current directory, shown in the preview window" })
+end, {
+    noremap = true,
+    silent = true,
+    desc = "列出当前目录的分支（在预览窗口显示）",
+})
 
 vim.keymap.set("n", "tgc", function()
     local ok, telescope = pcall(require, "telescope.builtin")
@@ -389,7 +560,7 @@ vim.keymap.set("n", "tgc", function()
         return
     end
     telescope.git_commits({ jump_type = "never" })
-end, { silent = true, desc = "List commits for current directory with diff preview" })
+end, { noremap = true, silent = true, desc = "列出当前目录的提交（带差异预览）" })
 
 vim.keymap.set("n", "tbc", function()
     local ok, telescope = pcall(require, "telescope.builtin")
@@ -398,7 +569,7 @@ vim.keymap.set("n", "tbc", function()
         return
     end
     telescope.git_bcommits({ jump_type = "never" })
-end, { silent = true, desc = "Lists commits for current buffer with diff preview" })
+end, { noremap = true, silent = true, desc = "列出当前缓冲区的提交（带差异预览）" })
 
 vim.keymap.set("n", "tlr", function()
     local ok, telescope = pcall(require, "telescope.builtin")
@@ -407,7 +578,7 @@ vim.keymap.set("n", "tlr", function()
         return
     end
     telescope.lsp_references()
-end, { silent = true, desc = "Lists LSP references for word under the cursor" })
+end, { noremap = true, silent = true, desc = "列出光标下单词的 LSP 引用" })
 
 vim.keymap.set("n", "tcs", function()
     local ok, telescope = pcall(require, "telescope.builtin")
@@ -416,7 +587,7 @@ vim.keymap.set("n", "tcs", function()
         return
     end
     telescope.colorscheme({ enable_preview = true })
-end, { silent = true, desc = "Change colorscheme and preview" })
+end, { noremap = true, silent = true, desc = "更改配色并预览" })
 
 vim.keymap.set("n", "tic", function()
     local ok, telescope = pcall(require, "telescope.builtin")
@@ -425,7 +596,11 @@ vim.keymap.set("n", "tic", function()
         return
     end
     telescope.lsp_incoming_calls()
-end, { silent = true, desc = "Lists LSP incoming calls for word under the cursor, jumps to reference on" })
+end, {
+    noremap = true,
+    silent = true,
+    desc = "列出光标下单词的 LSP 传入调用，跳转到引用处",
+})
 vim.keymap.set("n", "toc", function()
     local ok, telescope = pcall(require, "telescope.builtin")
     if not ok then
@@ -433,7 +608,11 @@ vim.keymap.set("n", "toc", function()
         return
     end
     telescope.lsp_outgoing_calls()
-end, { silent = true, desc = "Lists LSP outgoing calls for word under the cursor, jumps to reference on" })
+end, {
+    noremap = true,
+    silent = true,
+    desc = "列出光标下单词的 LSP 传出调用，跳转到引用处",
+})
 
 vim.keymap.set("n", "tff", function()
     local ok, _ = pcall(require, "telescope._extensions.frecency")
@@ -452,7 +631,7 @@ vim.keymap.set("n", "tff", function()
         path_display = { "shorten" },
         theme = "ivy",
     })
-end)
+end, { noremap = true, silent = true, desc = "frecency 搜索（短路径，ivy 主题）" })
 vim.keymap.set("n", "tfw", function()
     local ok, _ = pcall(require, "telescope._extensions.frecency")
     if not ok then
@@ -469,45 +648,80 @@ vim.keymap.set("n", "tfw", function()
     telescope.extensions.frecency.frecency({
         workspace = "CWD",
     })
-end)
+end, { noremap = true, silent = true, desc = "frecency 搜索（工作区）" })
 
 if platform.is_linux or platform.is_mac then
     -- FzfLua
-    vim.keymap.set("n", "fgd", "<cmd>FzfLua lsp_definitions<CR>", { silent = true, desc = "Definitions" })
-    vim.keymap.set("n", "fgD", "<cmd>FzfLua lsp_declarations<CR>", { silent = true, desc = "Declarations" })
-    vim.keymap.set("n", "flr", "<cmd>FzfLua lsp_references<CR>", { silent = true, desc = "References" })
-    vim.keymap.set("n", "flf", "<cmd>FzfLua lsp_finder<CR>", { silent = true, desc = "All lsp locations" })
-    vim.keymap.set("n", "fli", "<cmd>FzfLua lsp_implementations<CR>", { silent = true, desc = "Implementations" })
-    vim.keymap.set("n", "flt", "<cmd>FzfLua lsp_typedefs<CR>", { silent = true, desc = "Type definitions" })
-    vim.keymap.set("n", "fca", "<cmd>FzfLua code_action<CR>", { silent = true, desc = "Code actions" })
-    vim.keymap.set("n", "fic", "<cmd>FzfLua lsp_incoming_calls<CR>", { silent = true, desc = "Show incomming calls" })
-    vim.keymap.set("n", "foc", "<cmd>FzfLua lsp_outgoing_calls<CR>", { silent = true, desc = "Show outgoging calls" })
+    vim.keymap.set("n", "fgd", "<cmd>FzfLua lsp_definitions<CR>", { noremap = true, silent = true, desc = "定义" })
+    vim.keymap.set("n", "fgD", "<cmd>FzfLua lsp_declarations<CR>", { noremap = true, silent = true, desc = "声明" })
+    vim.keymap.set("n", "flr", "<cmd>FzfLua lsp_references<CR>", { noremap = true, silent = true, desc = "引用" })
+    vim.keymap.set(
+        "n",
+        "flf",
+        "<cmd>FzfLua lsp_finder<CR>",
+        { noremap = true, silent = true, desc = "所有 LSP 位置" }
+    )
+    vim.keymap.set(
+        "n",
+        "fli",
+        "<cmd>FzfLua lsp_implementations<CR>",
+        { noremap = true, silent = true, desc = "实现" }
+    )
+    vim.keymap.set("n", "flt", "<cmd>FzfLua lsp_typedefs<CR>", { noremap = true, silent = true, desc = "类型定义" })
+    vim.keymap.set("n", "fca", "<cmd>FzfLua code_action<CR>", { noremap = true, silent = true, desc = "代码操作" })
+    vim.keymap.set(
+        "n",
+        "fic",
+        "<cmd>FzfLua lsp_incoming_calls<CR>",
+        { noremap = true, silent = true, desc = "显示传入调用" }
+    )
+    vim.keymap.set(
+        "n",
+        "foc",
+        "<cmd>FzfLua lsp_outgoing_calls<CR>",
+        { noremap = true, silent = true, desc = "显示传出调用" }
+    )
 
-    vim.keymap.set("n", "fgc", "<cmd>FzfLua git_commits<CR>", { silent = true, desc = "Git commit log(project)" })
-    vim.keymap.set("n", "fgb", "<cmd>FzfLua git_bcommits<CR>", { silent = true, desc = "Git commit log(buffer)" })
-    vim.keymap.set("n", "fgr", "<cmd>FzfLua grep_cword<CR>", { silent = true, desc = "Search word under cursor" })
+    vim.keymap.set(
+        "n",
+        "fgc",
+        "<cmd>FzfLua git_commits<CR>",
+        { noremap = true, silent = true, desc = "Git 提交日志（项目）" }
+    )
+    vim.keymap.set(
+        "n",
+        "fgb",
+        "<cmd>FzfLua git_bcommits<CR>",
+        { noremap = true, silent = true, desc = "Git 提交日志（缓冲区）" }
+    )
+    vim.keymap.set(
+        "n",
+        "fgr",
+        "<cmd>FzfLua grep_cword<CR>",
+        { noremap = true, silent = true, desc = "搜索光标下的单词" }
+    )
 
     -- Outline
-    vim.keymap.set("n", "<F12>", "<cmd>Outline<CR>", { silent = true, desc = "Toggle outline" })
+    vim.keymap.set("n", "<F12>", "<cmd>Outline<CR>", { noremap = true, silent = true, desc = "切换大纲" })
 
     -- Toggleterm
     -- 设置toggleterm的快捷键，使其能够在打开终端的情况下切换到其他窗口
     function _G.set_terminal_keymaps()
-        vim.keymap.set("t", "<esc>", [[<C-\><C-n>]], { buffer = 0 })
-        vim.keymap.set("t", "jk", [[<C-\><C-n>]], { buffer = 0 })
+        vim.keymap.set("t", "<esc>", [[<C-\><C-n>]], { noremap = true, silent = true, buffer = 0 })
+        vim.keymap.set("t", "jk", [[<C-\><C-n>]], { noremap = true, silent = true, buffer = 0 })
         -- 有些终端模拟器上，<Backspace>按键会发送0x08，与<C-h>一致，下面的映射就可能导致<BS>失效，需要修改终端模拟对<BS>的配置
-        vim.keymap.set("t", "<C-h>", [[<cmd>wincmd h<CR>]], { buffer = 0 })
-        vim.keymap.set("t", "<C-j>", [[<cmd>wincmd j<CR>]], { buffer = 0 })
-        vim.keymap.set("t", "<C-k>", [[<cmd>wincmd k<CR>]], { buffer = 0 })
-        vim.keymap.set("t", "<C-l>", [[<cmd>wincmd l<CR>]], { buffer = 0 })
-        vim.keymap.set("t", "<C-w>", [[<C-\><C-n><C-w>]], { buffer = 0 })
+        vim.keymap.set("t", "<C-h>", [[<cmd>wincmd h<CR>]], { noremap = true, silent = true, buffer = 0 })
+        vim.keymap.set("t", "<C-j>", [[<cmd>wincmd j<CR>]], { noremap = true, silent = true, buffer = 0 })
+        vim.keymap.set("t", "<C-k>", [[<cmd>wincmd k<CR>]], { noremap = true, silent = true, buffer = 0 })
+        vim.keymap.set("t", "<C-l>", [[<cmd>wincmd l<CR>]], { noremap = true, silent = true, buffer = 0 })
+        vim.keymap.set("t", "<C-w>", [[<C-\><C-n><C-w>]], { noremap = true, silent = true, buffer = 0 })
         vim.keymap.set("t", "<C-q>", function()
             local job_id = vim.b.terminal_job_id
             if job_id then
                 vim.fn.jobstop(job_id)
             end
             vim.api.nvim_buf_delete(0, { force = true })
-        end, { buffer = 0 })
+        end, { noremap = true, silent = true, buffer = 0 })
     end
 
     -- Trouble
@@ -516,39 +730,84 @@ if platform.is_linux or platform.is_mac then
         "n",
         "<LocalLeader>xx",
         "<cmd>Trouble diagnostics toggle filter.buf=0<cr>",
-        { silent = true, desc = "Trouble diagnostic toggle" }
+        { noremap = true, silent = true, desc = "切换 Trouble 诊断" }
     )
     vim.keymap.set(
         "n",
         "<LocalLeader>xw",
         "<cmd>Trouble workspace_diagnostics toggle<cr>",
-        { silent = true, desc = "" }
+        { noremap = true, silent = true, desc = "切换工作区诊断" }
     )
-    vim.keymap.set("n", "<LocalLeader>xd", "<cmd>Trouble document_diagnostics toggle<cr>", { silent = true, desc = "" })
-    vim.keymap.set("n", "<LocalLeader>xl", "<cmd>Trouble loclist toggle<cr>", { silent = true, desc = "" })
-    vim.keymap.set("n", "<LocalLeader>xq", "<cmd>Trouble quickfix toggle<cr>", { silent = true, desc = "" })
-    vim.keymap.set("n", "gR", "<cmd>Trouble lsp_references toggle<cr>", { silent = true, desc = "" })
+    vim.keymap.set(
+        "n",
+        "<LocalLeader>xd",
+        "<cmd>Trouble document_diagnostics toggle<cr>",
+        { noremap = true, silent = true, desc = "切换文档诊断" }
+    )
+    vim.keymap.set(
+        "n",
+        "<LocalLeader>xl",
+        "<cmd>Trouble loclist toggle<cr>",
+        { noremap = true, silent = true, desc = "切换位置列表诊断" }
+    )
+    vim.keymap.set(
+        "n",
+        "<LocalLeader>xq",
+        "<cmd>Trouble quickfix toggle<cr>",
+        { noremap = true, silent = true, desc = "切换 quickfix 诊断" }
+    )
+    vim.keymap.set(
+        "n",
+        "gR",
+        "<cmd>Trouble lsp_references toggle<cr>",
+        { noremap = true, silent = true, desc = "切换 Trouble 中的 LSP 引用" }
+    )
 
     -- lspsaga
-    vim.keymap.set("n", "K", "<cmd>Lspsaga hover_doc<CR>", { silent = true, desc = "Lspsaga hover" })
-    vim.keymap.set("n", "pd", "<cmd>Lspsaga peek_definition<CR>", { silent = true, desc = "Lspsaga peek_definition" })
+    vim.keymap.set(
+        "n",
+        "K",
+        "<cmd>Lspsaga hover_doc<CR>",
+        { noremap = true, silent = true, desc = "Lspsaga 查看文档" }
+    )
+    vim.keymap.set(
+        "n",
+        "pd",
+        "<cmd>Lspsaga peek_definition<CR>",
+        { noremap = true, silent = true, desc = "Lspsaga 查看定义" }
+    )
     vim.keymap.set(
         "n",
         "<LocalLeader>ca",
         "<cmd>Lspsaga code_action<CR>",
-        { silent = true, desc = "Lspsaga code actions" }
+        { noremap = true, silent = true, desc = "Lspsaga 代码扩展" }
     )
 
     -- nvim-dap
-    vim.keymap.set("n", "<F5>", "<cmd>DapContinue<CR>", { silent = true, desc = "launch/continue debug" })
-    vim.keymap.set("n", "<F29>", "<cmd>DapTerminate<CR>", { silent = true, desc = "terminate debug" })
-    vim.keymap.set("n", "<F6>", "<cmd>DapToggleBreakpoint<CR>", { silent = true, desc = "toggle breakpoint" })
-    vim.keymap.set("n", "<F30>", "<cmd>DapClearBreakpoints<CR>", { silent = true, desc = "clear breakpoints" })
-    vim.keymap.set("n", "<F10>", "<cmd>DapStepOver<CR>", { silent = true, desc = "step over" })
-    vim.keymap.set("n", "<F11>", "<cmd>DapStepInto<CR>", { silent = true, desc = "step into" })
-    vim.keymap.set("n", "<F23>", "<cmd>DapStepOut<CR>", { silent = true, desc = "step out" })
+    vim.keymap.set("n", "<F5>", "<cmd>DapContinue<CR>", { noremap = true, silent = true, desc = "启动/继续调试" })
+    vim.keymap.set("n", "<F29>", "<cmd>DapTerminate<CR>", { noremap = true, silent = true, desc = "终止调试" })
+    vim.keymap.set(
+        "n",
+        "<F6>",
+        "<cmd>DapToggleBreakpoint<CR>",
+        { noremap = true, silent = true, desc = "切换断点" }
+    )
+    vim.keymap.set(
+        "n",
+        "<F30>",
+        "<cmd>DapClearBreakpoints<CR>",
+        { noremap = true, silent = true, desc = "清除断点" }
+    )
+    vim.keymap.set("n", "<F10>", "<cmd>DapStepOver<CR>", { noremap = true, silent = true, desc = "单步跳过" })
+    vim.keymap.set("n", "<F11>", "<cmd>DapStepInto<CR>", { noremap = true, silent = true, desc = "单步进入" })
+    vim.keymap.set("n", "<F23>", "<cmd>DapStepOut<CR>", { noremap = true, silent = true, desc = "单步跳出" })
     -- nvim-view-dap
-    vim.keymap.set("n", "<LocalLeader>dw", "<cmd>DapViewWatch<CR>", { silent = true, desc = "step out" })
+    vim.keymap.set(
+        "n",
+        "<LocalLeader>dw",
+        "<cmd>DapViewWatch<CR>",
+        { noremap = true, silent = true, desc = "单步跳出" }
+    )
 end
 
 -- gitsigns
@@ -568,7 +827,7 @@ _G.set_gitsign_keymap = function(bufnr)
             vim.cmd("normal! zz")
         end, 10) -- 10ms延迟
         return "<Ignore>"
-    end, { expr = true, buffer = bufnr, desc = "Jump next diff" })
+    end, { noremap = true, silent = true, expr = true, buffer = bufnr, desc = "跳到下一个差异" })
     vim.keymap.set("n", "[c", function()
         -- diff模式时返回]c，用来触发默认动作
         if vim.wo.diff then
@@ -585,40 +844,40 @@ _G.set_gitsign_keymap = function(bufnr)
             vim.cmd("normal! zz")
         end, 10) -- 10ms延迟
         return "<Ignore>"
-    end, { expr = true, buffer = bufnr, desc = "Jump prev diff" })
+    end, { noremap = true, silent = true, expr = true, buffer = bufnr, desc = "跳到上一个差异" })
 
     -- hunk stage
     vim.keymap.set("n", "<LocalLeader>hs", function()
         require("gitsigns").stage_hunk()
-    end, { buffer = bufnr, desc = "Stage hunk" })
+    end, { noremap = true, silent = true, buffer = bufnr, desc = "暂存补丁块" })
     -- hunk unstage
     vim.keymap.set("n", "<LocalLeader>hu", function()
         require("gitsigns").undo_stage_hunk()
-    end, { buffer = bufnr, desc = "Unstage hunk" })
+    end, { noremap = true, silent = true, buffer = bufnr, desc = "取消暂存补丁块" })
     -- hunk reset
     vim.keymap.set("n", "<LocalLeader>hr", function()
         require("gitsigns").reset_hunk()
-    end, { buffer = bufnr, desc = "Reset hunk" })
+    end, { noremap = true, silent = true, buffer = bufnr, desc = "重置补丁块" })
     -- buffer stage
     vim.keymap.set("n", "<LocalLeader>bs", function()
         require("gitsigns").stage_buffer()
-    end, { buffer = bufnr, desc = "Stage buffer" })
+    end, { noremap = true, silent = true, buffer = bufnr, desc = "暂存缓冲区" })
     -- buffer stage
     vim.keymap.set("n", "<LocalLeader>br", function()
         require("gitsigns").reset_buffer()
-    end, { buffer = bufnr, desc = "Reset buffer" })
+    end, { noremap = true, silent = true, buffer = bufnr, desc = "重置缓冲区" })
     -- buffer blame
     vim.keymap.set("n", "<LocalLeader>gb", function()
         require("gitsigns").blame()
-    end, { buffer = bufnr, desc = "Blame buffer" })
+    end, { noremap = true, silent = true, buffer = bufnr, desc = "查看缓冲区 Blame" })
     -- buffer line blame
     vim.keymap.set("n", "<LocalLeader>bl", function()
         require("gitsigns").blame_line()
-    end, { buffer = bufnr, desc = "Blame line" })
+    end, { noremap = true, silent = true, buffer = bufnr, desc = "查看当前行的 Blame" })
 end
 
 -- neogit
-vim.keymap.set("n", "<LocalLeader>ng", "<cmd>Neogit<CR>", { silent = true, desc = "Neogit" })
+vim.keymap.set("n", "<LocalLeader>ng", "<cmd>Neogit<CR>", { noremap = true, silent = true, desc = "Neogit" })
 
 --lspconfig
 if platform.is_linux or platform.is_mac then
@@ -626,21 +885,31 @@ if platform.is_linux or platform.is_mac then
         "n",
         "<LocalLeader>abc",
         "<cmd>LspAttachBuffer<CR>",
-        { buffer = bufnr, desc = "Attach current buffer" }
+        { noremap = true, silent = true, buffer = bufnr, desc = "附加当前缓冲区" }
     )
-    vim.keymap.set("n", "<LocalLeader>aba", "<cmd>LspAttachAll<CR>", { buffer = bufnr, desc = "Attach all buffer" })
+    vim.keymap.set(
+        "n",
+        "<LocalLeader>aba",
+        "<cmd>LspAttachAll<CR>",
+        { noremap = true, silent = true, buffer = bufnr, desc = "附加所有缓冲区" }
+    )
     vim.keymap.set(
         "n",
         "<LocalLeader>dbc",
         "<cmd>LspDetachBuffer<CR>",
-        { buffer = bufnr, desc = "Detach current buffer" }
+        { noremap = true, silent = true, buffer = bufnr, desc = "分离当前缓冲区" }
     )
-    vim.keymap.set("n", "<LocalLeader>dba", "<cmd>LspDetachAll<CR>", { buffer = bufnr, desc = "Detach all buffer" })
+    vim.keymap.set(
+        "n",
+        "<LocalLeader>dba",
+        "<cmd>LspDetachAll<CR>",
+        { noremap = true, silent = true, buffer = bufnr, desc = "分离所有缓冲区" }
+    )
     vim.keymap.set(
         "n",
         "<LocalLeader>dbo",
         "<cmd>LspDetachOthers<CR>",
-        { buffer = bufnr, desc = "Detach other buffer" }
+        { noremap = true, silent = true, buffer = bufnr, desc = "分离其他缓冲区" }
     )
 end
 
@@ -653,7 +922,7 @@ vim.keymap.set("n", "]f", function()
         return
     end
     treesitter.goto_next_start("@function.outer")
-end, { desc = "Next function" })
+end, { noremap = true, silent = true, desc = "下一个 function" })
 
 vim.keymap.set("n", "[f", function()
     local ok, treesitter = pcall(require, "nvim-treesitter-textobjects.move")
@@ -662,7 +931,7 @@ vim.keymap.set("n", "[f", function()
         return
     end
     treesitter.goto_previous_start("@function.outer")
-end, { desc = "Previous function" })
+end, { noremap = true, silent = true, desc = "上一个 function" })
 
 vim.keymap.set("n", "]i", function()
     local ok, treesitter = pcall(require, "nvim-treesitter-textobjects.move")
@@ -671,7 +940,7 @@ vim.keymap.set("n", "]i", function()
         return
     end
     treesitter.goto_next_start("@conditional.outer")
-end, { desc = "Next if statement" })
+end, { noremap = true, silent = true, desc = "下一个 if 语句" })
 
 vim.keymap.set("n", "[i", function()
     local ok, treesitter = pcall(require, "nvim-treesitter-textobjects.move")
@@ -680,7 +949,7 @@ vim.keymap.set("n", "[i", function()
         return
     end
     treesitter.goto_previous_start("@conditional.outer")
-end, { desc = "Previous if statement" })
+end, { noremap = true, silent = true, desc = "上一个 if 语句" })
 
 -- You can use the capture groups defined in `textobjects.scm`
 vim.keymap.set({ "x", "o" }, "af", function()
@@ -690,7 +959,7 @@ vim.keymap.set({ "x", "o" }, "af", function()
         return
     end
     treesitter.select_textobject("@function.outer", "textobjects")
-end)
+end, { noremap = true, silent = true, desc = "选择整个函数" })
 vim.keymap.set({ "x", "o" }, "if", function()
     local ok, treesitter = pcall(require, "nvim-treesitter-textobjects.select")
     if not ok then
@@ -698,7 +967,7 @@ vim.keymap.set({ "x", "o" }, "if", function()
         return
     end
     treesitter.select_textobject("@function.inner", "textobjects")
-end)
+end, { noremap = true, silent = true, desc = "选择函数内部" })
 vim.keymap.set({ "x", "o" }, "ai", function()
     local ok, treesitter = pcall(require, "nvim-treesitter-textobjects.select")
     if not ok then
@@ -706,7 +975,7 @@ vim.keymap.set({ "x", "o" }, "ai", function()
         return
     end
     treesitter.select_textobject("@conditional.outer", "textobjects")
-end)
+end, { noremap = true, silent = true, desc = "选择整个条件语句" })
 
 -- 判断 bullets 是否可用
 local function has_bullets()
@@ -719,7 +988,7 @@ vim.keymap.set("i", "<Tab>", function()
         return "<Plug>(bullets-demote)"
     end
     return "\t"
-end, { expr = true })
+end, { noremap = true, silent = true, expr = true })
 
 -- insert 模式 Shift-Tab → 反缩进
 vim.keymap.set("i", "<S-Tab>", function()
@@ -727,10 +996,10 @@ vim.keymap.set("i", "<S-Tab>", function()
         return "<Plug>(bullets-promote)"
     end
     return "<S-Tab>"
-end, { expr = true })
+end, { noremap = true, silent = true, expr = true })
 
 -- zen-mode
-vim.keymap.set("n", "<LocalLeader>z", "<cmd>ZenMode<cr>")
+vim.keymap.set("n", "<LocalLeader>z", "<cmd>ZenMode<cr>", { noremap = true, silent = true, desc = "专注模式" })
 
 vim.keymap.set("n", "]t", function()
     local ok, todo = pcall(require, "todo-comments")
@@ -739,7 +1008,7 @@ vim.keymap.set("n", "]t", function()
         return
     end
     todo.jump_next()
-end)
+end, { noremap = true, silent = true, desc = "跳转到下一个 TODO 注释" })
 
 -- todo-comments
 vim.keymap.set("n", "[t", function()
@@ -749,7 +1018,7 @@ vim.keymap.set("n", "[t", function()
         return
     end
     todo.jump_prev()
-end)
+end, { noremap = true, silent = true, desc = "跳转到上一个 TODO 注释" })
 
 -- gerrit
 vim.keymap.set("n", "<LocalLeader>gr", function()
@@ -757,11 +1026,16 @@ vim.keymap.set("n", "<LocalLeader>gr", function()
     if change ~= "" then
         vim.cmd("Gerrit " .. change)
     end
-end, { desc = "gerrit diff" })
-vim.keymap.set("n", "<LocalLeader>grd", "<cmd>Gerrit dashboard<CR>", { desc = "gerrit dashboard" })
+end, { noremap = true, silent = true, desc = "Gerrit" })
+vim.keymap.set(
+    "n",
+    "<LocalLeader>grd",
+    "<cmd>Gerrit dashboard<CR>",
+    { noremap = true, silent = true, desc = "Gerrit 仪表板" }
+)
 vim.keymap.set("n", "<LocalLeader>grf", function()
     local change = vim.fn.input("Change: ")
     if change ~= "" then
         vim.cmd("Gerrit diff " .. change)
     end
-end, { desc = "gerrit diff" })
+end, { noremap = true, silent = true, desc = "查看 Gerrit 差异" })
