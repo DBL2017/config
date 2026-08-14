@@ -1039,3 +1039,6 @@ vim.keymap.set("n", "<LocalLeader>grf", function()
         vim.cmd("Gerrit diff " .. change)
     end
 end, { noremap = true, silent = true, desc = "查看 Gerrit 差异" })
+
+-- which-key
+vim.keymap.set("n", "<LocalLeader>?", "<cmd>WhichKey<CR>", { noremap = true, silent = true, desc = "查看快捷键" })

@@ -56,13 +56,13 @@ return {
         ---@type wk.Win.opts
         win = {
             -- don't allow the popup to overlap with the cursor
-            no_overlap = true,
+            no_overlap = false,
             -- width = 1,
             height = { min = 0.45, max = 0.5 },
             -- col = 0,
             -- row = math.huge,
-            -- border = "none",
-            padding = { 1, 2 }, -- extra window padding [top/bottom, right/left]
+            border = "rounded",
+            padding = { 1, 1 }, -- extra window padding [top/bottom, right/left]
             title = true,
             title_pos = "center",
             zindex = 1000,
