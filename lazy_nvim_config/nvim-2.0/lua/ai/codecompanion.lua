@@ -106,6 +106,7 @@ return -- lazy.nvim
         --other plugins
         "ravitemer/codecompanion-history.nvim",
         "bahaaza/codecompanion-agentskills.nvim",
+        "nvim-lualine/lualine.nvim",
     },
     cmd = {
         "CodeCompanion",
@@ -324,7 +325,7 @@ return -- lazy.nvim
                 chat = {
                     -- adapter = "siliconflow_r1",
                     -- adapter = "qwen2_coder_local",
-                    adapter = "claude_opus_online",
+                    adapter = "siliconflow_deepseek_online",
                     -- adapter = {
                     --     -- 适配器名称
                     --     -- 当前效果：使用 "anthropic" 适配器
@@ -545,20 +546,26 @@ return -- lazy.nvim
                     opts = {
                         show_defaults = false,
                         allow_insecure = true,
+                        -- 不显示预设的适配器
+                        show_presets = false,
+                        -- 显示模型选择
+                        show_model_choices = true,
                     },
-                    siliconflow_r1_deepseek_online = function()
+                    siliconflow_deepseek_online = function()
                         return require("codecompanion.adapters").extend("deepseek", {
                             name = "siliconflow_r1_deepseek_online",
                             url = "https://api.siliconflow.cn/v1/chat/completions",
                             env = {
                                 api_key = function()
-                                    return os.getenv("DEEPSEEK_API_KEY_S")
+                                    -- DEEPSEEK_API_KEY_S: 从硅流控制台获取的密钥
+                                    return os.getenv("DEEPSEEK_API_KEY_S") or ""
                                 end,
                             },
                             schema = {
                                 model = {
-                                    default = "deepseek-ai/DeepSeek-R1",
+                                    default = "deepseek-ai/DeepSeek-V3",
                                     choices = {
+                                        -- can_reason: false 表示禁用复杂推理任务
                                         ["deepseek-ai/DeepSeek-R1"] = { opts = { can_reason = false } },
                                         ["deepseek-ai/DeepSeek-V3"] = { opts = { can_reason = false } },
                                     },

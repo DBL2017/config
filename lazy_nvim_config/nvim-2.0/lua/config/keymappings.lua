@@ -405,7 +405,8 @@ if platform.is_linux or platform.is_mac then
         cc.cli({ focus = true })
     end, {
         desc = "打开 CodeCompanion CLI",
-        noremap = true,
+        -- 这里必须注释，因为在codecompanion cli界面需要将快捷键继续扩展
+        -- noremap = true,
         silent = true,
     })
 
@@ -450,7 +451,7 @@ if platform.is_linux or platform.is_mac then
     vim.keymap.set({ "v" }, "<LocalLeader>ae", function()
         local ok, cc = pcall(require, "codecompanion")
         if ok then
-            cc.prompt("claude_explain_code_view")
+            cc.prompt("deepseek_explain_code_view")
         else
             vim.notify("CodeCompanion not installed or enabled", vim.log.levels.WARN)
         end

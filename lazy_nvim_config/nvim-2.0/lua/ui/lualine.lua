@@ -2,7 +2,7 @@ local is_tmux = require("config.custom_function").check_tmux()
 
 local opts = {
     options = {
-        icons_enabled = false,
+        icons_enabled = true,
 
         theme = "auto",
 
@@ -111,7 +111,7 @@ local opts = {
                 },
             },
         },
-        lualine_x = { "encoding", "fileformat", "filetype" },
+        lualine_x = { "codecompanion", "encoding", "fileformat", "filetype" },
         lualine_y = { "searchcount", "selectioncount", "progress" },
         lualine_z = {
             "location",
@@ -167,6 +167,9 @@ local opts = {
 return {
     {
         "nvim-lualine/lualine.nvim",
+        dependencies = {
+            "DBL2017/codecompanion-lualine.nvim",
+        },
         event = "VeryLazy",
         config = function()
             require("lualine").setup(opts)
