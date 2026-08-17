@@ -325,7 +325,7 @@ return -- lazy.nvim
                 chat = {
                     -- adapter = "siliconflow_r1",
                     -- adapter = "qwen2_coder_local",
-                    adapter = "siliconflow_deepseek_online",
+                    adapter = "tplink_internal",
                     -- adapter = {
                     --     -- 适配器名称
                     --     -- 当前效果：使用 "anthropic" 适配器
@@ -515,6 +515,9 @@ return -- lazy.nvim
                         set_terminal_keymaps()
                     end,
                 },
+                code_review = {
+                    enabled = false,
+                },
             },
             opts = {
                 log_level = "TRACE", -- or "TRACE"
@@ -700,6 +703,20 @@ return -- lazy.nvim
                             },
                         })
                     end,
+                    tplink_internal = function()
+                        return require("codecompanion.adapters").extend("tplink", {
+                            name = "tplink",
+                            url = "https://aichat.tp-link.com/api/chat/chat",
+                            env = {
+                                username = function()
+                                    return os.getenv("TPLink_User")
+                                end,
+                                password = function()
+                                    return os.getenv("TPLink_Pass")
+                                end,
+                            },
+                        })
+                    end,
                     -- aliyun_deepseek = function()
                     --     return require("codecompanion.adapters").extend("deepseek", {
                     --         name = "aliyun_deepseek",
@@ -744,7 +761,7 @@ return -- lazy.nvim
                             duplicate = { n = "<C-y>", i = "<C-y>" },
                         },
                         ---Automatically generate titles for new chats
-                        auto_generate_title = true,
+                        auto_generate_title = false,
                         title_generation_opts = {
                             ---Adapter for generating titles (defaults to current chat adapter)
                             adapter = nil, -- "copilot"
