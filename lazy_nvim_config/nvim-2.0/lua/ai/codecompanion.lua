@@ -94,7 +94,7 @@ local default_prompt = [[
 
 return -- lazy.nvim
 {
-    "olimorris/codecompanion.nvim",
+    "DBL2017/codecompanion.nvim",
     -- module: 通过 module 字段指定按需加载的模块名。
     -- 作用: 当第一次 require('codecompanion') 时才加载该插件，避免在启动时立即下载/初始化大型 AI 插件。
     -- 取值范围: 字符串（插件导出的模块名）或 nil。

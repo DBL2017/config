@@ -10,7 +10,7 @@
   "codecompanion-agentskills.nvim": { "branch": "master", "commit": "d4bc933b313221ca11611f07a7fc1b5561bba050" },
   "codecompanion-history.nvim": { "branch": "main", "commit": "bc1b4fe06eaaf0aa2399be742e843c22f7f1652a" },
   "codecompanion-lualine.nvim": { "branch": "main", "commit": "d421982136a511ee5dc07bd5df50bed8b4ae5e94" },
-  "codecompanion.nvim": { "branch": "main", "commit": "2b959b2bf5fdb13e3b333c078ba549996e477b7c" },
+  "codecompanion.nvim": { "branch": "main", "commit": "018202d0f22c909cb5fcd8cc8c5db027aaa986a4" },
   "conform.nvim": { "branch": "master", "commit": "3543d000dafbc41cc7761d860cfdb24e82154f75" },
   "copilot.vim": { "branch": "release", "commit": "a12fd5672110c8aa7e3c8419e28c96943ca179be" },
   "csvview.nvim": { "branch": "main", "commit": "a4c45eadb03a462a80dd1a545d0f9cb636b73664" },
