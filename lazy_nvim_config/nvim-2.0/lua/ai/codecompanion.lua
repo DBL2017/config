@@ -315,7 +315,7 @@ return -- lazy.nvim
                 cli = {
                     window = {
                         layout = "vertical",
-                        width = 0.35,
+                        width = 0.5,
                         height = 0.6,
                         opts = { list = false },
                     },
