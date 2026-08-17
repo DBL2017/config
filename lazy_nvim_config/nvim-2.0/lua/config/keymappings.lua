@@ -465,6 +465,16 @@ if platform.is_linux or platform.is_mac then
         end
         cc.cli("#{this} 请解释这段代码", { focus = false, submit = true })
     end, { noremap = true, silent = true, desc = "通过CLI解释当前代码" })
+
+
+    vim.keymap.set({ "v" }, "<LocalLeader>at", function()
+        local ok, cc = pcall(require, "codecompanion")
+        if ok then
+            cc.prompt("tplink_translate")
+        else
+            vim.notify("CodeCompanion not installed or enabled", vim.log.levels.WARN)
+        end
+    end, { noremap = true, silent = true, desc = "通过Chat Prompt翻译当前内容" })
 end
 
 -- telescope
