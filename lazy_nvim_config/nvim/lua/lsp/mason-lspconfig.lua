@@ -1,18 +1,34 @@
 return {
-    "williamboman/mason-lspconfig.nvim",
-    config = function()
-        -- 该插件用于安装lsp server
-        require("mason-lspconfig").setup({
-            -- 自动安装的server
-            --
-            ensure_installed = { "clangd" },
-            -- 决定是否安装已经通过lspconfig setup过的server
-            -- 取值如下：
-            --   - false: Servers are not automatically installed.
-            --   - true: All servers set up via lspconfig are automatically installed.
-            --   - { exclude: string[] }: All servers set up via lspconfig, except the ones provided in the list, are automatically installed.
-            --       Example: automatic_installation = { exclude = { "rust_analyzer", "solargraph" } }
-            automatic_installation = false,
-        })
-    end,
+    "mason-org/mason-lspconfig.nvim",
+    cmd = { "Mason" },
+    opts = {
+        -- A list of servers to automatically install if they're not already installed. Example: { "rust_analyzer@nightly", "lua_ls" }
+        ---@type string[]
+        ensure_installed = { "clangd", "cmake", "pyright", "lua_ls", "bashls", "ts_ls", "vale_ls", "yamlls" },
+        -- Whether installed servers should automatically be enabled via `:h vim.lsp.enable()`.
+        --
+        -- To exclude certain servers from being automatically enabled:
+        -- ```lua
+        --   automatic_enable = {
+        --     exclude = { "rust_analyzer", "ts_ls" }
+        --   }
+        -- ```
+        --
+        -- To only enable certain servers to be automatically enabled:
+        -- ```lua
+        --   automatic_enable = {
+        --     "lua_ls",
+        --     "vimls"
+        --   }
+        -- ```
+        ---@type boolean | string[] | { exclude: string[] }
+        ---@是否自动启动自动安装的lsp server
+        automatic_enable = {
+            exclude = { "stylua" },
+        },
+    },
+    dependencies = {
+        { "mason-org/mason.nvim", opts = {} },
+        "neovim/nvim-lspconfig",
+    },
 }

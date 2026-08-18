@@ -5,10 +5,10 @@ local ftMap = {
 }
 return {
     "kevinhwang91/nvim-ufo",
+    enabled = false,
     dependencies = {
         "kevinhwang91/promise-async",
     },
-    enabled = true,
     config = function()
         -- Option 2: nvim lsp as LSP client
         -- Tell the server the capability of foldingRange,

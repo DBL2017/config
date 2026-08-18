@@ -1,5 +1,9 @@
 return {
     "lewis6991/gitsigns.nvim",
+    event = {
+        "BufReadPre",
+        "BufNewFile",
+    },
     config = function()
         require("gitsigns").setup({
             signs = {
@@ -14,22 +18,23 @@ return {
                 },
             },
             signcolumn = true, -- Toggle with `:Gitsigns toggle_signs`
-            numhl = false, -- Toggle with `:Gitsigns toggle_numhl`
+            numhl = true, -- Toggle with `:Gitsigns toggle_numhl`
             linehl = false, -- Toggle with `:Gitsigns toggle_linehl`
             word_diff = true, -- Toggle with `:Gitsigns toggle_word_diff`
             watch_gitdir = {
-                interval = 1000,
+                interval = 5000,
                 follow_files = true,
             },
             attach_to_untracked = true,
-            current_line_blame = true, -- Toggle with `:Gitsigns toggle_current_line_blame`
+            -- blame性能太低，在大项目中导致git cpu占用率太高
+            current_line_blame = false, -- Toggle with `:Gitsigns toggle_current_line_blame`
             current_line_blame_opts = {
                 virt_text = true,
                 virt_text_pos = "eol", -- 'eol' | 'overlay' | 'right_align'
-                delay = 1000,
+                delay = 5000,
                 ignore_whitespace = true,
                 virt_text_priority = 100,
-                use_focus = false,
+                use_focus = true,
             },
             current_line_blame_formatter = "<abbrev_sha> <author>, <author_time:%Y-%m-%d> - <summary>",
             sign_priority = 6,
@@ -44,53 +49,17 @@ return {
                 row = 0,
                 col = 1,
             },
-            on_attach = function(bufnr)
-                local gs = package.loaded.gitsigns
-                local function map(mode, l, r, opts)
-                    opts = opts or {}
-                    opts.buffer = bufnr
-                    vim.keymap.set(mode, l, r, opts)
-                end
-                -- Navigation
-                map("n", "]c", function()
-                    -- diff模式时返回]c，用来触发默认动作
-                    if vim.wo.diff then
-                        return "]c"
-                    end
-                    vim.schedule(function()
-                        gs.nav_hunk("next", { preview = true })
-                    end)
-                    return "<Ignore>"
-                end, { expr = true })
 
-                map("n", "[c", function()
-                    -- diff模式时返回]c，用来触发默认动作
-                    if vim.wo.diff then
-                        return "[c"
-                    end
-                    vim.schedule(function()
-                        gs.nav_hunk("prev", {
-                            preview = true,
-                        })
-                    end)
-                    return "<Ignore>"
-                end, { expr = true })
-                -- hunk stage
-                map("n", "<leader>hs", function()
-                    gs.stage_hunk()
-                end, {})
-                -- hunk unstage
-                map("n", "<leader>hu", function()
-                    gs.undo_stage_hunk()
-                end, {})
-                -- hunk reset
-                map("n", "<leader>hr", function()
-                    gs.reset_hunk()
-                end, {})
-                -- buffer stage
-                map("n", "<leader>bs", function()
-                    gs.stage_buffer()
-                end, {})
+            diff_opts = {
+                internal = true, -- 使用内置 diff（推荐）
+                ignore_blank_lines = false,
+                ignore_whitespace_change = false, -- ✅ 不忽略空格/空行变化
+                ignore_whitespace = false,
+                ignore_whitespace_change_at_eol = false,
+            },
+
+            on_attach = function(bufnr)
+                set_gitsign_keymap(bufnr)
             end,
         })
     end,

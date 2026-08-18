@@ -9,19 +9,17 @@ return {
             -- a list of all tools you want to ensure are installed upon
             -- start
             ensure_installed = {
-                "black",
-                "cmake",
-                "stylua",
-                "jsonlint",
-                "jq",
                 "beautysh",
-                "markdownlint",
-                "cmakelang",
-                "shellcheck",
-                "checkmake",
                 "black",
+                "checkmake",
+                "cmakelang",
                 "codespell",
-		"latexindent"
+                "jq",
+                "jsonlint",
+                "latexindent",
+                "markdownlint",
+                "shellcheck",
+                "stylua",
                 -- "lua_ls",
             },
 

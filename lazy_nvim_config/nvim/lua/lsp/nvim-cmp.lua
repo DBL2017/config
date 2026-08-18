@@ -1,7 +1,13 @@
 -- 该插件为代码补全工具，补全数据来源有LSP，BUFFER，CMDLine等
 return {
     "hrsh7th/nvim-cmp",
+    enabled = false,
     dependencies = {
+        -- LSP
+        "hrsh7th/cmp-nvim-lsp",
+        "hrsh7th/cmp-nvim-lsp-document-symbol",
+        "hrsh7th/cmp-nvim-lsp-signature-help",
+
         "lukas-reineke/cmp-under-comparator",
 
         "L3MON4D3/LuaSnip",

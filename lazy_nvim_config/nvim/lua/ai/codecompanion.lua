@@ -395,7 +395,7 @@ return -- lazy.nvim
                         -- 返回值：修饰后的字符串
                         prompt_decorator = function(message, adapter, context)
                             -- 当前效果：将用户消息包裹在 <prompt></prompt> 标签中
-                            return string.format([[<prompt>%s</prompt>]], message)
+                            return string.format([[%s]], message)
                         end,
                         ---@param opts { adapter: CodeCompanion.HTTPAdapter, language: string }
                         ---@return string
@@ -520,7 +520,7 @@ return -- lazy.nvim
                 },
             },
             opts = {
-                log_level = "TRACE", -- or "TRACE"
+                log_level = "WARN", -- or "TRACE"
                 language = "Chinese",
             },
             adapters = {

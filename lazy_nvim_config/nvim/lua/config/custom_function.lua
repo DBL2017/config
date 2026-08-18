@@ -1,5 +1,3 @@
-M = {}
-
 local function copy_current_filepath()
     local file_path = vim.api.nvim_buf_get_name(0)
     local dir_path = vim.fn.fnamemodify(file_path, ":h")
@@ -14,8 +12,6 @@ local function copy_current_filepath()
         vim.fn.system("xclip -sel clipboard", dir_path) -- Linux/WSL
     end
 end
-
-M.copy_current_filepath = copy_current_filepath
 
 -- 获取当前行的commit
 local function get_line_commit()
@@ -59,8 +55,6 @@ local function get_line_commit()
     return sha
 end
 
-M.get_line_commit = get_line_commit
-
 -- 对比当前行所在的commit与当前文件的差异
 local function git_diff_with_commit_sha()
     -- 获取当前文件 Git Blame 信息
@@ -75,11 +69,33 @@ local function git_diff_with_commit_sha()
     vim.notify("No Git commit found for this line.", vim.log.levels.WARN)
 end
 
-M.git_diff_with_commit_sha = git_diff_with_commit_sha
-
 -- 复制内容并附加文件名与行号
-local function copy_with_metadata(is_full_path)
-    local buf_name = is_full_path and vim.fn.expand("%:p") or vim.fn.expand("%:t") -- 获取当前文件名（不含路径）
+-- path_type:
+-- 0 仅文件名
+-- 1 绝对路径
+-- 2 相对路径
+local function copy_with_metadata(path_type)
+    local file_name = vim.fn.expand("%:t")
+    local file_full_name = vim.fn.expand("%:p")
+
+    local buf_name = file_full_name -- 默认值
+
+    if path_type == 0 then
+        buf_name = file_name
+    elseif path_type == 1 then
+        buf_name = file_full_name
+    else
+        -- 获取当前文件的合理根目录
+        -- 根据根目录获取相对路径
+        local root_markers = { ".git" }
+        local root_dir = vim.fs.dirname(vim.fs.find(root_markers, { upward = true, path = vim.fn.expand("%:p:h") })[1])
+        if root_dir and string.sub(file_full_name, 0, #root_dir) == root_dir then
+            buf_name = string.sub(file_full_name, #root_dir + 2)
+        else
+            buf_name = file_full_name
+        end
+    end
+    --
     local lines = {}
 
     -- 获取选区行号范围
@@ -121,8 +137,6 @@ local function copy_with_metadata(is_full_path)
     end
 end
 
-M.copy_with_metadata = copy_with_metadata
-
 -- 将单行内选中的字符串当作文件打开
 local function get_visual_selection()
     -- 获取当前选中的文本
@@ -149,14 +163,13 @@ local function open_selected_file()
     end
 end
 
-M.open_selected_file = open_selected_file
-
 -- diagnosic jump
 local function diagnostics_goto_prev()
     vim.diagnostic.jump({
         count = -1,
         float = true,
         wrap = false,
+        severity = { vim.diagnostic.severity.ERROR, vim.diagnostic.severity.WARN },
     })
 end
 local function diagnostics_goto_next()
@@ -164,9 +177,46 @@ local function diagnostics_goto_next()
         count = 1,
         float = true,
         wrap = false,
+        severity = { vim.diagnostic.severity.ERROR, vim.diagnostic.severity.WARN },
     })
 end
-M.diagnostic_goto_prev = diagnostics_goto_prev
-M.diagnostic_goto_next = diagnostics_goto_next
+
+local function check_tmux()
+    return os.getenv("TMUX") ~= nil
+end
+
+local function align_column()
+    local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+    local max_len = 0
+    -- 获取最长行
+    for _, line in ipairs(lines) do
+        max_len = math.max(max_len, #line) + 1
+    end
+
+    -- 对不足长的行进行填充空格
+    for i, line in ipairs(lines) do
+        lines[i] = line .. string.rep(" ", max_len - #line)
+    end
+    vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
+end
+
+local M = {
+    -- 拷贝当前文件路径
+    copy_current_filepath = copy_current_filepath,
+    -- 复制内容并附加文件名与行号
+    copy_with_metadata = copy_with_metadata,
+    -- 检查是否为tmux环境，用于lualine决定lualine-c是否显示全路径
+    check_tmux = check_tmux,
+    align_column = align_column,
+    -- 获取当前的commit sha，用于查看对应提交
+    get_line_commit = get_line_commit,
+    -- 对比当前行所在的commit与当前文件的差异
+    git_diff_with_commit_sha = git_diff_with_commit_sha,
+    -- 将选中的字符串当做文件路径打开
+    open_selected_file = open_selected_file,
+    -- 诊断跳转
+    diagnostic_goto_prev = diagnostics_goto_prev,
+    diagnostic_goto_next = diagnostics_goto_next,
+}
 
 return M

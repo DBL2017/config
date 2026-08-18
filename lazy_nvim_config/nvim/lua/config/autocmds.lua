@@ -1,24 +1,27 @@
 local autocmd = vim.api.nvim_create_autocmd
-
--- 自动保存编辑的缓冲区
+local group = vim.api.nvim_create_augroup("default", { clear = true })
 
 -- 重新打开缓冲区恢复光标位置
 autocmd("BufReadPost", {
     pattern = "*",
+    group = group,
     callback = function()
         if vim.fn.line("'\"") > 0 and vim.fn.line("'\"") <= vim.fn.line("$") then
             vim.fn.setpos(".", vim.fn.getpos("'\""))
         end
     end,
+    desc = "自动恢复光标位置",
 })
--- 关闭新行注释
+
+--- 关闭新行注释
 autocmd({
     "BufEnter",
 }, {
     pattern = "*",
     callback = function()
-        -- vim.opt.formatoptions = vim.opt.formatoptions - { "c", "r", "o" }
+        vim.opt.formatoptions = vim.opt.formatoptions - { "c", "r", "o" }
     end,
+    desc = "关闭新行注释",
 })
 
 local function fill_template(template_path, replacements)
@@ -54,19 +57,20 @@ local function fill_template(template_path, replacements)
                 local line_text =
                     vim.api.nvim_buf_get_lines(vim.api.nvim_get_current_buf(), brief_line - 1, brief_line, false)[1]
                 -- vim.notify("line_text" .. line_text)
-                vim.api.nvim_win_set_cursor(win, { 4, #line_text + 1 })
-                vim.api.nvim_feedkeys("a", "n", false) -- 进入插入模式
+                -- vim.api.nvim_win_set_cursor(win, { 4, #line_text + 1 })
+                -- vim.api.nvim_feedkeys("a", "n", false) -- 进入插入模式
             end
         end
     else
         -- 直接跳转到末尾
-        vim.api.nvim_feedkeys("a", "n", false) -- 进入插入模式
+        -- vim.api.nvim_feedkeys("a", "n", false) -- 进入插入模式
         return
     end
 end
 -- 创建.h文件时根据模板填充
 autocmd("BufNewFile", {
     pattern = { "*" },
+    group = group,
     callback = function()
         local filename = vim.fn.expand("%:t")
         local filetype = vim.bo.filetype
@@ -96,10 +100,8 @@ autocmd("BufNewFile", {
 
         fill_template(template_path, replacements)
     end,
+    desc = "自动填充文件模版",
 })
-
--- 进入term时设置快捷键
-autocmd({ "TermOpen" }, { command = "lua set_terminal_keymaps()" })
 
 -- 光标设置
 local function hiCursor()
@@ -109,7 +111,9 @@ end
 
 autocmd("ColorScheme", {
     pattern = "*",
+    group = group,
     callback = hiCursor,
+    desc = "光标设置",
 })
 local function resetHi()
     vim.opt.guicursor = "a:block-CursorReset,a:blinkon150" -- 退出时设置
@@ -117,70 +121,55 @@ end
 
 autocmd({ "VimLeave" }, {
     pattern = "*",
+    group = group,
     callback = resetHi,
+    desc = "退出时自动恢复光标",
 })
 
--- 支持输入法切换
--- if vim.fn.has("linux") == 1 then
---     local reservedIM1 = "xkb:us::eng"
---     local reservedIM2 = "xkb:us::eng"
---     autocmd({ "InsertEnter" }, {
---         pattern = "*",
---         callback = function()
---             reservedIM1 = vim.trim(vim.fn.system("ibus engine"))
---             -- print(reservedIM1,reservedIM2)
---             if reservedIM2 then
---                 vim.trim(vim.fn.system("ibus engine " .. reservedIM2))
---             end
---         end,
---     })
---     autocmd({ "InsertLeave" }, {
---         pattern = "*",
---         callback = function()
---             reservedIM2 = vim.trim(vim.fn.system("ibus engine"))
---             -- print(reservedIM1,reservedIM2)
---             if reservedIM1 then
---                 vim.trim(vim.fn.system("ibus engine " .. reservedIM1))
---             end
---         end,
---     })
--- end
-
--- 根据上下文中的tab和空格数目决定是否启用tab转空格
-autocmd("InsertEnter", {
-    pattern = "*",
+-- 基于文件类型设置是否将tab转为space，以及tab的占位符大小
+autocmd("FileType", {
+    pattern = {
+        "cpp",
+        "c",
+    },
+    group = group,
     callback = function()
-        local line_num = vim.fn.line(".")
-        local start_line = math.max(1, line_num - 1)
-        local line = vim.fn.getline(start_line)
-        if line:match("^\t") then
-            vim.bo.expandtab = false
-        elseif line:match("^ ") then
-            vim.bo.expandtab = true
-        else
-            vim.bo.expandtab = false
-        end
-        -- local end_line = math.min(vim.fn.line("$"), line_num + 10)
-        -- local tab_count = 0
-        -- local space_count = 0
-        --
-        -- for i = start_line, end_line do
-        --     if i ~= line_num then
-        --         local line = vim.fn.getline(i)
-        --         if line:match("^\t") then
-        --             tab_count = tab_count + 1
-        --         elseif line:match("^ ") then
-        --             space_count = space_count + 1
-        --         else
-        --         end
-        --     end
-        -- end
-        --
-        -- if tab_count > space_count then
-        --     vim.bo.expandtab = false
-        -- else
-        --     vim.bo.expandtab = true
-        -- end
+        -- tab转空格
+        vim.bo.expandtab = false
+        -- tab占位符的宽度，不修改键入tab时的行为，可用来格式化对齐
+        vim.o.tabstop = 8
+        -- 键入tab时插入的空格数
+        vim.o.softtabstop = 4
+        vim.bo.softtabstop = 4
+        -- 由于tabstop==4，即tab占用4个字符长度；softtabstop==4，因此键入tab时插入4个空格。
+        -- 如果expandtab==true, tabstop==8 and softtabstop==4，那么第一次键入tab会插入4个空格，第二次键入tab继续插入4个空格。
+        -- 如果expandtab==false, tabstop==8 and softtabstop==4，那么第一次键入tab会插入4个空格，第二次键入tab会替换之前空格为tab键（8）。
+        -- 上面这些仅在行内生效，行首会被当作缩进处理，受限于shiftwidth的配置
+        -- 在行首键入tab时会受到shiftwidth的影响
+        -- 缩进时的空格数量
+        vim.o.shiftwidth = 4
     end,
+    desc = "C[PP]设置Tab不转空格，宽度为8",
 })
 
+-- 在 treesitter-context 设置后添加
+local function refresh_context()
+    local ok, ctx = pcall(require, "treesitter-context")
+    if ok then
+        ctx.enable()
+    end
+end
+
+-- 解决切换tab时nvim-treesitter-context失效的问题
+vim.api.nvim_create_autocmd({
+    "TabEnter",
+    "BufEnter",
+    "WinEnter",
+    -- "CursorMoved",
+    -- "CursorMovedI",
+}, {
+    pattern = "*",
+    group = group,
+    callback = refresh_context,
+    desc = "刷新 Treesitter 上下文",
+})
