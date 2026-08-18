@@ -1,3 +1,4 @@
+local M = {}
 -- 定义语言服务器
 M.lsp_servers = {
     clangd = {
@@ -76,7 +77,7 @@ M.lsp_servers = {
                 },
                 copilot = {
                     enable = true,
-                    suggestion = { enable = false},
+                    suggestion = { enable = false },
                     panel = { enable = true },
                 },
             },
