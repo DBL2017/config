@@ -3,4 +3,7 @@ return {
         username = "",
         password = "",
     },
+    siliconflow = {
+        api_key = "",
+    },
 }

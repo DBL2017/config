@@ -560,10 +560,7 @@ return -- lazy.nvim
                             name = "siliconflow_r1_deepseek_online",
                             url = "https://api.siliconflow.cn/v1/chat/completions",
                             env = {
-                                api_key = function()
-                                    -- DEEPSEEK_API_KEY_S: 从硅流控制台获取的密钥
-                                    return os.getenv("DEEPSEEK_API_KEY_S") or ""
-                                end,
+                                api_key = creds.siliconflow.api_key,
                             },
                             schema = {
                                 model = {
