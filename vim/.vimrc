@@ -228,7 +228,7 @@ let g:NERDCustomDelimiters = { 'c': { 'left': '/*','right': '*/' } }
 let g:NERDCommentEmptyLines = 1
 "Enable trimming of trailing whitespace when uncommenting
 let g:NERDTrimTrailingWhitespace = 1
-"Enable NERDCommenterToggle to check all selected lines is commented or not 
+"Enable NERDCommenterToggle to check all selected lines is commented or not
 let g:NERDToggleCheckAllLines = 1
 "配置vim- nerdcommenter注释插件
 
@@ -259,7 +259,7 @@ let g:ycm_semantic_triggers =  {
 "文件白名单，其中的文件会被分析
 let g:ycm_filetype_whitelist = {
             \ "c":1,
-            \ "cpp":1, 
+            \ "cpp":1,
             \ "objc":1,
             \ "sh":1,
             \ "zsh":1,
@@ -338,7 +338,7 @@ highlight GitGutterDelete guifg=#ff2222 ctermfg=1
 let g:gitgutter_highlight_linenrs = 1
 "配置gitgutter
 "新建文件插入文件头注释
-autocmd BufNewFile *.cpp,*.hpp,*.[ch] exec ":call AddHeadCommentC()" 
+autocmd BufNewFile *.cpp,*.hpp,*.[ch] exec ":call AddHeadCommentC()"
 func AddHeadCommentC()
     call setline(1, "/*************************************************************************")
     call append(line("."), " > File Name: ".expand("%"))
@@ -349,7 +349,7 @@ func AddHeadCommentC()
     call append(line(".")+5, " ************************************************************************/")
     call append(line(".")+6, "")
 endfunc
-autocmd BufNewFile *.sh exec ":call AddHeadCommentSH()" 
+autocmd BufNewFile *.sh exec ":call AddHeadCommentSH()"
 func AddHeadCommentSH()
     call setline(1, "##########################################################################")
     call append(line("."), "# File Name: ".expand("%"))
@@ -365,3 +365,5 @@ autocmd BufNewFile * normal G
 
 "显示已输入命令，需要放在最后一行才会生效
 set showcmd
+
+colorscheme desert

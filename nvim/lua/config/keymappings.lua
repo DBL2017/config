@@ -156,67 +156,38 @@ vim.keymap.set(
     { noremap = true, silent = true, desc = "仅保留当前标签页" }
 )
 
-vim.keymap.set(
-    { "i", "n" },
-    "<A-0>",
-    "<cmd>tablast<CR>",
-    { noremap = true, silent = true, desc = "最后一个标签页" }
-)
-vim.keymap.set(
-    { "i", "n" },
-    "<A-1>",
-    "<cmd>tabnext 1<CR>",
-    { noremap = true, silent = true, desc = "切换到第1个标签页" }
-)
-vim.keymap.set(
-    { "i", "n" },
-    "<A-2>",
-    "<cmd>tabnext 2<CR>",
-    { noremap = true, silent = true, desc = "切换到第2个标签页" }
-)
-vim.keymap.set(
-    { "i", "n" },
-    "<A-3>",
-    "<cmd>tabnext 3<CR>",
-    { noremap = true, silent = true, desc = "切换到第3个标签页" }
-)
-vim.keymap.set(
-    { "i", "n" },
-    "<A-4>",
-    "<cmd>tabnext 4<CR>",
-    { noremap = true, silent = true, desc = "切换到第4个标签页" }
-)
-vim.keymap.set(
-    { "i", "n" },
-    "<A-5>",
-    "<cmd>tabnext 5<CR>",
-    { noremap = true, silent = true, desc = "切换到第5个标签页" }
-)
-vim.keymap.set(
-    { "i", "n" },
-    "<A-6>",
-    "<cmd>tabnext 6<CR>",
-    { noremap = true, silent = true, desc = "切换到第6个标签页" }
-)
-vim.keymap.set(
-    { "i", "n" },
-    "<A-7>",
-    "<cmd>tabnext 7<CR>",
-    { noremap = true, silent = true, desc = "切换到第7个标签页" }
-)
-vim.keymap.set(
-    { "i", "i", "n" },
-    "<A-8>",
-    "<cmd>tabnext 8<CR>",
-    { noremap = true, silent = true, desc = "切换到第8个标签页" }
-)
-vim.keymap.set(
-    { "i", "i", "n" },
-    "<A-9>",
-    "<cmd>tabnext 9<CR>",
-    { noremap = true, silent = true, desc = "切换到第9个标签页" }
-)
+vim.keymap.set({ "i", "n" }, "<A-t>", function()
+    local input = vim.fn.input("请输入要跳转的 Tab Number: ")
 
+    -- 空输入
+    if input == nil or input == "" then
+        vim.notify("未输入 Tab Number", vim.log.levels.INFO)
+        return
+    end
+
+    -- 必须是正整数
+    if not input:match("^%d+$") then
+        vim.notify(string.format("'%s' 不是合法的 Tab Number", input), vim.log.levels.INFO)
+        return
+    end
+
+    local tabnr = tonumber(input)
+
+    local tabs = vim.api.nvim_list_tabpages()
+
+    if tabnr < 1 or tabnr > #tabs then
+        vim.notify(string.format("Tab %d 不存在，当前共有 %d 个 Tab", tabnr, #tabs), vim.log.levels.INFO)
+        return
+    end
+
+    vim.api.nvim_set_current_tabpage(tabs[tabnr])
+end, {
+    noremap = true,
+    silent = true,
+    desc = "交互式跳转到指定 Tab",
+})
+
+-- buffer 快捷键
 vim.keymap.set(
     { "i", "n" },
     "<A-Down>",
@@ -232,6 +203,35 @@ vim.keymap.set(
 vim.keymap.set({ "i", "n" }, "<A-d>", "<cmd>bd<CR>", { noremap = true, silent = true, desc = "删除缓冲区" })
 -- Close buffer
 vim.keymap.set({ "i", "n" }, "<A-c>", "<cmd>bd<CR>", { noremap = true, silent = true, desc = "关闭当前缓冲区" })
+
+vim.keymap.set({ "i", "n" }, "<A-b>", function()
+    local input = vim.fn.input("请输入要跳转的 Buffer Number: ")
+
+    -- 空输入
+    if input == nil or input == "" then
+        vim.notify("未输入 Buffer Number", vim.log.levels.INFO)
+        return
+    end
+
+    -- 非数字
+    local bufnr = tonumber(input)
+    if not bufnr then
+        vim.notify(string.format("'%s' 不是有效的 Buffer Number", input), vim.log.levels.INFO)
+        return
+    end
+
+    -- Buffer 不存在
+    if not vim.api.nvim_buf_is_valid(bufnr) then
+        vim.notify(string.format("Buffer %d 不存在", bufnr), vim.log.levels.INFO)
+        return
+    end
+
+    vim.api.nvim_set_current_buf(bufnr)
+end, {
+    noremap = true,
+    silent = true,
+    desc = "交互式跳转到指定 Buffer",
+})
 
 -- 调整窗口小
 vim.keymap.set(
@@ -465,7 +465,6 @@ if platform.is_linux or platform.is_mac then
         end
         cc.cli("#{this} 请解释这段代码", { focus = false, submit = true })
     end, { noremap = true, silent = true, desc = "通过CLI解释当前代码" })
-
 
     vim.keymap.set({ "v" }, "<LocalLeader>at", function()
         local ok, cc = pcall(require, "codecompanion")

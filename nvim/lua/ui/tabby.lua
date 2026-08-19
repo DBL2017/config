@@ -38,14 +38,25 @@ return {
                         }
                     end),
                     line.spacer(),
-                    line.wins_in_tab(line.api.get_current_tab()).foreach(function(win)
+                    -- line.wins_in_tab(line.api.get_current_tab()).foreach(function(win)
+                    --     return {
+                    --         line.sep(" ", theme.win, theme.fill),
+                    --         win.is_current() and "" or "",
+                    --         win.tab().number(),
+                    --         win.buf_name(),
+                    --         line.sep(" ", theme.win, theme.fill),
+                    --         hl = win.is_current() and theme.current_win or theme.win,
+                    --         margin = " ",
+                    --     }
+                    -- end),
+                    line.bufs().foreach(function(buf, i, count)
                         return {
                             line.sep(" ", theme.win, theme.fill),
-                            win.is_current() and "" or "",
-                            win.tab().number(),
-                            win.buf_name(),
+                            buf.is_current() and "" or "",
+                            buf.id,
+                            buf.name(),
                             line.sep(" ", theme.win, theme.fill),
-                            hl = win.is_current() and theme.current_win or theme.win,
+                            hl = buf.is_current() and theme.current_win or theme.win,
                             margin = " ",
                         }
                     end),

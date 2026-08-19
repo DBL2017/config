@@ -1,0 +1,6 @@
+return {
+    tplink = {
+        username = "",
+        password = "",
+    },
+}

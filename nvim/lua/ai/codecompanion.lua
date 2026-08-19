@@ -3,6 +3,7 @@
 --       本文件包含适配器、界面(display)、交互(interactions)、扩展(extensions)
 --       等配置，已以中文注释说明常用选项和可替换项。
 --       在 Windows 平台上返回空配置以避免加载不兼容的插件或适配器。
+local creds = require("config.credentials")
 local utils = {}
 
 function utils.machine()
@@ -708,12 +709,8 @@ return -- lazy.nvim
                             name = "tplink",
                             url = "https://aichat.tp-link.com/api/chat/chat",
                             env = {
-                                username = function()
-                                    return os.getenv("TPLink_User")
-                                end,
-                                password = function()
-                                    return os.getenv("TPLink_Pass")
-                                end,
+                                username = creds.tplink.username,
+                                password = creds.tplink.password,
                             },
                         })
                     end,
