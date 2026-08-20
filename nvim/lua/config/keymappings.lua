@@ -13,7 +13,19 @@ vim.keymap.set({ "n", "v" }, "<LocalLeader>q", "<cmd>q!<CR>", { noremap = true, 
 vim.keymap.set({ "n", "v" }, "<LocalLeader>w", "<cmd>w<CR>", { noremap = true, silent = true })
 vim.keymap.set({ "n", "v" }, "<LocalLeader>qa", "<cmd>qa!<CR>", { noremap = true, silent = true })
 vim.keymap.set({ "n", "v" }, "<C-q>", "<cmd>q!<CR>", { noremap = true, silent = true })
-vim.keymap.set({ "n", "v" }, "<C-s>", "<cmd>w<CR>", { noremap = true, silent = true })
+-- Normal / Visual 模式直接保存
+vim.keymap.set({ "n", "v" }, "<C-s>", "<cmd>w<CR>", {
+    noremap = true,
+    silent = true,
+    desc = "保存修改内容",
+})
+
+-- Insert 模式先退出到 Normal 再保存
+vim.keymap.set("i", "<C-s>", "<Esc><cmd>w<CR>", {
+    noremap = true,
+    silent = true,
+    desc = "保存修改内容并切换为正常模式",
+})
 
 -- 查找
 -- 自动将查找到的字符串设置到屏幕中央
