@@ -297,12 +297,15 @@ return {
                     min_keyword_length = 0,
                     -- Give Copilot a high score offset so its items are prioritized in the menu
                     score_offset = 100,
+                    -- 如果多个 Provider 共用同一个 fallback，那么必须这些 Provider 都返回 0 项后，fallback 才会触发
+                    fallbacks = { "lsp", "snippets" },
                 },
                 copilot_ns = {
                     name = "COP_NS",
                     module = "blink-copilot",
                     score_offset = 100,
                     async = true,
+                    fallbacks = { "copilot", "lsp" },
                 },
                 lsp = {
                     name = "LSP",
@@ -321,7 +324,7 @@ return {
                     min_keyword_length = 0, -- Minimum number of characters in the keyword to trigger the provider
                     -- If this provider returns 0 items, it will fallback to these providers.
                     -- If multiple providers fallback to the same provider, all of the providers must return 0 items for it to fallback
-                    fallbacks = {},
+                    fallbacks = { "buffer" },
                     score_offset = 90, -- Boost/penalize the score of the items
                     override = nil, -- Override the source's functions
                 },
@@ -332,6 +335,7 @@ return {
                     max_items = 3, -- Maximum number of items to display in the menu
                     min_keyword_length = 3, -- Minimum number of characters in the keyword to trigger the provider
                     score_offset = 80,
+                    fallbacks = {},
                 },
 
                 path = { name = "PTH", score_offset = 70 },
@@ -363,7 +367,7 @@ return {
                     -- Make sure this is at least 2.
                     -- 3 is recommended
                     max_items = 5, -- Maximum number of items to display in the menu
-                    min_keyword_length = 3,
+                    min_keyword_length = 2,
                     score_offset = 10,
                     opts = {
                         -- Specify the dictionary files' path

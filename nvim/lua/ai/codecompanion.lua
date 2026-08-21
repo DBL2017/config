@@ -129,7 +129,7 @@ return -- lazy.nvim
                 markdown = {
                     dirs = {
                         vim.fn.getcwd() .. "/.prompts", -- 当前项目下的 .prompts 目录
-                        "~/.config/nvim/templates/md/prompts", -- 全局配置目录
+                        vim.fn.stdpath("config") .. "/prompts", -- lockfile generated after running update.
                     },
                 },
             },

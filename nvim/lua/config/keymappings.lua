@@ -2,17 +2,9 @@
 local custom_function = require("config.custom_function")
 local platform = require("config.platform")
 
-function save_all_and_quit()
-    -- wirte all buffers first
-    vim.api.nvim_command(":wa")
-    -- quit all buffers
-    vim.api.nvim_command(":qa")
-end
-vim.keymap.set({ "n", "v" }, "<LocalLeader>wq", "<cmd>lua save_all_and_quit()<CR>", { noremap = true, silent = true })
-vim.keymap.set({ "n", "v" }, "<LocalLeader>q", "<cmd>q!<CR>", { noremap = true, silent = true })
+vim.keymap.set({ "n", "v" }, "<LocalLeader>q", "<cmd>q<CR>", { noremap = true, silent = true })
 vim.keymap.set({ "n", "v" }, "<LocalLeader>w", "<cmd>w<CR>", { noremap = true, silent = true })
-vim.keymap.set({ "n", "v" }, "<LocalLeader>qa", "<cmd>qa!<CR>", { noremap = true, silent = true })
-vim.keymap.set({ "n", "v" }, "<C-q>", "<cmd>q!<CR>", { noremap = true, silent = true })
+vim.keymap.set({ "n", "v" }, "<LocalLeader>qa", "<cmd>qa<CR>", { noremap = true, silent = true })
 -- Normal / Visual 模式直接保存
 vim.keymap.set({ "n", "v" }, "<C-s>", "<cmd>w<CR>", {
     noremap = true,
@@ -24,7 +16,7 @@ vim.keymap.set({ "n", "v" }, "<C-s>", "<cmd>w<CR>", {
 vim.keymap.set("i", "<C-s>", "<Esc><cmd>w<CR>", {
     noremap = true,
     silent = true,
-    desc = "保存修改内容并切换为正常模式",
+    desc = "切换为Normal并保存",
 })
 
 -- 查找
@@ -213,8 +205,6 @@ vim.keymap.set(
     { noremap = true, silent = true, desc = "上一个缓冲区" }
 )
 vim.keymap.set({ "i", "n" }, "<A-d>", "<cmd>bd<CR>", { noremap = true, silent = true, desc = "删除缓冲区" })
--- Close buffer
-vim.keymap.set({ "i", "n" }, "<A-c>", "<cmd>bd<CR>", { noremap = true, silent = true, desc = "关闭当前缓冲区" })
 
 vim.keymap.set({ "i", "n" }, "<A-b>", function()
     local input = vim.fn.input("请输入要跳转的 Buffer Number: ")

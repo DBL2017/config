@@ -173,3 +173,40 @@ vim.api.nvim_create_autocmd({
     callback = refresh_context,
     desc = "刷新 Treesitter 上下文",
 })
+
+-- 解决启动terminal之后，:wqa进程阻止退出的问题
+-- E948: Job still running
+-- E676: No matching autocommands for buftype= buffer
+-- Press ENTER or type command to continue
+vim.api.nvim_create_autocmd("QuitPre", {
+    callback = function()
+        local ok, terms = pcall(require, "toggleterm.terminal")
+        if ok then
+            for _, term in pairs(terms.get_all()) do
+                term:shutdown()
+            end
+        end
+    end,
+})
+
+-- 当前nvim打开之前已经打开的文件时，会提示警告swap文件已存在并跳过
+-- 原始实现见下面的文件
+-- :lua print(vim.env.VIMRUNTIME)
+-- $VIMRUNTIME/lua/vim/_defaults.lua
+vim.api.nvim_create_autocmd("SwapExists", {
+    callback = function()
+        --[[ 当文件已经被其他nvim进程打开时，当前进程只允许只读模式模式 ]]
+        -- local choice =
+        --     vim.fn.confirm("Swap file exists!\nHow do you want to proceed?", "&Open Read Only\n&Edit Anyway\n&Quit", 1)
+        local choice =
+            vim.fn.confirm("Swap file exists!\nHow do you want to proceed?", "&Open Read Only\n&Quit", 1)
+
+        if choice == 1 then
+            vim.v.swapchoice = "o"
+        -- elseif choice == 2 then
+        --     vim.v.swapchoice = "e"
+        else
+            vim.v.swapchoice = "q"
+        end
+    end,
+})
