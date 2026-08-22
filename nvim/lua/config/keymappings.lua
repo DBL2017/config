@@ -2,9 +2,24 @@
 local custom_function = require("config.custom_function")
 local platform = require("config.platform")
 
-vim.keymap.set({ "n", "v" }, "<LocalLeader>q", "<cmd>q<CR>", { noremap = true, silent = true })
-vim.keymap.set({ "n", "v" }, "<LocalLeader>w", "<cmd>w<CR>", { noremap = true, silent = true })
-vim.keymap.set({ "n", "v" }, "<LocalLeader>qa", "<cmd>qa<CR>", { noremap = true, silent = true })
+vim.keymap.set(
+    { "n", "v" },
+    "<LocalLeader>q",
+    "<cmd>q<CR>",
+    { noremap = true, silent = true, desc = "关闭当前窗口" }
+)
+vim.keymap.set(
+    { "n", "v" },
+    "<LocalLeader>w",
+    "<cmd>w<CR>",
+    { noremap = true, silent = true, desc = "保存当前buffer" }
+)
+vim.keymap.set(
+    { "n", "v" },
+    "<LocalLeader>qa",
+    "<cmd>qa<CR>",
+    { noremap = true, silent = true, desc = "退出所有窗口" }
+)
 -- Normal / Visual 模式直接保存
 vim.keymap.set({ "n", "v" }, "<C-s>", "<cmd>w<CR>", {
     noremap = true,
@@ -21,8 +36,8 @@ vim.keymap.set("i", "<C-s>", "<Esc><cmd>w<CR>", {
 
 -- 查找
 -- 自动将查找到的字符串设置到屏幕中央
-vim.keymap.set("n", "n", "nzz", { noremap = true, silent = true })
-vim.keymap.set("n", "N", "Nzz", { noremap = true, silent = true })
+vim.keymap.set("n", "n", "nzz", { noremap = true, silent = true, desc = "查找并自动跳转屏幕中间" })
+vim.keymap.set("n", "N", "Nzz", { noremap = true, silent = true, desc = "查找并自动跳转屏幕中间" })
 
 -- 将单行内选中的字符串当作文件打开
 vim.keymap.set(

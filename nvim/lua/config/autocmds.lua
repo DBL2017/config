@@ -153,13 +153,6 @@ autocmd("FileType", {
 })
 
 -- 在 treesitter-context 设置后添加
-local function refresh_context()
-    local ok, ctx = pcall(require, "treesitter-context")
-    if ok then
-        ctx.enable()
-    end
-end
-
 -- 解决切换tab时nvim-treesitter-context失效的问题
 vim.api.nvim_create_autocmd({
     "TabEnter",
@@ -170,7 +163,12 @@ vim.api.nvim_create_autocmd({
 }, {
     pattern = "*",
     group = group,
-    callback = refresh_context,
+    callback = function()
+        local ok, ctx = pcall(require, "treesitter-context")
+        if ok then
+            ctx.enable()
+        end
+    end,
     desc = "刷新 Treesitter 上下文",
 })
 
@@ -179,6 +177,7 @@ vim.api.nvim_create_autocmd({
 -- E676: No matching autocommands for buftype= buffer
 -- Press ENTER or type command to continue
 vim.api.nvim_create_autocmd("QuitPre", {
+    group = group,
     callback = function()
         local ok, terms = pcall(require, "toggleterm.terminal")
         if ok then
@@ -187,6 +186,7 @@ vim.api.nvim_create_autocmd("QuitPre", {
             end
         end
     end,
+    desc = "退出前自动清理terminal",
 })
 
 -- 当前nvim打开之前已经打开的文件时，会提示警告swap文件已存在并跳过
@@ -194,12 +194,12 @@ vim.api.nvim_create_autocmd("QuitPre", {
 -- :lua print(vim.env.VIMRUNTIME)
 -- $VIMRUNTIME/lua/vim/_defaults.lua
 vim.api.nvim_create_autocmd("SwapExists", {
+    group = group,
     callback = function()
         --[[ 当文件已经被其他nvim进程打开时，当前进程只允许只读模式模式 ]]
         -- local choice =
         --     vim.fn.confirm("Swap file exists!\nHow do you want to proceed?", "&Open Read Only\n&Edit Anyway\n&Quit", 1)
-        local choice =
-            vim.fn.confirm("Swap file exists!\nHow do you want to proceed?", "&Open Read Only\n&Quit", 1)
+        local choice = vim.fn.confirm("Swap file exists!\nHow do you want to proceed?", "&Open Read Only\n&Quit", 1)
 
         if choice == 1 then
             vim.v.swapchoice = "o"
@@ -209,4 +209,5 @@ vim.api.nvim_create_autocmd("SwapExists", {
             vim.v.swapchoice = "q"
         end
     end,
+    desc = "阻止重复编辑文件",
 })
