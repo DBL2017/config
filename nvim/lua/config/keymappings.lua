@@ -137,28 +137,15 @@ end, {
 -- Move to previous/next
 vim.keymap.set(
     { "i", "n" },
-    "<A-,>",
+    "<A-Up>",
     "<cmd>tabprevious<CR>",
     { noremap = true, silent = true, desc = "上一个标签页" }
 )
 vim.keymap.set(
     { "i", "n" },
-    "<A-.>",
+    "<A-Down>",
     "<cmd>tabnext<CR>",
     { noremap = true, silent = true, desc = "下一个标签页" }
-)
--- Re-order to previous/next
-vim.keymap.set(
-    { "i", "n" },
-    "<A-Left>",
-    "<cmd>-tabmove<CR>",
-    { noremap = true, silent = true, desc = "向前移动标签页" }
-)
-vim.keymap.set(
-    { "i", "n" },
-    "<A-Right>",
-    "<cmd>+tabmove<CR>",
-    { noremap = true, silent = true, desc = "向后移动标签页" }
 )
 -- tab
 -- 使用LocalLeader的原因防止误操作
@@ -209,13 +196,13 @@ end, {
 -- buffer 快捷键
 vim.keymap.set(
     { "i", "n" },
-    "<A-Down>",
+    "<A-Right>",
     "<cmd>bnext<CR>",
     { noremap = true, silent = true, desc = "下一个缓冲区" }
 )
 vim.keymap.set(
     { "i", "n" },
-    "<A-Up>",
+    "<A-Left>",
     "<cmd>bprevious<CR>",
     { noremap = true, silent = true, desc = "上一个缓冲区" }
 )
