@@ -24,16 +24,15 @@ return {
                         -- line.sep('', theme.head, theme.fill),
                         line.sep(">", theme.head, theme.fill),
                     },
-                    line.tabs().foreach(function(tab)
-                        local hl = tab.is_current() and theme.current_tab or theme.tab
+                    -- 优先展示buffer，其次展示tabs
+                    line.bufs().foreach(function(buf, i, count)
                         return {
-                            line.sep(" ", hl, theme.fill),
-                            tab.is_current() and "" or "",
-                            tab.number(),
-                            tab.name(),
-                            tab.is_current() and "~" or "",
-                            line.sep(" ", hl, theme.fill),
-                            hl = hl,
+                            line.sep(" ", theme.win, theme.fill),
+                            buf.is_current() and "" or "",
+                            buf.id,
+                            buf.name(),
+                            line.sep(" ", theme.win, theme.fill),
+                            hl = buf.is_current() and theme.current_win or theme.win,
                             margin = " ",
                         }
                     end),
@@ -49,14 +48,16 @@ return {
                     --         margin = " ",
                     --     }
                     -- end),
-                    line.bufs().foreach(function(buf, i, count)
+                    line.tabs().foreach(function(tab)
+                        local hl = tab.is_current() and theme.current_tab or theme.tab
                         return {
-                            line.sep(" ", theme.win, theme.fill),
-                            buf.is_current() and "" or "",
-                            buf.id,
-                            buf.name(),
-                            line.sep(" ", theme.win, theme.fill),
-                            hl = buf.is_current() and theme.current_win or theme.win,
+                            line.sep(" ", hl, theme.fill),
+                            tab.is_current() and "" or "",
+                            tab.number(),
+                            tab.name(),
+                            tab.is_current() and "~" or "",
+                            line.sep(" ", hl, theme.fill),
+                            hl = hl,
                             margin = " ",
                         }
                     end),
