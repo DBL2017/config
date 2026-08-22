@@ -543,6 +543,9 @@ return -- lazy.nvim
                                 COPILOT_PROVIDER = "github",
                                 COPILOT_API_KEY = os.getenv("GITHUB_TOKEN"),
                             },
+                            defaults = {
+                                timeout = 30000, -- 20 seconds
+                            },
                         })
                     end,
                 },
@@ -561,6 +564,14 @@ return -- lazy.nvim
                             url = "https://api.siliconflow.cn/v1/chat/completions",
                             env = {
                                 api_key = creds.siliconflow.api_key,
+                            },
+                            opts = {
+                                vision = true,
+                                thinking = false,
+                                stream = false,
+                            },
+                            parameters = {
+                                sync = true,
                             },
                             schema = {
                                 model = {
@@ -639,6 +650,14 @@ return -- lazy.nvim
                                     },
                                 },
                             },
+                            opts = {
+                                vision = true,
+                                thinking = false,
+                                stream = false,
+                            },
+                            parameters = {
+                                sync = true,
+                            },
                         })
                     end,
 
@@ -667,6 +686,14 @@ return -- lazy.nvim
                                 keep_alive = {
                                     default = "5m",
                                 },
+                            },
+                            opts = {
+                                vision = true,
+                                thinking = false,
+                                stream = false,
+                            },
+                            parameters = {
+                                sync = true,
                             },
                         })
                     end,
@@ -699,6 +726,14 @@ return -- lazy.nvim
                                 temperature = nil,
                                 top_p = nil, -- 显式覆盖掉 top_p，七牛云不支持同时出现temperature和top_p
                             },
+                            opts = {
+                                vision = true,
+                                thinking = false,
+                                stream = false,
+                            },
+                            parameters = {
+                                sync = true,
+                            },
                         })
                     end,
                     tplink_internal = function()
@@ -708,6 +743,14 @@ return -- lazy.nvim
                             env = {
                                 username = creds.tplink.username,
                                 password = creds.tplink.password,
+                            },
+                            opts = {
+                                vision = true,
+                                thinking = false,
+                                stream = false,
+                            },
+                            parameters = {
+                                sync = true,
                             },
                         })
                     end,

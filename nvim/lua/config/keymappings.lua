@@ -206,7 +206,13 @@ vim.keymap.set(
     "<cmd>bprevious<CR>",
     { noremap = true, silent = true, desc = "上一个缓冲区" }
 )
-vim.keymap.set({ "i", "n" }, "<A-d>", "<cmd>bd<CR>", { noremap = true, silent = true, desc = "删除缓冲区" })
+-- 解决偶发一次删除多个buffer的现象
+vim.keymap.set(
+    { "i", "n" },
+    "<A-d>",
+    "<cmd>bdelete %<CR>",
+    { noremap = true, silent = true, desc = "删除当前缓冲区" }
+)
 
 vim.keymap.set({ "i", "n" }, "<A-b>", function()
     local input = vim.fn.input("请输入要跳转的 Buffer Number: ")
