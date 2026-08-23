@@ -874,10 +874,23 @@ return -- lazy.nvim
             mcp = {
                 servers = {
                     ["filesystem"] = {
-                        cmd = { "npx", "-y", "@modelcontextprotocol/server-filesystem" },
-                        roots = function()
-                            return { { name = "project", path = vim.fn.getcwd() } }
-                        end,
+                        cmd = {
+                            "npx",
+                            "-y",
+                            "@modelcontextprotocol/server-filesystem",
+                            vim.fn.getcwd(),
+                        },
+                        -- 最新版本的mcp已经启用roots
+                        -- roots = function()
+                        --     return { { name = "project", path = vim.fn.getcwd() } }
+                        -- end,
+                    },
+                    ["sequential-thinking"] = {
+                        cmd = { "npx", "-y", "@modelcontextprotocol/server-sequential-thinking" },
+                    },
+                    -- 联网
+                    ["tavily-mcp"] = {
+                        cmd = { "npx", "-y", "tavily-mcp@latest" },
                     },
                     ["obsidian"] = {
                         -- 使用 mcp-remote 包装 HTTP MCP server
@@ -902,6 +915,9 @@ return -- lazy.nvim
                         },
                     },
                 },
+                -- opts = {
+                --     default_servers = { "filesystem", "sequential-thinking", "tavily-mcp" },
+                -- },
             },
         })
     end,
