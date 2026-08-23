@@ -479,17 +479,6 @@ return -- lazy.nvim
                     --adapter = "siliconflow_r1"
                     adapter = "copilot_acp",
                 },
-                -- cli = {
-                --     agent = "claude_code",
-                --     agents = {
-                --         claude_code = {
-                --             cmd = "claude",
-                --             args = {},
-                --             description = "Claude Code CLI",
-                --             provider = "terminal",
-                --         },
-                --     },
-                -- },
                 cli = {
                     -- 默认 agent 可以设为 claude_code 或 copilot
                     agent = "copilot",
@@ -500,6 +489,12 @@ return -- lazy.nvim
                             args = {}, -- 启用 ACP 模式
                             description = "GitHub Copilot CLI",
                             provider = "terminal", -- 使用内置 terminal provider
+                        },
+                        claude_code = {
+                            cmd = "claude",
+                            args = {},
+                            description = "Claude Code CLI",
+                            provider = "terminal",
                         },
                     },
 
