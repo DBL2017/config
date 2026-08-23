@@ -326,7 +326,7 @@ return -- lazy.nvim
                 chat = {
                     -- adapter = "siliconflow_r1",
                     -- adapter = "qwen2_coder_local",
-                    adapter = "tplink_internal",
+                    adapter = "siliconflow_deepseek_online",
                     -- adapter = {
                     --     -- 适配器名称
                     --     -- 当前效果：使用 "anthropic" 适配器
@@ -479,6 +479,17 @@ return -- lazy.nvim
                     --adapter = "siliconflow_r1"
                     adapter = "copilot_acp",
                 },
+                -- cli = {
+                --     agent = "claude_code",
+                --     agents = {
+                --         claude_code = {
+                --             cmd = "claude",
+                --             args = {},
+                --             description = "Claude Code CLI",
+                --             provider = "terminal",
+                --         },
+                --     },
+                -- },
                 cli = {
                     -- 默认 agent 可以设为 claude_code 或 copilot
                     agent = "copilot",
@@ -541,7 +552,7 @@ return -- lazy.nvim
                             },
                             env = {
                                 COPILOT_PROVIDER = "github",
-                                COPILOT_API_KEY = os.getenv("GITHUB_TOKEN"),
+                                COPILOT_API_KEY = creds.copilot.api_key,
                             },
                             defaults = {
                                 timeout = 30000, -- 20 seconds
@@ -634,9 +645,7 @@ return -- lazy.nvim
                             name = "kimi_openai_online",
                             url = "https://api.moonshot.cn/v1/chat/completions",
                             env = {
-                                api_key = function()
-                                    return os.getenv("KIMI_API_KEY")
-                                end,
+                                api_key = creds.kimi.api_key,
                             },
                             headers = {
                                 ["Content-Type"] = "application/json",
@@ -702,9 +711,7 @@ return -- lazy.nvim
                             name = "claude_opus_online",
                             url = "https://api.qnaigc.com/v1/chat/completions", -- 七牛云兼容模式地址
                             env = {
-                                api_key = function()
-                                    return os.getenv("ANTHROPIC_API_KEY") -- 在 .env 或系统环境变量里设置
-                                end,
+                                api_key = creds.claude.api_key,
                             },
                             schema = {
                                 model = {
