@@ -199,9 +199,9 @@ return -- lazy.nvim
                         sticky = true,
 
                         -- 是否为每个 tab 单独维护一个 Chat Buffer
-                        -- 当前效果：所有 tab 共用一个 Chat Buffer
+                        -- 当前效果：每个 tab 都有用一个 Chat Buffer
                         -- 可选取值：true（每个 tab 独立）、false（共用）
-                        pertab = false,
+                        pertab = true,
 
                         -- Chat Buffer 的布局方式
                         -- 当前效果：竖直分屏显示在右侧
@@ -800,10 +800,10 @@ return -- lazy.nvim
                             duplicate = { n = "<C-y>", i = "<C-y>" },
                         },
                         ---Automatically generate titles for new chats
-                        auto_generate_title = false,
+                        auto_generate_title = true,
                         title_generation_opts = {
                             ---Adapter for generating titles (defaults to current chat adapter)
-                            adapter = nil, -- "copilot"
+                            adapter = "tplink_internal", -- "copilot"
                             ---Model for generating titles (defaults to current chat model)
                             model = nil, -- "gpt-4o"
                             ---Number of user prompts after which to refresh the title (0 to disable)
