@@ -454,9 +454,10 @@ return -- lazy.nvim
                 },
                 inline = {
                     -- 作用: 配置内联模式下使用的 AI 适配器后端
-                    -- 当前: 使用 Claude Opus 在线版作为内联模式适配器
+                    -- 当前: 使用 Siliconflow Deepseek 在线版作为内联模式适配器
                     -- 可选: "copilot" | "openai" | "claude" | "gemini" | "siliconflow_r1" | "claude_opus_online"
-                    adapter = "claude_opus_online",
+                    -- 备注: 此适配器针对中文代码优化，支持长上下文理解
+                    adapter = "siliconflow_deepseek_online",
                     keymaps = {
                         accept_change = {
                             -- 作用: 接受 AI 内联建议的代码更改
@@ -665,7 +666,7 @@ return -- lazy.nvim
                         })
                     end,
 
-                    qwen3_coder_plus_2025_online = function()
+                    dashscope_online= function()
                         return require("codecompanion.adapters").extend("openai", {
                             name = "qwen3_coder_plus_2025_online",
                             url = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",

@@ -15,4 +15,7 @@ return {
     copilot = {
         api_key = "",
     },
+    dashscope = {
+        api_key = "",
+    },
 }
