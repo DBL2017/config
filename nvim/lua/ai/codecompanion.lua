@@ -193,10 +193,10 @@ return -- lazy.nvim
                         -- 可选取值：true（显示）、false（隐藏）
                         buflisted = true,
 
-                        -- 切换 tab 时 Chat Buffer 是否保持打开
-                        -- 当前效果：切换 tab 时 Chat Buffer 会跟随保持
+                        -- 切换 tab 时 Chat Buffer 是否保持打开，只有当pertab为false时有用
+                        -- 当前效果：切换 tab 时 Chat Buffer 不会跟随
                         -- 可选取值：true（跟随）、false（不跟随）
-                        sticky = true,
+                        sticky = false,
 
                         -- 是否为每个 tab 单独维护一个 Chat Buffer
                         -- 当前效果：每个 tab 都有用一个 Chat Buffer
@@ -451,6 +451,28 @@ return -- lazy.nvim
                             },
                         },
                     },
+                    tools = {
+                        git_commit = require("ai.codecompanion_tools.git_commit"),
+                        groups = {
+                            ["git_workflow"] = {
+                                description = "My git workflow",
+                                system_prompt = function(group, ctx)
+                                    return string.format(
+                                        "You are a git version control assistant. The date is %s. The user is on %s.",
+                                        ctx.date,
+                                        ctx.os
+                                    )
+                                end,
+                                tools = { "get_changed_files", "git_commit" },
+                                opts = {
+                                    collapse_tools = false,
+                                    ignore_system_prompt = true, -- Remove the chat's default system prompt
+                                    ignore_tool_system_prompt = false, -- Remove the default tool system prompt
+                                    judge_in_yolo_mode = true,
+                                },
+                            },
+                        },
+                    },
                 },
                 inline = {
                     -- 作用: 配置内联模式下使用的 AI 适配器后端
@@ -666,7 +688,7 @@ return -- lazy.nvim
                         })
                     end,
 
-                    dashscope_online= function()
+                    dashscope_online = function()
                         return require("codecompanion.adapters").extend("openai", {
                             name = "qwen3_coder_plus_2025_online",
                             url = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",

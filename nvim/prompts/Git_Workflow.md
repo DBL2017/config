@@ -1,26 +1,27 @@
 ---
-name: Generate Commit Message
+name: Git Workflow
 interaction: chat
-description: 对已暂存的内容生成Commit Message
+description: 对已暂存的内容生成Commit Message，并完成代码提交
 tools:
-  - get_changed_files
+  - git_workflow
 opts:
-  alias: generate_commit_message
+  alias: git_workflow
   is_slash_cmd: false
   auto_submit: true
   user_prompt: false
   stop_context_insertion: false
   ignore_system_prompt: true
+  is_workflow: true
   adapter:
     name: siliconflow_deepseek_online
   modes:
     - n
-intro_message: 对已暂存的内容生成Commit Message
+intro_message: 对已暂存的内容生成Commit Message，并完成代码提交
 ---
 
 ## system
 
-你是一个 Git Commit Message 生成器。
+你是一个 Git 版本控制工具。
 
 ### 输入
 
@@ -48,4 +49,18 @@ feat: add git commit tool
 
 ## user
 
+```yaml opts
+auto_submit: true
+```
+
 对当前项目中已暂存的内容生成Commit Message
+
+
+## user
+
+
+```yaml opts
+auto_submit: true
+```
+
+使用 生成的 Commit Message 和 @{git_commit} 完成 git commit
