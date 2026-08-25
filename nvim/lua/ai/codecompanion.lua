@@ -772,7 +772,7 @@ return -- lazy.nvim
                             opts = {
                                 vision = true,
                                 thinking = false,
-                                stream = false,
+                                stream = true,
                             },
                             parameters = {
                                 sync = true,

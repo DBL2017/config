@@ -274,8 +274,8 @@ return {
                 "path",
                 "snippets",
                 "avante",
-                -- "git",
-                -- "minuet",
+                "git",
+                "minuet",
             },
             per_filetype = {
                 ["tmux"] = { inherit_defaults = true, "tmux" },
@@ -331,7 +331,7 @@ return {
 
                 buffer = {
                     name = "BUF",
-                    enabled = false,
+                    enabled = true,
                     max_items = 3, -- Maximum number of items to display in the menu
                     min_keyword_length = 3, -- Minimum number of characters in the keyword to trigger the provider
                     score_offset = 80,
@@ -361,7 +361,7 @@ return {
                     },
                 },
                 dictionary = {
-                    enabled = true,
+                    enabled = false,
                     module = "blink-cmp-dictionary",
                     name = "Dict",
                     -- Make sure this is at least 2.
@@ -381,7 +381,7 @@ return {
                     },
                 },
                 minuet = {
-                    enabled = true,
+                    enabled = false,
                     name = "MNT",
                     module = "minuet.blink",
                     async = true,
@@ -397,6 +397,7 @@ return {
                     name = "TMX",
                 },
                 git = {
+                    enabled = false,
                     module = "blink-cmp-git",
                     name = "Git",
                     opts = {
