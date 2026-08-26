@@ -196,6 +196,18 @@ end, {
 -- buffer 快捷键
 vim.keymap.set(
     { "i", "n" },
+    "<A-.>",
+    "<cmd>bnext<CR>",
+    { noremap = true, silent = true, desc = "下一个缓冲区" }
+)
+vim.keymap.set(
+    { "i", "n" },
+    "<A-,>",
+    "<cmd>bprevious<CR>",
+    { noremap = true, silent = true, desc = "上一个缓冲区" }
+)
+vim.keymap.set(
+    { "i", "n" },
     "<A-Right>",
     "<cmd>bnext<CR>",
     { noremap = true, silent = true, desc = "下一个缓冲区" }
