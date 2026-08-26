@@ -1,5 +1,5 @@
 return {
-    "SafaeOuajih/gerrit.nvim",
+    "DBL2017/gerrit.nvim",
     cmd = "Gerrit",
     opts = {},
     branch = "master",
