@@ -196,18 +196,41 @@ vim.api.nvim_create_autocmd("QuitPre", {
 vim.api.nvim_create_autocmd("SwapExists", {
     group = group,
     callback = function()
-        --[[ 当文件已经被其他nvim进程打开时，当前进程只允许只读模式模式 ]]
-        -- local choice =
-        --     vim.fn.confirm("Swap file exists!\nHow do you want to proceed?", "&Open Read Only\n&Edit Anyway\n&Quit", 1)
-        local choice = vim.fn.confirm("Swap file exists!\nHow do you want to proceed?", "&Open Read Only\n&Quit", 1)
+        local choice = vim.fn.confirm(
+            "Swap file exists!\nHow do you want to proceed?",
+            "&Open Read Only\n&Delete Swap and Edit\n&Quit",
+            1
+        )
 
         if choice == 1 then
+            -- 只读模式打开
             vim.v.swapchoice = "o"
-        -- elseif choice == 2 then
-        --     vim.v.swapchoice = "e"
+        elseif choice == 2 then
+            -- 删除交换文件
+            local swapfile = vim.v.swapname
+            local ok, err = pcall(os.remove, swapfile)
+            if ok then
+                -- 删除成功，正常编辑
+                vim.v.swapchoice = "e"
+            else
+                -- 删除失败，降级为只读模式
+                vim.notify("Failed to delete swap file: " .. err, vim.log.levels.WARN)
+                vim.v.swapchoice = "o"
+            end
         else
+            -- 退出
             vim.v.swapchoice = "q"
         end
     end,
-    desc = "阻止重复编辑文件",
+    desc = "阻止重复编辑文件，支持删除交换文件后编辑",
+})
+
+-- 删除会话时进行通知
+vim.api.nvim_create_autocmd("User", {
+    pattern = "PersistedDeletePost",
+    group = group,
+    callback = function(event)
+        vim.notify("Session `" .. event.data.path .. "` deleted")
+    end,
+    desc = "删除会话时给出提示",
 })

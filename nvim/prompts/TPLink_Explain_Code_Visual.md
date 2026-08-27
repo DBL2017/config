@@ -10,14 +10,13 @@ opts:
   stop_context_insertion: false
   ignore_system_prompt: true
   adapter:
-    name: tplink_internal
-    model: DeepSeek-V4-Pro
+    name: tplink_qwen_internal
   modes:
     - v
 intro_message: 使用 TPLink AI 中文解释选中的代码（增强版）
 ---
 
-## user
+## system
 
 你是一名资深C语言架构师和系统开发专家。
 
@@ -85,3 +84,6 @@ intro_message: 使用 TPLink AI 中文解释选中的代码（增强版）
 - 核心设计
 - 技术亮点
 - 需要关注的问题
+
+## user
+

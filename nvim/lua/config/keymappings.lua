@@ -194,12 +194,7 @@ end, {
 })
 
 -- buffer 快捷键
-vim.keymap.set(
-    { "i", "n" },
-    "<A-.>",
-    "<cmd>bnext<CR>",
-    { noremap = true, silent = true, desc = "下一个缓冲区" }
-)
+vim.keymap.set({ "i", "n" }, "<A-.>", "<cmd>bnext<CR>", { noremap = true, silent = true, desc = "下一个缓冲区" })
 vim.keymap.set(
     { "i", "n" },
     "<A-,>",
@@ -1073,3 +1068,23 @@ end, { noremap = true, silent = true, desc = "查看 Gerrit 差异" })
 
 -- which-key
 vim.keymap.set("n", "<LocalLeader>?", "<cmd>WhichKey<CR>", { noremap = true, silent = true, desc = "查看快捷键" })
+
+-- persisted
+vim.keymap.set(
+    "n",
+    "<LocalLeader>ss",
+    "<cmd>Persisted save<CR>",
+    { noremap = true, silent = true, desc = "保存会话" }
+)
+vim.keymap.set(
+    "n",
+    "<LocalLeader>sl",
+    "<cmd>Persisted load<CR>",
+    { noremap = true, silent = true, desc = "加载会话" }
+)
+vim.keymap.set(
+    "n",
+    "tls",
+    "<cmd>Telescope persisted<CR>",
+    { noremap = true, silent = true, desc = "使用Telescope预览会话" }
+)

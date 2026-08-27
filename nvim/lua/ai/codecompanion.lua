@@ -4,6 +4,7 @@
 --       等配置，已以中文注释说明常用选项和可替换项。
 --       在 Windows 平台上返回空配置以避免加载不兼容的插件或适配器。
 local creds = require("config.credentials")
+local platform = require("config.platform")
 local utils = {}
 
 function utils.machine()
@@ -326,7 +327,7 @@ return -- lazy.nvim
                 chat = {
                     -- adapter = "siliconflow_r1",
                     -- adapter = "qwen2_coder_local",
-                    adapter = "siliconflow_deepseek_online",
+                    adapter = platform.is_office and "tplink_qwen_internal" or "siliconflow_deepseek_online",
                     -- adapter = {
                     --     -- 适配器名称
                     --     -- 当前效果：使用 "anthropic" 适配器
@@ -761,7 +762,7 @@ return -- lazy.nvim
                             },
                         })
                     end,
-                    tplink_internal = function()
+                    tplink_web_internal = function()
                         return require("codecompanion.adapters").extend("tplink", {
                             name = "tplink",
                             url = "https://aichat.tp-link.com/api/chat/chat",
@@ -776,6 +777,42 @@ return -- lazy.nvim
                             },
                             parameters = {
                                 sync = true,
+                            },
+                        })
+                    end,
+                    tplink_qwen_internal = function()
+                        return require("codecompanion.adapters").extend("openai_compatible_tplink", {
+                            name = "tplink_qwen_internal",
+                            url = "http://172.29.158.38:8000/v1/chat/completions",
+                            env = {
+                                api_key = function()
+                                    return nil
+                                end, -- 本地模型通常不需要 API key
+                            },
+                            headers = {
+                                ["Content-Type"] = "application/json",
+                            },
+                            opts = {
+                                vision = true,
+                                thinking = true,
+                                stream = false,
+                            },
+                            schema = {
+                                model = {
+                                    default = "Qwen3.6-35B-A3B",
+                                    choices = {
+                                        ["Qwen3.6-35B-A3B"] = { opts = { can_reason = true } },
+                                    },
+                                },
+                                num_ctx = {
+                                    default = 128000,
+                                },
+                                think = {
+                                    default = true,
+                                },
+                                keep_alive = {
+                                    default = "5m",
+                                },
                             },
                         })
                     end,
@@ -823,10 +860,10 @@ return -- lazy.nvim
                             duplicate = { n = "<C-y>", i = "<C-y>" },
                         },
                         ---Automatically generate titles for new chats
-                        auto_generate_title = true,
+                        auto_generate_title = false,
                         title_generation_opts = {
                             ---Adapter for generating titles (defaults to current chat adapter)
-                            adapter = "tplink_internal", -- "copilot"
+                            adapter = platform.is_office and "tplink_qwen_internal" or "siliconflow_deepseek_online", -- "copilot"
                             ---Model for generating titles (defaults to current chat model)
                             model = nil, -- "gpt-4o"
                             ---Number of user prompts after which to refresh the title (0 to disable)

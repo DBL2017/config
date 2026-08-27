@@ -2,14 +2,12 @@
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 return {
-    "kyazdani42/nvim-tree.lua",
+    "nvim-tree/nvim-tree.lua",
     dependencies = {
         "nvim-tree/nvim-web-devicons",
     },
-    cmd = {
-        "NvimTreeOpen",
-        "NvimTreeToggle",
-    },
+    -- 解决会话恢复后，NvimTreeToggle不可用的问题
+    lazy = false,
     tag = "v1.14.0",
     config = function()
         require("nvim-tree").setup({

@@ -227,3 +227,5 @@ vim.opt.listchars = {
     precedes = "❮",
     eol = "↴",
 }
+
+vim.opt.sessionoptions = "blank,buffers,curdir,folds,globals,help,localoptions,options,resize,tabpages,terminal,winpos,winsize,slash"

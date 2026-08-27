@@ -274,7 +274,7 @@ return {
                 "path",
                 "snippets",
                 "avante",
-                "git",
+                -- "git",
                 "minuet",
             },
             per_filetype = {

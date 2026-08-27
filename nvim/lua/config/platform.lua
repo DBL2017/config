@@ -8,5 +8,7 @@ M.is_windows = sysname == "Windows_NT"
 M.is_linux = sysname == "Linux"
 M.is_mac = sysname == "Darwin"
 -- :lua print((vim.uv or vim.loop).os_uname().sysname)
+-- 判断是否为办公室
+M.is_office = true
 
 return M
