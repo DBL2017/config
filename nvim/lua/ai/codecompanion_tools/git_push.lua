@@ -7,9 +7,39 @@ return {
         ---@param input? any
         function(self, args, opts)
             local args = args or {}
-            -- Default values if not provided
-            local remote = args.remote or "origin"
-            local branch = args.branch or "main"
+
+            -- If push_args is provided, use it directly
+            if args.push_args and args.push_args ~= "" then
+                local output = vim.fn.system({ "git", "push", args.push_args })
+                if vim.v.shell_error ~= 0 then
+                    return { status = "error", content = "Git push failed:\n" .. output }
+                end
+                return { status = "success", content = "Git push executed:\n" .. output }
+            end
+
+            -- Get current branch if not provided
+            local branch
+            if args.branch and args.branch ~= "" then
+                branch = args.branch
+            else
+                local branch_output = vim.fn.systemlist("git branch --show-current")
+                if vim.v.shell_error ~= 0 or not branch_output[1] then
+                    return { status = "error", content = "Failed to detect current branch" }
+                end
+                branch = branch_output[1]
+            end
+
+            -- Get current remote if not provided
+            local remote
+            if args.remote and args.remote ~= "" then
+                remote = args.remote
+            else
+                local remote_output = vim.fn.systemlist("git remote")
+                if vim.v.shell_error ~= 0 or not remote_output[1] then
+                    return { status = "error", content = "Failed to detect current remote" }
+                end
+                remote = remote_output[1]
+            end
 
             local output = vim.fn.system({ "git", "push", remote, branch })
             if vim.v.shell_error ~= 0 then
@@ -21,32 +51,34 @@ return {
     system_prompt = [[
 You are a Git version control assistant. When pushing changes:
 
-- Ensure the local branch is up to date with the remote
-- Validate the Git repository exists before attempting pushes
-- Handle errors gracefully and provide detailed feedback
-- Confirm any required authentication (e.g., SSH key, credentials)
+- If `push_args` is provided (e.g., `HEAD:refs/for/main`), use it directly for Gerrit-style pushes.
+- Otherwise, detect the current branch and use "github" as the default remote.
+- Handle errors gracefully and provide detailed feedback.
 
 For git_push specifically:
-- Return meaningful success/failure messages
-- Output the actual Git command result to the user
+- Return meaningful success/failure messages.
+- Output the actual Git command result to the user.
     ]],
     schema = {
         type = "function",
         ["function"] = {
             name = "git_push",
-            description = "Git push",
+            description = "Git push with support for custom push targets (e.g., Gerrit)",
             parameters = {
                 type = "object",
                 properties = {
                     remote = {
                         type = "string",
-                        description = "The remote repository name (e.g., origin)",
-                        default = "origin",
+                        description = "The remote repository name (e.g., github). Defaults to 'github' if not provided.",
+                        default = "github",
                     },
                     branch = {
                         type = "string",
-                        description = "The branch to push (e.g., main)",
-                        default = "main",
+                        description = "The branch to push. If not provided, automatically detects the current branch.",
+                    },
+                    push_args = {
+                        type = "string",
+                        description = "Custom push target (e.g., HEAD:refs/for/main). Overrides remote/branch if provided.",
                     },
                 },
             },
@@ -72,8 +104,17 @@ For git_push specifically:
         ---@param meta { tools: CodeCompanion.Tools }
         ---@return string
         prompt = function(self, meta)
-            return string.format("Perform the git push to `%s/%s`?", self.args.remote, self.args.branch)
+            if self.args.push_args then
+                return string.format("Push to custom target:\n`%s`\nConfirm?", self.args.push_args)
+            else
+                return string.format(
+                    "Push to `%s/%s`? (Auto-detected branch)",
+                    self.args.remote or "origin",
+                    self.args.branch or "main"
+                )
+            end
         end,
+
         ---@param self CodeCompanion.Tool.Git_Push
         ---@param stdout table
         ---@param meta { tools: CodeCompanion.Tools, cmd: table }
