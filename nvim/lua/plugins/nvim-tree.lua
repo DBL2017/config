@@ -8,7 +8,7 @@ return {
     },
     -- 解决会话恢复后，NvimTreeToggle不可用的问题
     lazy = false,
-    tag = "v1.14.0",
+    tag = "v1.18.0",
     config = function()
         require("nvim-tree").setup({
             -- 激活buf时重新加载文件树
