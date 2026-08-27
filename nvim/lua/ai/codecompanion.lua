@@ -455,6 +455,8 @@ return -- lazy.nvim
                 acp = {
                     opts = {
                         show_defaults = false,
+                        -- 不显示预设的适配器
+                        show_presets = false,
                     },
                     -- Define your custom adapters here
                     copilot_acp = function()
@@ -762,7 +764,7 @@ return -- lazy.nvim
                             ---Adapter for generating titles (defaults to current chat adapter)
                             adapter = platform.is_office and "tplink_qwen_internal" or "siliconflow_deepseek_online", -- "copilot"
                             ---Model for generating titles (defaults to current chat model)
-                            model = nil, -- "gpt-4o"
+                            model = platform.is_office and "Qwen3.6-35B-A3B" or nil, -- "gpt-4o"
                             ---Number of user prompts after which to refresh the title (0 to disable)
                             refresh_every_n_prompts = 0, -- e.g., 3 to refresh after every 3rd user prompt
                             ---Maximum number of times to refresh the title (default: 3)
