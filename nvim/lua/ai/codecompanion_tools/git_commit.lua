@@ -104,7 +104,7 @@ For git_commit specifically:
         end,
     },
     opts = {
-        judge_in_yolo_mode = true,
-        require_approval_before = false,
+        -- judge_in_yolo_mode = true,
+        require_approval_before = true,
     },
 }
