@@ -109,7 +109,7 @@ For git_push specifically:
             else
                 return string.format(
                     "Push to `%s/%s`? (Auto-detected branch)",
-                    self.args.remote or "origin",
+                    self.args.remote or "github",
                     self.args.branch or "main"
                 )
             end

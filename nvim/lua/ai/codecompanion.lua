@@ -351,6 +351,7 @@ return -- lazy.nvim
                     },
                     tools = {
                         git_commit = require("ai.codecompanion_tools.git_commit"),
+                        git_push = require("ai.codecompanion_tools.git_push"),
                         groups = {
                             ["git_workflow"] = {
                                 description = "My git workflow",
