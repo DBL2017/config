@@ -1074,12 +1074,10 @@ end, { noremap = true, silent = true, desc = "查看 Gerrit 差异" })
 vim.keymap.set("n", "<LocalLeader>?", "<cmd>WhichKey<CR>", { noremap = true, silent = true, desc = "查看快捷键" })
 
 -- persisted
-vim.keymap.set(
-    "n",
-    "<LocalLeader>ss",
-    "<cmd>Persisted save<CR>",
-    { noremap = true, silent = true, desc = "保存会话" }
-)
+vim.keymap.set("n", "<LocalLeader>ss", function()
+    vim.cmd("Persisted save")
+    vim.notify("Saved session")
+end, { noremap = true, silent = true, desc = "保存会话" })
 vim.keymap.set(
     "n",
     "<LocalLeader>sl",

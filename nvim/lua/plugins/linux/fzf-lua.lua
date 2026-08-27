@@ -3,7 +3,9 @@ return {
     -- optional for icon support
     dependencies = { "nvim-tree/nvim-web-devicons" },
     branch = "main",
-    cmd = "FzfLua",
+    -- 解决有时Ctrl-q无法退出float窗口的问题
+    lazy = false,
+    -- cmd = "FzfLua",
     config = function()
         -- calling `setup` is optional for customization
         require("fzf-lua").setup({
