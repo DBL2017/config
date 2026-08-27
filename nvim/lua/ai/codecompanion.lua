@@ -5,94 +5,6 @@
 --       在 Windows 平台上返回空配置以避免加载不兼容的插件或适配器。
 local creds = require("config.credentials")
 local platform = require("config.platform")
-local utils = {}
-
-function utils.machine()
-    local machine = vim.uv.os_uname().sysname
-    if machine == "Darwin" then
-        return "Mac"
-    end
-    if machine:find("Windows") then
-        return "Windows"
-    end
-    return machine
-end
-
-function utils.nvim_version()
-    local v = vim.version()
-    return string.format("%d.%d.%d", v.major, v.minor, v.patch)
-end
-
-local kimi_prompt = [[
-你是一个名为CodeCompanion的长文本总结助手，工作在Neovim文本编辑器中，能够总结用户给出的文本，并生成摘要。你可以执行以下任务：
-1. 仔细阅读提供的文章内容
-2. 阅读文章内容后给文章打上标签，标签通常是领域、学科或专有名词，但不超过5个
-3. 一句话总结文章内容并写成摘要，但不超过120字
-
-请严格按照用户的要求执行任务。
-使用用户提供的上下文和附件。
-保持回答简短且客观，特别是当用户上下文超出你的核心任务范围时。
-所有文本回答必须使用 Chinese 语言编写。
-在回答中使用Markdown格式，且不要使用H1和H2标题。
-
-附加上下文：
-当前日期是%s
-当前用户的neovim版本是%s
-用户正在使用%s系统的机器上工作。如果适用，请使用系统特定的命令进行响应。
-]]
-local default_prompt = [[
-你是一个名为"CodeCompanion"的AI编程助手，工作在Neovim文本编辑器中。你可以回答一般的编程问题并执行以下任务：
-1. 回答一般的编程问题
-2. 解释Neovim缓冲区中代码的工作原理
-3. 审查Neovim缓冲区中选定的代码
-4. 为选定的代码生成单元测试
-5. 为代码中的问题提出修复方案
-6. 为新工作区搭建代码框架
-7. 查找与用户查询相关的代码
-8. 为测试失败提出修复方案
-9. 回答关于Neovim的问题
-
-请严格按照用户的要求执行任务。
-使用用户提供的上下文和附件。
-保持回答简短且客观，特别是当用户上下文超出你的核心任务范围时。
-所有非代码文本回答必须使用 Chinese 语言编写。
-在回答中使用Markdown格式。
-不要使用H1或H2标题。
-当建议代码修改或新内容时，使用Markdown代码块。
-要开始一个代码块，使用4个反引号。
-在反引号后添加编程语言名称作为语言ID。
-要结束一个代码块，在新行上使用4个反引号。
-如果代码修改了现有文件或应放置在特定位置，添加带有'filepath:'和文件路径的行注释。
-如果希望用户决定放置位置，则不添加文件路径注释。
-在代码块中，使用'...existing code...'行注释来指示文件中已存在的代码。
-
-代码块示例：
-
-// filepath: /path/to/file
-// ...existing code...
-{ changed code }
-// ...existing code...
-{ changed code }
-// ...existing code...
-
-
-确保行注释使用正确的编程语言语法（例如Python用"#"、Lua用"--"）。
-对于代码块，使用4个反引号开始和结束。
-避免将整个回答用三重反引号包裹。
-除非明确要求，否则不包含差异格式。
-不要在代码块中包含行号。
-
-当给定任务时：
-
-1. 逐步思考，除非用户要求或任务非常简单，否则用伪代码描述计划
-2. 输出代码块时，确保只包含相关代码，避免重复或不相关的代码
-3. 以简短的建议结束回答，直接支持继续对话
-
-附加上下文：
-当前日期是%s
-用户的Neovim版本是%s
-用户正在使用%s系统的机器上工作。如果适用，请使用系统特定的命令进行响应。
-]]
 
 return -- lazy.nvim
 {
@@ -118,13 +30,6 @@ return -- lazy.nvim
     },
     version = "^19.22.0",
     config = function()
-        local function build_default_prompt()
-            return string.format(default_prompt, os.date("%B %d, %Y"), utils.nvim_version(), utils.machine())
-        end
-
-        local function build_kimi_prompt()
-            return string.format(kimi_prompt, os.date("%B %d, %Y"), utils.nvim_version(), utils.machine())
-        end
         require("codecompanion").setup({
             prompt_library = {
                 markdown = {
@@ -401,14 +306,6 @@ return -- lazy.nvim
                         end,
                         ---@param opts { adapter: CodeCompanion.HTTPAdapter, language: string }
                         ---@return string
-                        system_prompt = function(opts)
-                            -- 为每种不同的ai工具生成对应的系统提示词
-                            if opts.adapter and opts.adapter.name == "kimi_openai_online" then
-                                return build_kimi_prompt()
-                            else
-                                return build_default_prompt()
-                            end
-                        end,
 
                         context_management = {
                             -- 是否启用上下文管理
@@ -480,7 +377,7 @@ return -- lazy.nvim
                     -- 当前: 使用 Siliconflow Deepseek 在线版作为内联模式适配器
                     -- 可选: "copilot" | "openai" | "claude" | "gemini" | "siliconflow_r1" | "claude_opus_online"
                     -- 备注: 此适配器针对中文代码优化，支持长上下文理解
-                    adapter = "siliconflow_deepseek_online",
+                    adapter = platform.is_office and "tplink_qwen_internal" or "siliconflow_deepseek_online",
                     keymaps = {
                         accept_change = {
                             -- 作用: 接受 AI 内联建议的代码更改
@@ -860,7 +757,7 @@ return -- lazy.nvim
                             duplicate = { n = "<C-y>", i = "<C-y>" },
                         },
                         ---Automatically generate titles for new chats
-                        auto_generate_title = false,
+                        auto_generate_title = true,
                         title_generation_opts = {
                             ---Adapter for generating titles (defaults to current chat adapter)
                             adapter = platform.is_office and "tplink_qwen_internal" or "siliconflow_deepseek_online", -- "copilot"
@@ -975,9 +872,9 @@ return -- lazy.nvim
                         },
                     },
                 },
-                -- opts = {
-                --     default_servers = { "filesystem", "sequential-thinking", "tavily-mcp" },
-                -- },
+                opts = {
+                    default_servers = { "filesystem", "sequential-thinking" },
+                },
             },
         })
     end,

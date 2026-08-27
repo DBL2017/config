@@ -37,7 +37,7 @@ intro_message: 对已暂存的内容生成Commit Message，并完成代码提交
 - 第一行：`<type>: <short summary>`  
   - type 使用常见类型：feat, fix, docs, style, refactor, test, chore。
   - summary 简短明确，不超过 50 字符。
-- 后续行：如有必要，用 `-` 开头的 bullet points，列出 1–3 个关键改动，避免冗长解释。
+- 后续行：如有必要，用 `-` 开头的 bullet points，列出所有个关键改动，简要解释改动原理，不超过 120 个字符，避免冗长解释。
 - 不要输出额外说明或上下文，只给出最终 commit message。
 
 ### 示例输出
@@ -63,4 +63,4 @@ auto_submit: true
 auto_submit: true
 ```
 
-使用 生成的 Commit Message 和 @{git_commit} 完成 git commit
+使用已经生成的 Commit Message 和 @{git_commit} 完成 git commit
