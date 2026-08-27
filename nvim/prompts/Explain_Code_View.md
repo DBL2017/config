@@ -3,7 +3,7 @@ name: Explain Code View
 interaction: chat
 description: 中文解释选中的代码的设计原理、功能作用等
 opts:
-  alias: explain_code_buffer
+  alias: explain_code_view
   is_slash_cmd: false
   auto_submit: false
   user_prompt: false
@@ -89,6 +89,3 @@ intro_message: 中文解释选中的代码（增强版）
 
 解释一下下面的代码
 
-```${context.filetype}
-${context.code}
-```

@@ -467,7 +467,11 @@ if platform.is_linux or platform.is_mac then
     vim.keymap.set({ "v" }, "<LocalLeader>ae", function()
         local ok, cc = pcall(require, "codecompanion")
         if ok then
-            cc.prompt("tplink_explain_code_view")
+            if platform.is_office then
+                cc.prompt("tplink_explain_code_view")
+            else
+                cc.prompt("explain_code_view")
+            end
         else
             vim.notify("CodeCompanion not installed or enabled", vim.log.levels.WARN)
         end
