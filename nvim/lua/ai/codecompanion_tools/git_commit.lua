@@ -76,7 +76,7 @@ For git_commit specifically:
         success = function(self, stdout, meta)
             local chat = meta.tools.chat
             local output = vim.iter(stdout):flatten():join("\n")
-            return chat:add_tool_output(self, output, "Executing git commit")
+            return chat:add_tool_output(self, output, "Executed git commit successfully")
         end,
         ---@param self CodeCompanion.Tool.Git_Commit
         ---@param stderr table The error output from the command
@@ -84,6 +84,8 @@ For git_commit specifically:
         error = function(self, stderr, meta)
             local chat = meta.tools.chat
             local errors = vim.iter(stderr):flatten():join("\n")
+            chat:add_tool_output(self, errors)
+            errors = vim.iter(stdout):flatten():join("\n")
             return chat:add_tool_output(self, errors)
         end,
 
@@ -92,7 +94,7 @@ For git_commit specifically:
         ---@param meta { tools: CodeCompanion.Tools, cmd: table, opts: table }
         ---@return nil
         rejected = function(self, meta)
-            meta.tools.chat:add_tool_output(self, "The user declined to run the calculator tool")
+            meta.tools.chat:add_tool_output(self, "The user rejected to run the git commit tool")
         end,
 
         ---Cancellation message back to the LLM
@@ -100,7 +102,7 @@ For git_commit specifically:
         ---@param meta { tools: CodeCompanion.Tools, cmd: table }
         ---@return nil
         cancelled = function(self, meta)
-            meta.tools.chat:add_tool_output(self, "The user cancelled the execution of the calculator tool")
+            meta.tools.chat:add_tool_output(self, "The user cancelled the execution of the git commit tool")
         end,
     },
     opts = {
