@@ -63,4 +63,13 @@ auto_submit: true
 auto_submit: true
 ```
 
-使用 生成的 Commit Message 和 @{git_commit} 完成 git commit
+使用已生成的 Commit Message 和 @{git} 完成 git commit
+
+## user
+
+
+```yaml opts
+auto_submit: true
+```
+
+使用 @{git} 推送到远端

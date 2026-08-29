@@ -363,7 +363,7 @@ return -- lazy.nvim
                                         ctx.os
                                     )
                                 end,
-                                tools = { "get_changed_files", "git_commit" },
+                                tools = { "get_changed_files", "git" },
                                 opts = {
                                     collapse_tools = false,
                                     ignore_system_prompt = true, -- Remove the chat's default system prompt
