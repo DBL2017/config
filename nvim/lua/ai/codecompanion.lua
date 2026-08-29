@@ -499,7 +499,7 @@ return -- lazy.nvim
                             opts = {
                                 vision = true,
                                 thinking = false,
-                                stream = false,
+                                stream = true,
                             },
                             parameters = {
                                 sync = true,
@@ -696,7 +696,7 @@ return -- lazy.nvim
                             opts = {
                                 vision = true,
                                 thinking = true,
-                                stream = false,
+                                stream = true,
                             },
                             schema = {
                                 model = {
