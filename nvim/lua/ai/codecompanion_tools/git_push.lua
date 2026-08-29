@@ -5,7 +5,7 @@ local function get_git_remotes()
     local remotes = vim.fn.systemlist("git remote")
     if vim.v.shell_error ~= 0 or not remotes[1] then
         log:error("Failed to detect git remotes")
-        return nil
+        return {}
     end
     return remotes
 end
@@ -79,7 +79,7 @@ Edge Cases:
                     remote = {
                         type = "string",
                         description = "The remote repository name.",
-                        enum = get_git_remotes(),
+                        enum = { "origin", "github" },
                     },
                     branch = {
                         type = "string",
@@ -96,6 +96,10 @@ Edge Cases:
         ---@param self CodeCompanion.Tool.Git_Push
         ---@param meta { tools: CodeCompanion.Tools }
         setup = function(self, meta)
+            local remotes = get_git_remotes()
+            if remotes and #remotes > 0 then
+                self.schema["function"].parameters.properties.remote.enum = remotes
+            end
             log:trace("[Git Push Tool] setup handler executed")
         end,
 
