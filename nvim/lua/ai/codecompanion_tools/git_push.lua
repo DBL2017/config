@@ -38,7 +38,7 @@ return {
                 if vim.v.shell_error ~= 0 then
                     return make_response("error", string.format("Git push failed: %s", output))
                 end
-                return make_response("error", string.format("Git push executed: %s", output))
+                return make_response("success", string.format("Git push executed: %s", output))
             else
                 return make_response(
                     "error",
@@ -128,7 +128,7 @@ Edge Cases:
         ---@param meta { tools: CodeCompanion.Tools, cmd: table }
         success = function(self, stdout, meta)
             local chat = meta.tools.chat
-            local output = vim.iter(stdout):flatten():join("\n")
+            local output = stdout -- Already a string; no need for `vim.iter`
             return chat:add_tool_output(self, output, "Executed git push successfully")
         end,
         ---@param self CodeCompanion.Tool.Git_Push
@@ -136,10 +136,8 @@ Edge Cases:
         ---@param meta { tools: CodeCompanion.Tools, cmd: table }
         error = function(self, stderr, meta)
             local chat = meta.tools.chat
-            local errors = vim.iter(stderr):flatten():join("\n")
-            chat:add_tool_output(self, errors)
-            errors = vim.iter(stdout):flatten():join("\n")
-            return chat:add_tool_output(self, errors)
+            local errors = stderr -- Directly use the error string
+            return chat:add_tool_output(self, errors, "Git push failed")
         end,
 
         ---Rejection message back to the LLM
