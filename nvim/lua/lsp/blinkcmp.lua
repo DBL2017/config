@@ -14,7 +14,9 @@ return {
     version = "*",
     ---@module 'blink.cmp'
     ---@type blink.cmp.Config
-    event = { "InsertEnter", "CmdlineEnter" },
+    -- event = { "InsertEnter", "CmdlineEnter" },
+    -- 解决会话恢复之后，blink.cmp报错的问题
+    lazy = false,
     opts = {
         cmdline = {
             keymap = {
