@@ -90,7 +90,7 @@ return -- lazy.nvim
                     -- 是否显示 reasoning 输出
                     -- 当前效果：false → 完全隐藏，不显示任何 reasoning 内容
                     -- 可选取值：true（显示）、false（隐藏）
-                    show_reasoning = true,
+                    show_reasoning = false,
 
                     -- 布局
                     window = {
@@ -888,7 +888,7 @@ return -- lazy.nvim
                     },
                 },
                 opts = {
-                    default_servers = { "filesystem", "sequential-thinking" },
+                    default_servers = { "sequential-thinking" },
                 },
             },
         })

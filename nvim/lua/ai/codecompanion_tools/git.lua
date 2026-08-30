@@ -78,6 +78,7 @@ Interaction Style:
                             "status",
                             "log",
                             "fetch",
+                            "remote",
                         },
                     },
                     extra_args = {
