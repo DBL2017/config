@@ -83,14 +83,14 @@ return -- lazy.nvim
                     fold_context = true,
 
                     -- 是否折叠 reasoning 输出
-                    -- 当前效果：false → 不折叠，完整显示 reasoning 内容
+                    -- 当前效果：true → 折叠，不完整显示 reasoning 内容
                     -- 可选取值：true（折叠）、false（不折叠）
-                    fold_reasoning = false,
+                    fold_reasoning = true,
 
                     -- 是否显示 reasoning 输出
                     -- 当前效果：false → 完全隐藏，不显示任何 reasoning 内容
                     -- 可选取值：true（显示）、false（隐藏）
-                    show_reasoning = false,
+                    show_reasoning = true,
 
                     -- 布局
                     window = {
@@ -506,12 +506,20 @@ return -- lazy.nvim
                             },
                             schema = {
                                 model = {
-                                    default = "deepseek-ai/DeepSeek-V3",
+                                    default = "deepseek-ai/DeepSeek-V4-Flash",
                                     choices = {
                                         -- can_reason: false 表示禁用复杂推理任务
                                         ["deepseek-ai/DeepSeek-R1"] = { opts = { can_reason = false } },
                                         ["deepseek-ai/DeepSeek-V3"] = { opts = { can_reason = false } },
+                                        ["deepseek-ai/DeepSeek-V4-Flash"] = {
+                                            meta = { context_window = 1048576 },
+                                            opts = { can_reason = true, can_use_tools = true },
+                                        },
+                                        ["deepseek-ai/DeepSeek-V4-Pro"] = { opts = { can_reson = true } },
                                     },
+                                },
+                                max_tokens = {
+                                    default = 8192,
                                 },
                             },
                         })
@@ -702,11 +710,14 @@ return -- lazy.nvim
                                 model = {
                                     default = "Qwen3.6-35B-A3B",
                                     choices = {
-                                        ["Qwen3.6-35B-A3B"] = { opts = { can_reason = true } },
+                                        ["Qwen3.6-35B-A3B"] = {
+                                            meta = { context_window = 262144 },
+                                            opts = { can_reason = true, can_use_tools = true },
+                                        },
                                     },
                                 },
-                                num_ctx = {
-                                    default = 128000,
+                                max_tokens = {
+                                    default = 8192,
                                 },
                                 think = {
                                     default = true,
