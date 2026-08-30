@@ -30,7 +30,7 @@ return {
                             line.sep(" ", theme.win, theme.fill),
                             buf.is_current() and "" or "",
                             buf.id,
-                            buf.name(),
+                            buf.is_changed() and buf.name() .. "[*]" or buf.name(),
                             line.sep(" ", theme.win, theme.fill),
                             hl = buf.is_current() and theme.current_win or theme.win,
                             margin = " ",

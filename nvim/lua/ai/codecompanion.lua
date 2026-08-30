@@ -747,7 +747,7 @@ return -- lazy.nvim
                         -- Keymap to save the current chat manually (when auto_save is disabled)
                         save_chat_keymap = "sc",
                         -- Save all chats by default (disable to save only manually using 'sc')
-                        auto_save = true,
+                        auto_save = false,
                         -- Number of days after which chats are automatically deleted (0 to disable)
                         expiration_days = 0,
                         -- Picker interface (auto resolved to a valid picker)
