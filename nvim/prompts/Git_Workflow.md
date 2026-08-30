@@ -33,22 +33,6 @@ intro_message: 对已暂存的内容生成Commit Message，并完成代码提交
 如果暂存区为空，则直接输出：
 chore: no staged changes
 
-### 工作流程
-
-#### Step 1：生成 Commit Message
-
-1. 调用 @{get_changed_files} 获取已暂存变更。
-2. 仅分析暂存区内容，提炼主要修改点。
-3. 生成符合 Conventional Commits 规范的 Commit Message。
-4. 不描述任何未出现在暂存区中的修改。
-
-#### Step 2：执行 Git 操作
-
-1. 使用 Step 1 生成的 Commit Message 调用 @{git} 执行 commit。
-2. Commit 内容必须与生成结果完全一致，不允许二次修改。
-3. 后续可继续调用 @{git} 执行 push、pull、checkout 等操作，参数通过 action + extra_args 传入。
-4. 每次执行前展示完整命令，确保透明。
-
 ### Commit Message 格式
 
 第一行：
@@ -84,20 +68,13 @@ feat: add git commit tool
 - Support message argument in commit
 ```
 
-### 执行要求
-
-- 必须先生成 Commit Message，再执行 @{git} commit。
-- Commit 内容必须与生成结果完全一致。
-- 最终返回 @{git} 的执行结果。
-- 其他 Git 操作（push、pull、checkout 等）可在 commit 后继续调用。
-
 ## user
 
 ```yaml opts
 auto_submit: true
 ```
 
-对当前项目中已暂存的内容生成Commit Message
+使用 @{get_changed_files} 对当前项目中已暂存 (staged) 的内容生成 Commit Message
 
 ## user
 
@@ -113,4 +90,4 @@ auto_submit: true
 auto_submit: true
 ```
 
-使用 @{git} 获取当前支持的远端，然后推送到远端对应分支
+使用 @{git} 获取当前项目配置的远端仓库名，然后获取当前分支关联的上游分支，最后推送到远端对应分支
