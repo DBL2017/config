@@ -41,22 +41,24 @@ require("lazy").setup({
         cond = nil, ---@type boolean|fun(self:LazyPlugin):boolean|nil
     },
     -- leave nil when passing the spec as the first argument to setup()
-    spec = platform.is_windows
-            and {
-                -- import your plugins
-                { import = "ui" },
-                { import = "plugins" },
-            }
-        or {
-            -- import your plugins
-            { import = "ui" },
-            { import = "plugins" },
-            { import = "plugins.linux" },
-            { import = "lsp" },
-            { import = "dap" },
-            { import = "ai" },
-            { import = "custom" },
-        },
+    spec = platform.is_windows and {
+        -- import your plugins
+        { import = "ui" },
+        { import = "plugins" },
+        { import = "ai" },
+        { import = "lsp" },
+        { import = "custom" },
+    } or {
+        -- import your plugins
+        { import = "ui" },
+        { import = "plugins" },
+        { import = "plugins.linux" },
+        { import = "lsp" },
+        { import = "dap" },
+        { import = "ai" },
+        { import = "ai.linux" },
+        { import = "custom" },
+    },
 
     local_spec = true, -- load project specific .lazy.lua spec files. They will be added at the end of the spec.
     lockfile = vim.fn.stdpath("config") .. "/lazy-lock.json", -- lockfile generated after running update.

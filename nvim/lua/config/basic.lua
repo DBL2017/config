@@ -18,7 +18,7 @@ vim.g.autoread = true
 vim.g.showmatch = false
 
 -- tab转空格
-vim.bo.expandtab = true
+vim.o.expandtab = true
 
 -- tab占位符的宽度，不修改键入tab时的行为，可用来格式化对齐
 vim.o.tabstop = 8
@@ -35,8 +35,8 @@ vim.bo.softtabstop = 4
 vim.o.shiftwidth = 4
 
 -- 自动缩进
-vim.bo.autoindent = true
-vim.bo.smartindent = true
+vim.o.autoindent = true
+vim.o.smartindent = true
 
 -- updatetime: 插件和诊断触发相关的延迟时间（毫秒）。
 -- 作用: 控制 CursorHold、lint、gitsigns 等基于时间的事件触发间隔，影响响应频率与资源消耗。
@@ -228,4 +228,5 @@ vim.opt.listchars = {
     eol = "↴",
 }
 
-vim.opt.sessionoptions = "blank,buffers,curdir,folds,globals,help,localoptions,options,resize,tabpages,terminal,winpos,winsize,slash"
+vim.opt.sessionoptions =
+    "blank,buffers,curdir,folds,globals,help,localoptions,options,resize,tabpages,terminal,winpos,winsize,slash"

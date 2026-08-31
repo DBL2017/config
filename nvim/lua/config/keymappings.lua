@@ -216,9 +216,31 @@ vim.keymap.set(
 -- 解决偶发一次删除多个buffer的现象
 vim.keymap.set({ "i", "n" }, "<A-d>", function()
     local current = vim.api.nvim_get_current_buf()
-    vim.cmd("bprevious") -- 或 bnext
-    vim.cmd("bdelete " .. current)
-end, { noremap = true, silent = true, desc = "删除当前缓冲区" })
+    local force = false
+
+    if vim.bo[current].modified then
+        local choice = vim.fn.confirm("Buffer has unsaved changes. Close anyway?", "&Yes\n&No", 2)
+        if choice ~= 1 then
+            return
+        end
+        force = true
+    end
+
+    local listed = vim.tbl_filter(function(buf)
+        return vim.bo[buf].buflisted
+    end, vim.api.nvim_list_bufs())
+
+    if #listed == 1 then
+        vim.cmd("enew")
+    else
+        vim.cmd("bnext")
+    end
+
+    vim.api.nvim_buf_delete(current, { force = force })
+end, {
+    desc = "删除当前缓冲区",
+    silent = true,
+})
 
 vim.keymap.set({ "i", "n" }, "<A-b>", function()
     local input = vim.fn.input("请输入要跳转的 Buffer Number: ")
@@ -331,63 +353,61 @@ vim.keymap.set("n", "[[", "[[zt", {
 -- vim.keymap.set("n", "zR", require("ufo").openAllFolds, { noremap=true,silent = true, desc = "展开所有折叠" })
 -- vim.keymap.set("n", "zM", require("ufo").closeAllFolds, { noremap=true,silent = true, desc = "关闭所有折叠" })
 
-if platform.is_linux or platform.is_mac then
-    -- 格式化
-    -- vim.keymap.set({ "n", "v" }, "<space>f", require("conform").format, {noremap=true, silent=true, desc = "格式化当前缓冲区" })
-    -- 快捷键配置
-    vim.keymap.set({ "n", "v" }, "<space>f", function(args)
-        local ok, conform = pcall(require, "conform")
-        if not ok then
-            vim.notify("conform not installed or enabled", vim.log.levels.WARN)
-            return
+-- 格式化
+-- vim.keymap.set({ "n", "v" }, "<space>f", require("conform").format, {noremap=true, silent=true, desc = "格式化当前缓冲区" })
+-- 快捷键配置
+vim.keymap.set({ "n", "v" }, "<space>f", function(args)
+    local ok, conform = pcall(require, "conform")
+    if not ok then
+        vim.notify("conform not installed or enabled", vim.log.levels.WARN)
+        return
+    end
+    local mode = vim.api.nvim_get_mode().mode
+
+    if mode == "v" or mode == "V" then
+        -- 用 getpos 获取可视选区起止：{bufnum, lnum, col, off}
+        local vpos = vim.fn.getpos("v") -- {buf, lnum, col, off}
+        local cpos = vim.fn.getpos(".") -- {buf, lnum, col, off}
+
+        local srow, erow = vpos[2], cpos[2]
+
+        if srow > erow then
+            srow, erow = erow, srow
         end
-        local mode = vim.api.nvim_get_mode().mode
 
-        if mode == "v" or mode == "V" then
-            -- 用 getpos 获取可视选区起止：{bufnum, lnum, col, off}
-            local vpos = vim.fn.getpos("v") -- {buf, lnum, col, off}
-            local cpos = vim.fn.getpos(".") -- {buf, lnum, col, off}
+        -- 取结束行长度作为“行末列”
+        local end_line = vim.api.nvim_buf_get_lines(0, erow - 1, erow, true)[1] or ""
+        local end_col = #end_line
 
-            local srow, erow = vpos[2], cpos[2]
+        local range = {
+            start = { srow - 1, 0 },
+            ["end"] = { erow - 1, end_col },
+        }
 
-            if srow > erow then
-                srow, erow = erow, srow
-            end
+        -- print("格式化范围:", vim.inspect(range))
 
-            -- 取结束行长度作为“行末列”
-            local end_line = vim.api.nvim_buf_get_lines(0, erow - 1, erow, true)[1] or ""
-            local end_col = #end_line
-
-            local range = {
-                start = { srow - 1, 0 },
-                ["end"] = { erow - 1, end_col },
-            }
-
-            -- print("格式化范围:", vim.inspect(range))
-
-            conform.format({
-                lsp_fallback = false,
-                -- async: 是否异步执行格式化。
-                -- 作用: 控制 conform 是否以异步方式运行格式化程序以避免阻塞 UI。
-                -- 取值范围: boolean (true/false)。
-                -- 当前取值含义: true -> 异步执行，格式化在后台进行，不会阻塞编辑器交互。
-                async = true,
-                timeout_ms = 5000,
-                range = range,
-            })
-        else -- 普通模式（格式化整个文件）
-            conform.format({
-                lsp_fallback = false,
-                -- async: 是否异步执行格式化。
-                -- 作用: 控制 conform 是否以异步方式运行格式化程序以避免阻塞 UI。
-                -- 取值范围: boolean (true/false)。
-                -- 当前取值含义: true -> 异步执行，格式化在后台进行，不会阻塞编辑器交互。
-                async = true,
-                timeout_ms = 5000,
-            })
-        end
-    end, { noremap = true, silent = true, desc = "格式化文件或选中区域" })
-end
+        conform.format({
+            lsp_fallback = false,
+            -- async: 是否异步执行格式化。
+            -- 作用: 控制 conform 是否以异步方式运行格式化程序以避免阻塞 UI。
+            -- 取值范围: boolean (true/false)。
+            -- 当前取值含义: true -> 异步执行，格式化在后台进行，不会阻塞编辑器交互。
+            async = true,
+            timeout_ms = 5000,
+            range = range,
+        })
+    else -- 普通模式（格式化整个文件）
+        conform.format({
+            lsp_fallback = false,
+            -- async: 是否异步执行格式化。
+            -- 作用: 控制 conform 是否以异步方式运行格式化程序以避免阻塞 UI。
+            -- 取值范围: boolean (true/false)。
+            -- 当前取值含义: true -> 异步执行，格式化在后台进行，不会阻塞编辑器交互。
+            async = true,
+            timeout_ms = 5000,
+        })
+    end
+end, { noremap = true, silent = true, desc = "格式化文件或选中区域" })
 
 -- 文件树
 vim.keymap.set(
@@ -397,21 +417,8 @@ vim.keymap.set(
     { noremap = true, silent = ture, desc = "打开文件树" }
 )
 
+-- CodeCompanion
 if platform.is_linux or platform.is_mac then
-    -- CodeCompanion
-    vim.keymap.set(
-        { "n", "v" },
-        "<LocalLeader>aa",
-        "<cmd>CodeCompanionActions<CR>",
-        { noremap = true, silent = true, desc = "打开 CodeCompanion Actions" }
-    )
-
-    vim.keymap.set({ "n" }, "<LocalLeader>ch", "<cmd>CodeCompanionHistory<CR>", {
-        desc = "打开聊天历史列表",
-        noremap = true,
-        silent = true,
-    })
-
     vim.keymap.set({ "n", "v" }, "<LocalLeader>cl", function()
         local ok, cc = pcall(require, "codecompanion")
         if not ok then
@@ -425,22 +432,6 @@ if platform.is_linux or platform.is_mac then
         -- noremap = true,
         silent = true,
     })
-
-    -- 如果你在 CLI 窗口里，调用 toggle() → 会隐藏 CLI，再次调用会重新显示。
-    -- 如果你在 chat 窗口里，调用 toggle() → 同样是隐藏/显示 chat。
-    -- 如果你同时有多个交互（chat + CLI），可以用 { 和 } 在它们之间循环切换，而 toggle() 是针对当前交互窗口的开关。
-    vim.keymap.set({ "n", "v" }, "<LocalLeader>ct", function()
-        local ok, cc = pcall(require, "codecompanion")
-        if not ok then
-            vim.notify("CodeCompanion not installed or enabled", vim.log.levels.WARN)
-        end
-        cc.toggle()
-    end, {
-        desc = "切换当前 CodeCompanion 窗口",
-        noremap = true,
-        silent = true,
-    })
-
     -- 在当前 buffer 或选区中触发 CodeCompanion 的 CLI 提示，弹出输入框以手动输入自定义提示并与代理交互。
     -- #{this} → 普通模式下是当前 buffer，视觉模式下是选区。
     -- #{terminal} -> 终端输出
@@ -461,40 +452,67 @@ if platform.is_linux or platform.is_mac then
             submit = true,
         })
     end, { noremap = true, silent = true, desc = "向 CLI 代理发送提示" })
-
-    -- 解释这段代码
-    -- 在chat解释代码
-    vim.keymap.set({ "v" }, "<LocalLeader>ae", function()
-        local ok, cc = pcall(require, "codecompanion")
-        if ok then
-            if platform.is_office then
-                cc.prompt("tplink_explain_code_view")
-            else
-                cc.prompt("explain_code_view")
-            end
-        else
-            vim.notify("CodeCompanion not installed or enabled", vim.log.levels.WARN)
-        end
-    end, { noremap = true, silent = true, desc = "通过Chat Prompt解释当前代码" })
-
-    vim.keymap.set({ "n", "v" }, "<LocalLeader>ce", function()
-        local ok, cc = pcall(require, "codecompanion")
-        if not ok then
-            vim.notify("CodeCompanion not installed or enabled", vim.log.levels.WARN)
-            return
-        end
-        cc.cli("#{this} 请解释这段代码", { focus = false, submit = true })
-    end, { noremap = true, silent = true, desc = "通过CLI解释当前代码" })
-
-    vim.keymap.set({ "v" }, "<LocalLeader>at", function()
-        local ok, cc = pcall(require, "codecompanion")
-        if ok then
-            cc.prompt("tplink_translate")
-        else
-            vim.notify("CodeCompanion not installed or enabled", vim.log.levels.WARN)
-        end
-    end, { noremap = true, silent = true, desc = "通过Chat Prompt翻译当前内容" })
 end
+vim.keymap.set(
+    { "n", "v" },
+    "<LocalLeader>aa",
+    "<cmd>CodeCompanionActions<CR>",
+    { noremap = true, silent = true, desc = "打开 CodeCompanion Actions" }
+)
+
+vim.keymap.set({ "n" }, "<LocalLeader>ch", "<cmd>CodeCompanionHistory<CR>", {
+    desc = "打开聊天历史列表",
+    noremap = true,
+    silent = true,
+})
+
+-- 如果你在 CLI 窗口里，调用 toggle() → 会隐藏 CLI，再次调用会重新显示。
+-- 如果你在 chat 窗口里，调用 toggle() → 同样是隐藏/显示 chat。
+-- 如果你同时有多个交互（chat + CLI），可以用 { 和 } 在它们之间循环切换，而 toggle() 是针对当前交互窗口的开关。
+vim.keymap.set({ "n", "v" }, "<LocalLeader>ct", function()
+    local ok, cc = pcall(require, "codecompanion")
+    if not ok then
+        vim.notify("CodeCompanion not installed or enabled", vim.log.levels.WARN)
+    end
+    cc.toggle()
+end, {
+    desc = "切换当前 CodeCompanion 窗口",
+    noremap = true,
+    silent = true,
+})
+
+-- 解释这段代码
+-- 在chat解释代码
+vim.keymap.set({ "v" }, "<LocalLeader>ae", function()
+    local ok, cc = pcall(require, "codecompanion")
+    if ok then
+        if platform.is_office then
+            cc.prompt("tplink_explain_code_view")
+        else
+            cc.prompt("explain_code_view")
+        end
+    else
+        vim.notify("CodeCompanion not installed or enabled", vim.log.levels.WARN)
+    end
+end, { noremap = true, silent = true, desc = "通过Chat Prompt解释当前代码" })
+
+vim.keymap.set({ "n", "v" }, "<LocalLeader>ce", function()
+    local ok, cc = pcall(require, "codecompanion")
+    if not ok then
+        vim.notify("CodeCompanion not installed or enabled", vim.log.levels.WARN)
+        return
+    end
+    cc.cli("#{this} 请解释这段代码", { focus = false, submit = true })
+end, { noremap = true, silent = true, desc = "通过CLI解释当前代码" })
+
+vim.keymap.set({ "v" }, "<LocalLeader>at", function()
+    local ok, cc = pcall(require, "codecompanion")
+    if ok then
+        cc.prompt("tplink_translate")
+    else
+        vim.notify("CodeCompanion not installed or enabled", vim.log.levels.WARN)
+    end
+end, { noremap = true, silent = true, desc = "通过Chat Prompt翻译当前内容" })
 
 -- telescope
 -- " Find files using Telescope command-line sugar.
@@ -910,38 +928,36 @@ end
 vim.keymap.set("n", "<LocalLeader>ng", "<cmd>Neogit<CR>", { noremap = true, silent = true, desc = "Neogit" })
 
 --lspconfig
-if platform.is_linux or platform.is_mac then
-    vim.keymap.set(
-        "n",
-        "<LocalLeader>abc",
-        "<cmd>LspAttachBuffer<CR>",
-        { noremap = true, silent = true, buffer = bufnr, desc = "附加当前缓冲区" }
-    )
-    vim.keymap.set(
-        "n",
-        "<LocalLeader>aba",
-        "<cmd>LspAttachAll<CR>",
-        { noremap = true, silent = true, buffer = bufnr, desc = "附加所有缓冲区" }
-    )
-    vim.keymap.set(
-        "n",
-        "<LocalLeader>dbc",
-        "<cmd>LspDetachBuffer<CR>",
-        { noremap = true, silent = true, buffer = bufnr, desc = "分离当前缓冲区" }
-    )
-    vim.keymap.set(
-        "n",
-        "<LocalLeader>dba",
-        "<cmd>LspDetachAll<CR>",
-        { noremap = true, silent = true, buffer = bufnr, desc = "分离所有缓冲区" }
-    )
-    vim.keymap.set(
-        "n",
-        "<LocalLeader>dbo",
-        "<cmd>LspDetachOthers<CR>",
-        { noremap = true, silent = true, buffer = bufnr, desc = "分离其他缓冲区" }
-    )
-end
+vim.keymap.set(
+    "n",
+    "<LocalLeader>abc",
+    "<cmd>LspAttachBuffer<CR>",
+    { noremap = true, silent = true, buffer = bufnr, desc = "附加当前缓冲区" }
+)
+vim.keymap.set(
+    "n",
+    "<LocalLeader>aba",
+    "<cmd>LspAttachAll<CR>",
+    { noremap = true, silent = true, buffer = bufnr, desc = "附加所有缓冲区" }
+)
+vim.keymap.set(
+    "n",
+    "<LocalLeader>dbc",
+    "<cmd>LspDetachBuffer<CR>",
+    { noremap = true, silent = true, buffer = bufnr, desc = "分离当前缓冲区" }
+)
+vim.keymap.set(
+    "n",
+    "<LocalLeader>dba",
+    "<cmd>LspDetachAll<CR>",
+    { noremap = true, silent = true, buffer = bufnr, desc = "分离所有缓冲区" }
+)
+vim.keymap.set(
+    "n",
+    "<LocalLeader>dbo",
+    "<cmd>LspDetachOthers<CR>",
+    { noremap = true, silent = true, buffer = bufnr, desc = "分离其他缓冲区" }
+)
 
 -- nvim-treesitter-textobject
 -- -- 快捷键映射

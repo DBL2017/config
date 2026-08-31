@@ -11,20 +11,35 @@ return {
         ---@param args table
         function(self, args, opts)
             local action = args.action
-            local extra_args = args.extra_args or {}
 
             if not action or action == "" then
                 return make_response("error", "Git action is required")
             end
 
-            -- 构造命令：git <action> <extra_args...>
-            local cmd = { "git", action }
-            vim.list_extend(cmd, extra_args)
+            local cmd
+
+            if action == "commit" then
+                if not args.message or args.message == "" then
+                    return make_response("error", "Commit message is required")
+                end
+
+                cmd = {
+                    "git",
+                    "commit",
+                    "-m",
+                    args.message,
+                }
+            else
+                cmd = { "git", action }
+                vim.list_extend(cmd, args.extra_args or {})
+            end
 
             local output = vim.fn.system(cmd)
+
             if vim.v.shell_error ~= 0 then
                 return make_response("error", string.format("Git %s failed: %s", action, output))
             end
+
             return make_response("success", string.format("Git %s executed: %s", action, output))
         end,
     },
@@ -65,10 +80,9 @@ Interaction Style:
                 type = "object",
                 properties = {
                     action = {
-                        type = "string",
-                        description = "The git action to perform (e.g. commit, push, pull, checkout)",
                         enum = {
                             "commit",
+                            "diff",
                             "push",
                             "pull",
                             "checkout",
@@ -81,13 +95,19 @@ Interaction Style:
                             "remote",
                         },
                     },
+                    message = {
+                        type = "string",
+                    },
                     extra_args = {
                         type = "array",
-                        description = "Extra arguments for git command",
-                        items = { type = "string" },
+                        items = {
+                            type = "string",
+                        },
                     },
                 },
-                required = { "action" },
+                required = {
+                    "action",
+                },
                 additionalProperties = false,
             },
             strict = true,
@@ -101,7 +121,6 @@ Interaction Style:
         ---@param meta { tools: CodeCompanion.Tools }
         setup = function(self, meta)
             log:trace("[Git Tool] setup handler executed")
-            -- 可以在这里动态扩展，比如未来要根据仓库状态调整 schema
         end,
 
         ---@param self CodeCompanion.Tool.Git
@@ -119,7 +138,18 @@ Interaction Style:
             local action = self.args.action or "unknown"
             local extra_args = self.args.extra_args or {}
             local cmd = { "git", action }
-            vim.list_extend(cmd, extra_args)
+
+            if action == "commit" then
+                cmd = {
+                    "git",
+                    action,
+                    "-m",
+                    self.args.message,
+                }
+            else
+                cmd = { "git", action }
+                vim.list_extend(cmd, extra_args)
+            end
             return string.format("Execute command:\n`%s`\nConfirm?", table.concat(cmd, " "))
         end,
 
@@ -129,7 +159,8 @@ Interaction Style:
         ---@param meta { tools: CodeCompanion.Tools, cmd: table }
         success = function(self, stdout, meta)
             local chat = meta.tools.chat
-            return chat:add_tool_output(self, stdout, "Executed git command successfully")
+            local output = vim.iter(stdout):flatten():join("\n")
+            return chat:add_tool_output(self, output, "Executed git command successfully")
         end,
 
         ---错误输出
@@ -138,7 +169,8 @@ Interaction Style:
         ---@param meta { tools: CodeCompanion.Tools, cmd: table }
         error = function(self, stderr, meta)
             local chat = meta.tools.chat
-            return chat:add_tool_output(self, stderr, "Git command failed")
+            local errors = vim.iter(stderr):flatten():join("\n")
+            return chat:add_tool_output(self, errors, "Git command failed")
         end,
 
         ---用户拒绝

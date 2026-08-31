@@ -75,7 +75,7 @@ For git_commit specifically:
         ---@param meta { tools: CodeCompanion.Tools, cmd: table }
         success = function(self, stdout, meta)
             local chat = meta.tools.chat
-            local output = stdout -- Directly use the string
+            local output = vim.iter(stdout):flatten():join("\n")
             return chat:add_tool_output(self, output, "Executed git commit successfully")
         end,
         ---@param self CodeCompanion.Tool.Git_Commit
@@ -83,7 +83,7 @@ For git_commit specifically:
         ---@param meta { tools: CodeCompanion.Tools, cmd: table }
         error = function(self, stderr, meta)
             local chat = meta.tools.chat
-            local errors = stderr -- Directly use the string
+            local errors = vim.iter(stderr):flatten():join("\n")
             return chat:add_tool_output(self, errors, "Git commit failed")
         end,
 

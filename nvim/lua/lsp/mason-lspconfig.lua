@@ -1,6 +1,6 @@
 return {
     "mason-org/mason-lspconfig.nvim",
-    cmd = { "Mason" },
+    event = "VeryLazy",
     opts = {
         -- A list of servers to automatically install if they're not already installed. Example: { "rust_analyzer@nightly", "lua_ls" }
         ---@type string[]
@@ -23,9 +23,10 @@ return {
         -- ```
         ---@type boolean | string[] | { exclude: string[] }
         ---@是否自动启动自动安装的lsp server
-        automatic_enable = {
-            exclude = { "stylua" },
-        },
+        -- automatic_enable = {
+        --     exclude = { "stylua" },
+        -- },
+        automatic_enable = false,
     },
     dependencies = {
         { "mason-org/mason.nvim", opts = {} },

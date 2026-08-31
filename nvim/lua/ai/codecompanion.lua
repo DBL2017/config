@@ -34,8 +34,8 @@ return -- lazy.nvim
             prompt_library = {
                 markdown = {
                     dirs = {
-                        vim.fn.getcwd() .. "/.prompts", -- 当前项目下的 .prompts 目录
-                        vim.fn.stdpath("config") .. "/prompts", -- lockfile generated after running update.
+                        vim.fs.joinpath(vim.fn.getcwd(), ".prompts"),
+                        vim.fs.joinpath(vim.fn.stdpath("config"), "prompts"),
                     },
                 },
             },
@@ -88,9 +88,9 @@ return -- lazy.nvim
                     fold_reasoning = true,
 
                     -- 是否显示 reasoning 输出
-                    -- 当前效果：false → 完全隐藏，不显示任何 reasoning 内容
+                    -- 当前效果：在办公环境显示，非办公环境不显示
                     -- 可选取值：true（显示）、false（隐藏）
-                    show_reasoning = false,
+                    show_reasoning = platform.is_office,
 
                     -- 布局
                     window = {
@@ -127,7 +127,7 @@ return -- lazy.nvim
                         -- Chat Buffer 的宽度比例
                         -- 当前效果：占编辑器宽度的 50%
                         -- 可选取值：0–1 的浮点数（比例），或函数动态计算
-                        width = 0.5,
+                        width = platform.is_office and 0.4 or 0.5,
 
                         -- Chat Buffer 的高度比例
                         -- 当前效果：占编辑器高度的 80%（竖直分屏时可忽略）
@@ -304,8 +304,6 @@ return -- lazy.nvim
                             -- 当前效果：将用户消息包裹在 <prompt></prompt> 标签中
                             return string.format([[%s]], message)
                         end,
-                        ---@param opts { adapter: CodeCompanion.HTTPAdapter, language: string }
-                        ---@return string
 
                         context_management = {
                             -- 是否启用上下文管理
@@ -350,8 +348,6 @@ return -- lazy.nvim
                         },
                     },
                     tools = {
-                        git_commit = require("ai.codecompanion_tools.git_commit"),
-                        git_push = require("ai.codecompanion_tools.git_push"),
                         git = require("ai.codecompanion_tools.git"),
                         groups = {
                             ["git_workflow"] = {
@@ -363,7 +359,7 @@ return -- lazy.nvim
                                         ctx.os
                                     )
                                 end,
-                                tools = { "get_changed_files", "git" },
+                                tools = { "git" },
                                 opts = {
                                     collapse_tools = false,
                                     ignore_system_prompt = true, -- Remove the chat's default system prompt
@@ -448,6 +444,10 @@ return -- lazy.nvim
                 code_review = {
                     enabled = false,
                 },
+                opts = {
+                    -- 兼容Windows环境，解决中文日期格式导致LLM报错
+                    date_format = "%Y-%m-%d", -- The date format to use in system prompts
+                },
             },
             opts = {
                 log_level = "WARN", -- or "TRACE"
@@ -472,7 +472,8 @@ return -- lazy.nvim
                             },
                             env = {
                                 COPILOT_PROVIDER = "github",
-                                COPILOT_API_KEY = creds.copilot.api_key,
+                                COPILOT_API_KEY = type(creds.copilot.api_key) == "function" and creds.copilot.api_key()
+                                    or creds.copilot.api_key,
                             },
                             defaults = {
                                 timeout = 30000, -- 20 seconds
@@ -494,7 +495,8 @@ return -- lazy.nvim
                             name = "siliconflow_r1_deepseek_online",
                             url = "https://api.siliconflow.cn/v1/chat/completions",
                             env = {
-                                api_key = creds.siliconflow.api_key,
+                                api_key = type(creds.siliconflow.api_key) == "function" and creds.siliconflow.api_key()
+                                    or creds.siliconflow.api_key,
                             },
                             opts = {
                                 vision = true,
@@ -513,9 +515,9 @@ return -- lazy.nvim
                                         ["deepseek-ai/DeepSeek-V3"] = { opts = { can_reason = false } },
                                         ["deepseek-ai/DeepSeek-V4-Flash"] = {
                                             meta = { context_window = 1048576 },
-                                            opts = { can_reason = true, can_use_tools = true },
+                                            opts = { can_reason = false, can_use_tools = true },
                                         },
-                                        ["deepseek-ai/DeepSeek-V4-Pro"] = { opts = { can_reson = true } },
+                                        ["deepseek-ai/DeepSeek-V4-Pro"] = { opts = { can_reason = true } },
                                     },
                                 },
                                 max_tokens = {
@@ -573,7 +575,8 @@ return -- lazy.nvim
                             name = "kimi_openai_online",
                             url = "https://api.moonshot.cn/v1/chat/completions",
                             env = {
-                                api_key = creds.kimi.api_key,
+                                api_key = type(creds.kimi.api_key) == "function" and creds.kimi.api_key()
+                                    or creds.kimi.api_key,
                             },
                             headers = {
                                 ["Content-Type"] = "application/json",
@@ -639,7 +642,8 @@ return -- lazy.nvim
                             name = "claude_opus_online",
                             url = "https://api.qnaigc.com/v1/chat/completions", -- 七牛云兼容模式地址
                             env = {
-                                api_key = creds.claude.api_key,
+                                api_key = type(creds.claude.api_key) == "function" and creds.claude.api_key()
+                                    or creds.claude.api_key,
                             },
                             schema = {
                                 model = {
@@ -676,8 +680,10 @@ return -- lazy.nvim
                             name = "tplink",
                             url = "https://aichat.tp-link.com/api/chat/chat",
                             env = {
-                                username = creds.tplink.username,
-                                password = creds.tplink.password,
+                                username = type(creds.tplink.username) == "function" and creds.tplink.username()
+                                    or creds.tplink.username,
+                                password = type(creds.tplink.password) == "function" and creds.tplink.password()
+                                    or creds.tplink.password(),
                             },
                             opts = {
                                 vision = true,
@@ -690,7 +696,7 @@ return -- lazy.nvim
                         })
                     end,
                     tplink_qwen_internal = function()
-                        return require("codecompanion.adapters").extend("openai_compatible_tplink", {
+                        return require("codecompanion.adapters").extend("tplink_qwen", {
                             name = "tplink_qwen_internal",
                             url = "http://172.29.158.38:8000/v1/chat/completions",
                             env = {
@@ -888,7 +894,7 @@ return -- lazy.nvim
                     },
                 },
                 opts = {
-                    default_servers = { "sequential-thinking" },
+                    -- default_servers = { "sequential-thinking" },
                 },
             },
         })

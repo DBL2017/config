@@ -4,6 +4,7 @@ return {
     dependencies = {
         "williamboman/mason.nvim",
     },
+    event = "VeryLazy",
     config = function()
         require("mason-tool-installer").setup({
             -- a list of all tools you want to ensure are installed upon
@@ -48,6 +49,7 @@ return {
             -- effect when running manually via ':MasonToolsInstall' etc....
             -- Default: nil
             -- debounce_hours = 5, -- at least 5 hours between attempts to install/update
+            debounce_hours = 24 * 30,
         })
     end,
 }

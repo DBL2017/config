@@ -1,3 +1,5 @@
+local platform = require("config.platform")
+
 return {
     -- event: 指定触发插件加载的事件。
     -- 作用: 当发生这些 Neovim 事件时才加载插件，避免启动时立即加载重型插件。
@@ -9,9 +11,10 @@ return {
         "nvim-tree/nvim-web-devicons",
     },
 
+    enabled = platform.has_compiler,
     config = function()
         -- 解决默认使用curl下载报错的问题
-        -- nvim-treesitter[query]: 
+        -- nvim-treesitter[query]:
         -- Error during download, please verify your internet connection
         -- curl: (60) SSL certificate problem: unable to get local issuer certificate More details here: https://curl.se/docs/sslcerts.html
         require("nvim-treesitter.install").prefer_git = true
