@@ -59,7 +59,7 @@ return -- lazy.nvim
                 },
                 chat = {
                     -- 自动滚动
-                    auto_scroll = false, -- 默认会自动滚动到最后，设置为 false 可避免长回复时界面跳动
+                    auto_scroll = true, -- 默认会自动滚动到最后，设置为 false 可避免长回复时界面跳动
 
                     -- 补全引擎
                     completion_provider = "blink", -- 可选 blink|cmp|coc|default，决定使用哪种补全插件
@@ -90,7 +90,7 @@ return -- lazy.nvim
                     -- 是否显示 reasoning 输出
                     -- 当前效果：在办公环境显示，非办公环境不显示
                     -- 可选取值：true（显示）、false（隐藏）
-                    show_reasoning = platform.is_office,
+                    show_reasoning = false,
 
                     -- 布局
                     window = {
@@ -464,19 +464,9 @@ return -- lazy.nvim
                     copilot_acp = function()
                         return require("codecompanion.adapters").extend("copilot_acp", {
                             name = "copilot_acp",
-                            commands = {
-                                default = {
-                                    "copilot",
-                                    "--acp",
-                                },
-                            },
-                            env = {
-                                COPILOT_PROVIDER = "github",
-                                COPILOT_API_KEY = type(creds.copilot.api_key) == "function" and creds.copilot.api_key()
-                                    or creds.copilot.api_key,
-                            },
+                            -- copilot不需要设置环境变量api_key，而是copilot_cli直接读取环境变量COPILOT_GITHUB_TOKEN
                             defaults = {
-                                timeout = 30000, -- 20 seconds
+                                timeout = 30000, -- 30 seconds
                             },
                         })
                     end,
@@ -704,14 +694,6 @@ return -- lazy.nvim
                                     return nil
                                 end, -- 本地模型通常不需要 API key
                             },
-                            headers = {
-                                ["Content-Type"] = "application/json",
-                            },
-                            opts = {
-                                vision = true,
-                                thinking = true,
-                                stream = true,
-                            },
                             schema = {
                                 model = {
                                     default = "Qwen3.6-35B-A3B",
@@ -723,11 +705,23 @@ return -- lazy.nvim
                                     },
                                 },
                                 max_tokens = {
-                                    default = 8192,
+                                    default = 32768,
                                 },
-                                think = {
-                                    default = true,
+                                -- 注意：tplink_qwen 基础适配器继承自 deepseek，"thinking.type" 是
+                                -- DeepSeek/DashScope 商用 API 的参数格式（parameters.thinking.type）。
+                                -- 但本适配器实际请求的是内网自建的 vLLM 服务(172.29.158.38:8000)，
+                                -- vLLM 对 Qwen3 系列模型识别的关闭思考参数是请求体顶层的
+                                -- chat_template_kwargs.enable_thinking，而不是 thinking.type。
+                                -- 之前设置 thinking.type = "disabled" 会被 vLLM 静默忽略（未知字段），
+                                -- 导致 Qwen3 仍按默认 enable_thinking=true 持续输出大量 reasoning，
+                                -- 挤占 max_tokens 使正式回复被截断。这里改为发送 vLLM 真正认识的字段。
+                                ["chat_template_kwargs.enable_thinking"] = {
+                                    mapping = "parameters",
+                                    type = "boolean",
+                                    default = false,
+                                    desc = "vLLM: 关闭 Qwen3 的 thinking/reasoning 输出",
                                 },
+
                                 keep_alive = {
                                     default = "5m",
                                 },

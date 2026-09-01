@@ -1,6 +1,6 @@
 return {
     "DBL2017/gerrit.nvim",
-    cmd = "Gerrit",
+    cmd = { "Gerrit", "GerritAIReview" },
     opts = {},
     branch = "master",
     config = function()
@@ -15,5 +15,6 @@ return {
                 },
             },
         })
+        require("plugins.gerrit.gerrit_code_review").setup()
     end,
 }

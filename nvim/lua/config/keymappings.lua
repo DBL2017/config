@@ -1080,11 +1080,14 @@ vim.keymap.set(
     { noremap = true, silent = true, desc = "Gerrit 仪表板" }
 )
 vim.keymap.set("n", "<LocalLeader>grf", function()
-    local change = vim.fn.input("Change: ")
+    local change = vim.fn.input("GerritDiff Change: ")
     if change ~= "" then
         vim.cmd("Gerrit diff " .. change)
     end
 end, { noremap = true, silent = true, desc = "查看 Gerrit 差异" })
+vim.keymap.set("n", "<LocalLeader>gra", function()
+    vim.cmd("GerritAIReview")
+end, { noremap = true, silent = true, desc = "使用AI Review Gerrit差异" })
 
 -- which-key
 vim.keymap.set("n", "<LocalLeader>?", "<cmd>WhichKey<CR>", { noremap = true, silent = true, desc = "查看快捷键" })

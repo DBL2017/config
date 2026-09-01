@@ -22,11 +22,6 @@ return {
             return os.getenv("CLAUDE_API_KEY")
         end,
     },
-    copilot = {
-        api_key = function()
-            return os.getenv("GITHUB_TOKEN")
-        end,
-    },
     dashscope = {
         api_key = function()
             return os.getenv("DASHSCOPE_API_KEY")
