@@ -27,13 +27,13 @@ intro_message: 对已暂存的内容生成Commit Message，并完成代码提交
 
 只能使用 @{git} 返回的已暂存（git diff --cached）变更作为唯一事实来源。
 
-禁止：
+规则如下：
 
-- 读取或分析未暂存修改
-- 读取未跟踪文件
-- 推断未出现在暂存区的内容
-- 使用其他工具获取代码上下文
-- 重新扫描仓库状态
+- 禁止读取或分析未暂存修改
+- 禁止读取未跟踪文件
+- 禁止推断未出现在暂存区的内容
+- 禁止使用其他工具获取代码上下文
+- 禁止重新扫描仓库状态
 
 如果暂存区为空：
 
@@ -57,11 +57,6 @@ chore: no staged changes
 
 #### Step1：分析暂存区
 
-1. 调用 @{git}
-2. 仅分析已暂存内容，如果暂存区为空，则立即退出不执行任何Step
-3. 提炼主要改动
-4. 生成 Conventional Commit Message，并输出
-
 调用格式必须为：
 
 ```text
@@ -70,6 +65,13 @@ chore: no staged changes
   "extra_args": ["--cached"]
 }
 ```
+
+规则：
+
+- 必须包含 --cached
+- 如果缺少 --cached → 判定为错误 → 必须重新生成
+- 禁止输出 shell 命令
+- 禁止输出 git diff（不带 --cached）
 
 #### Step2：执行提交
 
@@ -86,12 +88,10 @@ chore: no staged changes
 
 禁止：
 
-- 使用 extra_args 构造 commit
-- 使用 -m 参数
-- 拼接 git commit 命令
-- 修改 Commit Message
-- 重新分析代码
-- 输出 Commit Message 供用户手动执行
+- 禁止输出 git commit -m
+- 禁止输出不带 message 字段的 JSON
+- 禁止使用 extra_args 构造 commit
+- 禁止使用 -m 参数
 
 #### Step3：获取远端仓库名
 
@@ -212,10 +212,10 @@ git commit -m ...
 
 必须：
 
-1. 调用 @{git}
+1. 调用 @{git} diff --cached
 2. 如果存在已暂变更：
    - Step1：生成 Commit Message
-   - Step2：调用 @{git} 执行 commit
+   - Step2：调用 @{git} 执行 commit，如果未携带 commit message → 判定为错误 → 必须重新生成，直到包含完整 commit message。
    - Step3：获取远端仓库名
    - Step4：获取上游分支名
    - Step5：调用 @{git} 执行 push
@@ -230,7 +230,7 @@ git commit -m ...
 
 ## user
 
-生成 Commit Message 并完成 git commit
+使用 @{git} 工具分析暂存区内容生成 Commit Message，然后完成 git commit，最后推送到远端
 
 ```yaml opts
 auto_submit: true
