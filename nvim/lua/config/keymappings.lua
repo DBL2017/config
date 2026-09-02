@@ -8,6 +8,13 @@ vim.keymap.set(
     "<cmd>q<CR>",
     { noremap = true, silent = true, desc = "关闭当前窗口" }
 )
+
+vim.keymap.set(
+    { "n", "v" },
+    "<C-q>",
+    "<cmd>q!<CR>",
+    { noremap = true, silent = true, desc = "关闭当前窗口" }
+)
 vim.keymap.set(
     { "n", "v" },
     "<LocalLeader>w",

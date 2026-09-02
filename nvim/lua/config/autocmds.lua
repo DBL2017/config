@@ -18,6 +18,7 @@ autocmd({
     "BufEnter",
 }, {
     pattern = "*",
+    group = group,
     callback = function()
         vim.opt.formatoptions = vim.opt.formatoptions - { "c", "r", "o" }
     end,
@@ -44,28 +45,7 @@ local function fill_template(template_path, replacements)
     -- strict_indexing	布尔值	若为 true，行号越界时报错；若为 false，自动调整行号到有效范围。
     vim.api.nvim_buf_set_lines(vim.api.nvim_get_current_buf(), 0, 0, false, vim.split(template, "\n"))
 
-    local filetype = vim.bo.filetype
-    if filetype == "cpp" or filetype == "c" then
-        -- 从开始位置查询brief并跳转到该位置，进入插入模式
-        vim.fn.cursor(1, 1)
-        local ok, result = pcall(vim.fn.search, "brief", "n") -- "n" 表示仅返回行号，不移动光标
-        if ok then
-            -- vim.notify("brief" .. result)
-            local brief_line = result
-            if brief_line > 0 then
-                local win = vim.api.nvim_get_current_win()
-                local line_text =
-                    vim.api.nvim_buf_get_lines(vim.api.nvim_get_current_buf(), brief_line - 1, brief_line, false)[1]
-                -- vim.notify("line_text" .. line_text)
-                -- vim.api.nvim_win_set_cursor(win, { 4, #line_text + 1 })
-                -- vim.api.nvim_feedkeys("a", "n", false) -- 进入插入模式
-            end
-        end
-    else
-        -- 直接跳转到末尾
-        -- vim.api.nvim_feedkeys("a", "n", false) -- 进入插入模式
-        return
-    end
+    -- TODO: 跳转到brief处并进入插入模式（尚未实现）
 end
 -- 创建.h文件时根据模板填充
 autocmd("BufNewFile", {
@@ -126,7 +106,7 @@ autocmd({ "VimLeave" }, {
     desc = "退出时自动恢复光标",
 })
 
--- 基于文件类型设置是否将tab转为space，以及tab的占位符大小
+-- 基于文件类型设置tab的占位符大小，是否转为space
 autocmd("FileType", {
     pattern = {
         "cpp",
@@ -135,11 +115,10 @@ autocmd("FileType", {
     group = group,
     callback = function()
         -- tab转空格
-        vim.bo.expandtab = false
+        vim.bo.expandtab = true
         -- tab占位符的宽度，不修改键入tab时的行为，可用来格式化对齐
-        vim.o.tabstop = 8
+        vim.bo.tabstop = 8
         -- 键入tab时插入的空格数
-        vim.o.softtabstop = 4
         vim.bo.softtabstop = 4
         -- 由于tabstop==4，即tab占用4个字符长度；softtabstop==4，因此键入tab时插入4个空格。
         -- 如果expandtab==true, tabstop==8 and softtabstop==4，那么第一次键入tab会插入4个空格，第二次键入tab继续插入4个空格。
@@ -147,7 +126,7 @@ autocmd("FileType", {
         -- 上面这些仅在行内生效，行首会被当作缩进处理，受限于shiftwidth的配置
         -- 在行首键入tab时会受到shiftwidth的影响
         -- 缩进时的空格数量
-        vim.o.shiftwidth = 4
+        vim.bo.shiftwidth = 4
     end,
     desc = "C[PP]设置Tab不转空格，宽度为8",
 })

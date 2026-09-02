@@ -511,7 +511,14 @@ return -- lazy.nvim
                                     },
                                 },
                                 max_tokens = {
-                                    default = 8192,
+                                    -- The maximum number of tokens to generate, excluding chain-of-thought. Avoid setting max_tokens to the window's upper bound; reserve ~10k tokens as buffer for input and system overhead.
+                                    default = 1024 * 512,
+                                },
+                                ["enable_thinking"] = {
+                                    default = false,
+                                },
+                                ["thinking.type"] = {
+                                    default = "disabled",
                                 },
                             },
                         })
@@ -785,7 +792,8 @@ return -- lazy.nvim
                             format_title = function(original_title)
                                 -- this can be a custom function that applies some custom
                                 -- formatting to the title.
-                                return original_title
+                                local seconds, _ = vim.uv.gettimeofday()
+                                return string.format("%s-%s", os.date("%Y%m%d%H%M", seconds), original_title)
                             end,
                         },
                         ---On exiting and entering neovim, loads the last chat on opening chat

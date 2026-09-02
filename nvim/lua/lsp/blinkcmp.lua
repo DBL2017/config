@@ -347,6 +347,7 @@ return {
                     score_offset = 60,
                 },
                 cmdline = {
+                    name = "CMD",
                     min_keyword_length = function(ctx)
                         -- when typing a command, only show when the keyword is 3 characters or longer
                         if ctx.mode == "cmdline" and string.find(ctx.line, " ") == nil then
@@ -354,6 +355,8 @@ return {
                         end
                         return 0
                     end,
+                    max_items = 5, -- Maximum number of items to display in the menu
+                    score_offset = 100,
                 },
                 avante = {
                     module = "blink-cmp-avante",
@@ -397,6 +400,7 @@ return {
                 tmux = {
                     module = "blink-cmp-tmux",
                     name = "TMX",
+                    score_offset = 100,
                 },
                 git = {
                     enabled = false,

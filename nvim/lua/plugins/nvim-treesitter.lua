@@ -37,6 +37,7 @@ return {
                 "markdown_inline",
                 "sql",
                 "yaml",
+                "html",
             },
 
             -- 是否同步安装,ensure_installed中列出的解析器

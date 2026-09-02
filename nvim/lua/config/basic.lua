@@ -1,21 +1,18 @@
 -- 行号
-vim.wo.number = true
--- vim.wo.relativenumber = true
+vim.o.number = true
+-- vim.o.relativenumber = true
 
 -- 字符编码 终端显示编码
 -- vim.g.encoding = "UTF-8"
 -- 文件编码
 -- vim.o.fileencoding = "UTF-8"
-vim.o.fileencodings = "ucs-bom,utf-8,gb2312,gb18080,gbk"
+vim.o.fileencodings = "ucs-bom,utf-8,gb2312,gb18030,gbk"
 
 -- 切换工作目录
 -- vim.g.autchdir = true
 
--- 自动加载外部修改
-vim.g.autoread = true
-
 -- 自动跳转到匹配的括号
-vim.g.showmatch = false
+vim.o.showmatch = false
 
 -- tab转空格
 vim.o.expandtab = true
@@ -25,7 +22,6 @@ vim.o.tabstop = 8
 
 -- 键入tab时插入的空格数
 vim.o.softtabstop = 4
-vim.bo.softtabstop = 4
 -- 由于tabstop==4，即tab占用4个字符长度；softtabstop==4，因此键入tab时插入4个空格。
 -- 如果expandtab==true, tabstop==8 and softtabstop==4，那么第一次键入tab会插入4个空格，第二次键入tab继续插入4个空格。
 -- 如果expandtab==false, tabstop==8 and softtabstop==4，那么第一次键入tab会插入4个空格，第二次键入tab会替换之前空格为tab键（8）。
@@ -42,24 +38,24 @@ vim.o.smartindent = true
 -- 作用: 控制 CursorHold、lint、gitsigns 等基于时间的事件触发间隔，影响响应频率与资源消耗。
 -- 取值范围: 正整数（单位毫秒），典型值 100-1000。
 -- 当前取值含义: 300 -> 相比更低值减少事件触发频率，有助于降低 CPU 使用，同时保持较为及时的事件响应。
-vim.g.updatetime = 300
+vim.o.updatetime = 300
 
 -- 查找结果高亮
-vim.g.hlsearch = true
+vim.o.hlsearch = true
 -- 增量查找
-vim.g.incsearch = true
+vim.o.incsearch = true
 -- 循环查找
-vim.o.wrapscan = false
+vim.o.wrapscan = true
 
 -- quitfix命令打开新buffer时的行为
 vim.o.switchbuf = "newtab"
 
 -- 高亮当前行列
-vim.wo.cursorline = true
+vim.o.cursorline = true
 vim.o.cursorcolumn = true
 
 -- 显示左侧图标指示列
-vim.wo.signcolumn = "yes"
+vim.o.signcolumn = "yes"
 
 -- 显示命令
 vim.o.showcmd = true
@@ -76,7 +72,7 @@ vim.o.splitbelow = true
 vim.o.splitright = false
 
 -- 自动补全不自动选中
-vim.g.completeopt = "menu,menuone,noselect,noinsert"
+vim.o.completeopt = "menu,menuone,noselect,noinsert"
 
 -- 样式
 -- vim.o.termguicolors = true
@@ -86,7 +82,7 @@ vim.g.completeopt = "menu,menuone,noselect,noinsert"
 vim.o.wildmenu = true
 
 -- Dont' pass messages to |ins-completin menu|
-vim.o.shortmess = vim.o.shortmess .. "c"
+vim.opt.shortmess:append("c")
 
 -- 补全最多显示10行
 vim.o.pumheight = 10
@@ -132,7 +128,7 @@ vim.opt.termguicolors = true
 ------------------------------- 自定义折叠功能-----------------------------------------------------------------------------
 vim.opt.foldmethod = "manual"
 -- -- 展开1级
-vim.wo.foldlevel = 1
+vim.o.foldlevel = 1
 -- -- 或者自定义函数
 function _G.custom_foldtext()
     local virtual_txt = ("%s 󰁂 %d "):format(vim.fn.getline(vim.v.foldstart), vim.v.foldend - vim.v.foldstart + 1)
@@ -161,14 +157,13 @@ vim.opt.foldenable = true
 
 -- 禁用mouse
 vim.opt.mouse = ""
-vim.go.mouse = ""
 
 -- 增添此项原因是为了解决在不选择提示的情况，nvim-cmp会将第一条选项插入到当前位置
-vim.opt.completeopt = "menu,menuone,noselect,noinsert"
+-- (与上方 completeopt 设置重复，保留一次即可)
 -- neovim 对sql文件处理有问题 https://github.com/neovim/neovim/issues/14433
 vim.g.omni_sql_default_compl_type = "syntax"
 
-vim.g.backspace = "indent, eol, start"
+vim.o.backspace = "indent,eol,start"
 
 -- exrc: 是否允许在工作目录中执行项目特定的 vimrc 文件（如 .nvimrc / .exrc）。
 -- 作用: 若启用，Neovim 会在打开文件时执行当前目录下的配置文件，可能改变运行时配置。
@@ -185,7 +180,7 @@ vim.go.swapfile = true
 -- 作用: 提高与其他工具/编辑器协作时的同步性。
 -- 取值范围: boolean (true/false)。
 -- 当前取值含义: true -> 当文件在外部被修改时自动重新加载。
-vim.opt.autoread = true
+vim.o.autoread = true
 -- swap/undo 存放目录（使用 stdpath('state') 避免污染当前工作目录）
 -- 作用: 指定 swap 和 undo 文件的存放位置。
 -- 取值范围: 文件路径字符串。
@@ -214,7 +209,7 @@ vim.go.showtabline = 2
 -- vertical：diff使用竖直分屏
 vim.go.diffopt = "internal,iwhiteeol,filler,closeoff,vertical,iblank"
 
-vim.g.winborder = "rounded"
+vim.o.winborder = "rounded"
 
 -- 设置显示非可见字符
 vim.opt.list = true

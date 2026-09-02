@@ -3,9 +3,7 @@ return {
     -- optional for icon support
     dependencies = { "nvim-tree/nvim-web-devicons" },
     branch = "main",
-    -- 解决有时Ctrl-q无法退出float窗口的问题
-    lazy = false,
-    -- cmd = "FzfLua",
+    cmd = "FzfLua",
     config = function()
         -- calling `setup` is optional for customization
         require("fzf-lua").setup({
@@ -68,10 +66,13 @@ return {
                         foldmethod = "manual",
                     },
                 },
-                on_create = function()
-                    -- called once upon creation of the fzf main window
-                    -- can be used to add custom fzf-lua mappings, e.g:
-                    --   vim.keymap.set("t", "<C-j>", "<Down>", { silent = true, buffer = true })
+                on_create = function(e)
+                    -- fzf 窗口是 terminal 模式，按键默认直接透传给 fzf 进程，
+                    -- 普通模式的 <C-q> 映射不生效；这里在 Neovim 层拦截 <C-q>，
+                    -- 不再依赖 fzf 自身的 abort 绑定（可能被 provider 或终端流控吞掉）
+                    vim.keymap.set("t", "<C-q>", function()
+                        require("fzf-lua").utils.fzf_exit()
+                    end, { silent = true, nowait = true, buffer = e.bufnr })
                 end,
                 -- called once *after* the fzf interface is closed
                 -- on_close = function() ... end
