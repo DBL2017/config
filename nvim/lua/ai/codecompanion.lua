@@ -348,6 +348,11 @@ return -- lazy.nvim
                         },
                     },
                     tools = {
+                        ["web_search"] = {
+                            opts = {
+                                adapter = "duckduckgo",
+                            },
+                        },
                         git = require("ai.codecompanion_tools.git"),
                         groups = {
                             ["git_workflow"] = {
