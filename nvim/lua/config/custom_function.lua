@@ -14,21 +14,36 @@ local function copy_current_filepath()
 end
 
 -- 获取当前行的commit
-local function get_line_commit()
+local function get_line_commit(opts)
+    opts = opts or {}
+
     -- 检查是否在Git仓库
-    if vim.fn.system("git rev-parse --is-inside-work-tree 2>/dev/null") ~= "true\n" then
+    local inside_work_tree = vim.fn.systemlist({ "git", "rev-parse", "--is-inside-work-tree" })
+    if vim.v.shell_error ~= 0 or inside_work_tree[1] ~= "true" then
         vim.notify("Not in Git repository", vim.log.levels.ERROR)
         return
     end
 
-    local filename = vim.fn.expand("%")
+    local filename = vim.fn.expand("%:p")
+    if filename == "" then
+        vim.notify("No file name for current buffer", vim.log.levels.WARN)
+        return
+    end
+
     local line_num = vim.fn.line(".")
 
     -- 使用更可靠的porcelain格式
-    local blame_output =
-        vim.fn.systemlist(string.format("git blame -L %d,%d --porcelain -- %s", line_num, line_num, filename))
+    local blame_output = vim.fn.systemlist({
+        "git",
+        "blame",
+        "-L",
+        string.format("%d,%d", line_num, line_num),
+        "--porcelain",
+        "--",
+        filename,
+    })
 
-    if #blame_output == 0 then
+    if vim.v.shell_error ~= 0 or #blame_output == 0 then
         vim.notify("Failed to get commit info", vim.log.levels.WARN)
         return
     end
@@ -47,12 +62,40 @@ local function get_line_commit()
         return
     end
 
-    -- 提取7位完整SHA
-    sha = blame_line:sub(1, 7)
+    if opts.short ~= false then
+        sha = sha:sub(1, 7)
+    end
 
-    vim.fn.setreg("+", sha)
+    if opts.copy ~= false then
+        vim.fn.setreg("+", sha)
+    end
     -- vim.notify("Copied SHA: " .. sha, vim.log.levels.INFO)
     return sha
+end
+
+-- 查看当前行所在的commit信息
+local function show_line_commit()
+    local sha = get_line_commit({ copy = false, short = false })
+    if not sha then
+        vim.notify("No Git commit found for this line.", vim.log.levels.WARN)
+        return
+    end
+
+    local ok, fzf_lua = pcall(require, "fzf-lua")
+    if not ok then
+        vim.notify("fzf-lua not installed or enabled", vim.log.levels.WARN)
+        return
+    end
+
+    fzf_lua.git_commits({
+        -- %C(yellow)%h%Creset，%h指的是短commit sha
+        cmd = string.format(
+            [[git log --color --pretty=format:"%%C(yellow)%%h%%Creset %%Cgreen(%%><(12)%%cr%%><|(12))%%Creset %%s %%C(blue)<%%an>%%Creset" -n 1 %s]],
+            vim.fn.shellescape(sha)
+        ),
+        preview = "git show --color {1}",
+        fzf_opts = { ["--no-multi"] = true },
+    })
 end
 
 -- 对比当前行所在的commit与当前文件的差异
@@ -210,6 +253,8 @@ local M = {
     align_column = align_column,
     -- 获取当前的commit sha，用于查看对应提交
     get_line_commit = get_line_commit,
+    -- 查看当前行所在的commit信息
+    show_line_commit = show_line_commit,
     -- 对比当前行所在的commit与当前文件的差异
     git_diff_with_commit_sha = git_diff_with_commit_sha,
     -- 将选中的字符串当做文件路径打开

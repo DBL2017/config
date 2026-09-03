@@ -84,6 +84,13 @@ vim.keymap.set("n", "<LocalLeader>yc", custom_function.get_line_commit, {
     desc = "获取当前行的提交 SHA",
 })
 
+-- 查看当前行对应的commit信息
+vim.keymap.set("n", "<LocalLeader>gc", custom_function.show_line_commit, {
+    noremap = true,
+    silent = true,
+    desc = "查看当前行的提交信息",
+})
+
 -- 对比当前行的commit与当前buffer的文件差异
 vim.keymap.set("n", "<LocalLeader>gd", custom_function.git_diff_with_commit_sha, {
     noremap = true,
