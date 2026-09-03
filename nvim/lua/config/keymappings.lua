@@ -9,12 +9,7 @@ vim.keymap.set(
     { noremap = true, silent = true, desc = "关闭当前窗口" }
 )
 
-vim.keymap.set(
-    { "n", "v" },
-    "<C-q>",
-    "<cmd>q!<CR>",
-    { noremap = true, silent = true, desc = "关闭当前窗口" }
-)
+vim.keymap.set({ "n", "v" }, "<C-q>", "<cmd>q!<CR>", { noremap = true, silent = true, desc = "关闭当前窗口" })
 vim.keymap.set(
     { "n", "v" },
     "<LocalLeader>w",
@@ -169,7 +164,8 @@ vim.keymap.set(
     { noremap = true, silent = true, desc = "仅保留当前标签页" }
 )
 
-vim.keymap.set({ "i", "n" }, "<A-t>", function()
+-- 当前终端中Alt-t和Esc-t映射的是相同的编码，导致Esc-t也会产生相同效果
+vim.keymap.set({ "i", "n" }, "<LocalLeader>t", function()
     local input = vim.fn.input("请输入要跳转的 Tab Number: ")
 
     -- 空输入
@@ -249,7 +245,7 @@ end, {
     silent = true,
 })
 
-vim.keymap.set({ "i", "n" }, "<A-b>", function()
+vim.keymap.set({ "i", "n" }, "<LocalLeader>b", function()
     local input = vim.fn.input("请输入要跳转的 Buffer Number: ")
 
     -- 空输入

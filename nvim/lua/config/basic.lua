@@ -45,7 +45,7 @@ vim.o.hlsearch = true
 -- 增量查找
 vim.o.incsearch = true
 -- 循环查找
-vim.o.wrapscan = true
+vim.o.wrapscan = false
 
 -- quitfix命令打开新buffer时的行为
 vim.o.switchbuf = "newtab"
