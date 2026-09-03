@@ -353,6 +353,14 @@ return -- lazy.nvim
                                 adapter = "duckduckgo",
                             },
                         },
+                        ["memory"] = {
+                            opts = {
+                                whitelist = {
+                                    -- { path = vim.fs.joinpath(vim.fn.getcwd()), as = "/memories" },
+                                    { path = "~/projects/notes/content/post", as = "/notes" },
+                                },
+                            },
+                        },
                         git = require("ai.codecompanion_tools.git"),
                         groups = {
                             ["git_workflow"] = {
