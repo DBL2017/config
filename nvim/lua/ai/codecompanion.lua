@@ -358,6 +358,7 @@ return -- lazy.nvim
                                 whitelist = {
                                     -- { path = vim.fs.joinpath(vim.fn.getcwd()), as = "/memories" },
                                     { path = "~/projects/notes/content/post", as = "/notes" },
+                                    { path = vim.fs.joinpath(os.getenv("HOME"), "ai"), as = "ai" },
                                 },
                             },
                         },

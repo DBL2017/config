@@ -242,6 +242,80 @@ local function align_column()
     end
     vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
 end
+local function incoming_call_chain(max_depth)
+    max_depth = max_depth or 20
+
+    local bufnr = vim.api.nvim_get_current_buf()
+    local position = vim.lsp.util.make_position_params(0, "utf-16")
+    local seen = {}
+
+    local function item_id(item)
+        return ("%s:%d:%d"):format(item.uri, item.range.start.line, item.range.start.character)
+    end
+
+    local function walk(client, item, depth, prefix, lines, done)
+        local id = item_id(item)
+
+        if seen[id] then
+            table.insert(lines, prefix .. item.name .. " (cycle)")
+            return done()
+        end
+
+        if depth >= max_depth then
+            table.insert(lines, prefix .. item.name .. " (max depth)")
+            return done()
+        end
+
+        seen[id] = true
+        table.insert(lines, prefix .. item.name)
+
+        client.request("callHierarchy/incomingCalls", { item = item }, function(err, result)
+            if err then
+                return done()
+            end
+
+            local calls = result or {}
+            local pending = #calls
+
+            if pending == 0 then
+                return done()
+            end
+
+            for _, call in ipairs(calls) do
+                walk(client, call.from, depth + 1, prefix .. "  <- ", lines, function()
+                    pending = pending - 1
+                    if pending == 0 then
+                        done()
+                    end
+                end)
+            end
+        end, bufnr)
+    end
+
+    vim.lsp.buf_request(bufnr, "textDocument/prepareCallHierarchy", position, function(err, result, ctx)
+        if err or not result or not result[1] then
+            vim.notify("当前 LSP 不支持调用层级，或光标不在函数上", vim.log.levels.WARN)
+            return
+        end
+
+        local client = vim.lsp.get_client_by_id(ctx.client_id)
+        if not client then
+            return
+        end
+
+        local lines = {}
+        walk(client, result[1], 0, "", lines, function()
+            vim.schedule(function()
+                vim.cmd("new")
+                vim.bo.buftype = "nofile"
+                vim.bo.bufhidden = "wipe"
+                vim.bo.swapfile = false
+                vim.bo.filetype = "text"
+                vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
+            end)
+        end)
+    end)
+end
 
 local M = {
     -- 拷贝当前文件路径
@@ -262,6 +336,8 @@ local M = {
     -- 诊断跳转
     diagnostic_goto_prev = diagnostics_goto_prev,
     diagnostic_goto_next = diagnostics_goto_next,
+    -- 调用链
+    incoming_call_chain = incoming_call_chain,
 }
 
 return M

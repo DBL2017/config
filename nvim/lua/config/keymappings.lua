@@ -730,7 +730,9 @@ if platform.is_linux or platform.is_mac then
     vim.keymap.set(
         "n",
         "fic",
-        "<cmd>FzfLua lsp_incoming_calls<CR>",
+        function()
+            custom_function.incoming_call_chain()
+        end,
         { noremap = true, silent = true, desc = "显示传入调用" }
     )
     vim.keymap.set(

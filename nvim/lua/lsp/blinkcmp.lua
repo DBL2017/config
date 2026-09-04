@@ -1,3 +1,89 @@
+-- Copilot sources can return a zero-width edit while the item text already
+-- includes the typed prefix, which would produce MAXMAX_DEV_LENGTH.
+local function normalize_copilot_items(ctx, items)
+    local bounds = ctx.get_bounds("prefix")
+    local range = {
+        start = { line = ctx.cursor[1] - 1, character = bounds.start_col - 1 },
+        ["end"] = { line = ctx.cursor[1] - 1, character = ctx.cursor[2] },
+    }
+
+    for _, item in ipairs(items) do
+        if type(item.textEdit) == "table" and item.textEdit.range then
+            item.textEdit.range = vim.deepcopy(range)
+        end
+    end
+
+    return items
+end
+
+-- Snippets may expand from a trigger inside text that is also part of the
+-- snippet body, e.g. typing `int main` before a snippet that starts with `int main`.
+local function normalize_snippet_items(ctx, items)
+    local line = ctx.line
+    local cursor_col = ctx.cursor[2]
+
+    for _, item in ipairs(items) do
+        local text_edit = item.textEdit
+        local new_text = text_edit and text_edit.newText or item.insertText
+
+        if type(text_edit) == "table" and type(new_text) == "string" and text_edit.range then
+            local first_line = new_text:match("^[^\r\n]*") or ""
+            local overlap = 0
+
+            for length = 1, math.min(#first_line, cursor_col) do
+                if line:sub(cursor_col - length + 1, cursor_col) == first_line:sub(1, length) then
+                    overlap = length
+                end
+            end
+
+            if overlap > 0 then
+                text_edit.range.start.character = cursor_col - overlap
+            end
+        end
+    end
+
+    return items
+end
+
+-- Some LSP servers return edits that start at the cursor even when the
+-- completion text begins with the already typed prefix.
+local function normalize_lsp_items(ctx, items)
+    local bounds = ctx.get_bounds("prefix")
+    local prefix = ctx.line:sub(bounds.start_col, bounds.start_col + bounds.length - 1)
+
+    if prefix == "" then
+        return items
+    end
+
+    local current_line = ctx.cursor[1] - 1
+    local prefix_start = bounds.start_col - 1
+    local cursor_col = ctx.cursor[2]
+
+    for _, item in ipairs(items) do
+        local text_edit = item.textEdit
+        local new_text = type(text_edit) == "table" and text_edit.newText or item.insertText or item.label
+
+        if type(text_edit) == "table" and type(new_text) == "string" and new_text:sub(1, #prefix) == prefix then
+            local range = text_edit.range or text_edit.insert
+
+            if
+                type(range) == "table"
+                and range.start
+                and range["end"]
+                and range.start.line == current_line
+                and range["end"].line == current_line
+                and range.start.character > prefix_start
+                and range.start.character <= cursor_col
+            then
+                range.start.character = prefix_start
+                range["end"].character = math.max(range["end"].character, cursor_col)
+            end
+        end
+    end
+
+    return items
+end
+
 return {
     "saghen/blink.cmp",
     enabled = not vim.g.vscode, -- 在vscode-neovim禁用
@@ -95,8 +181,8 @@ return {
             ["<C-u>"] = { "snippet_backward", "select_prev", "fallback" },
         },
         completion = {
-            -- 示例：使用'prefix'对于'foo_|_bar'单词将匹配'foo_'(光标前面的部分),使用'full'将匹配'foo__bar'(整个单词)
-            keyword = { range = "full" },
+            -- 只替换光标前已输入的前缀，避免补全项重复保留前缀。
+            keyword = { range = "prefix" },
             -- 选择补全项目时显示文档(0秒延迟)
             documentation = { auto_show = true, auto_show_delay_ms = 0, window = { border = "rounded" } },
             -- 不预选第一个项目，选中后自动插入该项目文本
@@ -297,6 +383,8 @@ return {
                     should_show_items = true,
                     max_items = 6,
                     min_keyword_length = 0,
+                    -- Replace the already typed prefix instead of appending it again.
+                    transform_items = normalize_copilot_items,
                     -- Give Copilot a high score offset so its items are prioritized in the menu
                     score_offset = 100,
                     -- 如果多个 Provider 共用同一个 fallback，那么必须这些 Provider 都返回 0 项后，fallback 才会触发
@@ -307,6 +395,8 @@ return {
                     module = "blink-copilot",
                     score_offset = 100,
                     async = true,
+                    -- Same prefix fix for the native blink-copilot source.
+                    transform_items = normalize_copilot_items,
                     fallbacks = { "copilot", "lsp" },
                 },
                 lsp = {
@@ -319,7 +409,8 @@ return {
                     enabled = true, -- Whether or not to enable the provider
                     async = false, -- Whether we should show the completions before this provider returns, without waiting for it
                     timeout_ms = 2000, -- How long to wait for the provider to return before showing completions and treating it as asynchronous
-                    transform_items = nil, -- Function to transform the items before they're returned
+                    -- Keep server-provided edits, but expand them when they miss the current prefix.
+                    transform_items = normalize_lsp_items,
                     should_show_items = true, -- Whether or not to show the items
                     max_items = 10, -- Maximum number of items to display in the menu
                     -- 设置为0才会对C语言中的.和->进行补全提示
@@ -344,6 +435,8 @@ return {
                 snippets = {
                     name = "SNP",
                     min_keyword_length = 3, -- Minimum number of characters in the keyword to trigger the provider
+                    -- Expand the replacement range to cover text that overlaps the snippet body.
+                    transform_items = normalize_snippet_items,
                     score_offset = 60,
                 },
                 cmdline = {

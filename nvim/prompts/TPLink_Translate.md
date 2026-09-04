@@ -10,7 +10,7 @@ opts:
   stop_context_insertion: false
   ignore_system_prompt: true
   adapter:
-    name: tplink_internal
+    name: tplink_web_internal
     model: DeepSeek-V4-Pro
   modes:
     - v
