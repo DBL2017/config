@@ -38,7 +38,7 @@ return {
 
             outline_items = {
                 show_symbol_details = true,
-                show_symbol_lineno = false,
+                show_symbol_lineno = true,
                 highlight_hovered_item = true,
                 auto_set_cursor = true,
                 auto_update_events = {
