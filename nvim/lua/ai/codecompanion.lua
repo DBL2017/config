@@ -18,7 +18,7 @@ return -- lazy.nvim
         "nvim-lua/plenary.nvim",
         "nvim-treesitter/nvim-treesitter",
         --other plugins
-        "ravitemer/codecompanion-history.nvim",
+        "DBL2017/codecompanion-history.nvim",
         "bahaaza/codecompanion-agentskills.nvim",
         "nvim-lualine/lualine.nvim",
     },
@@ -779,7 +779,23 @@ return -- lazy.nvim
                         -- Keymap to save the current chat manually (when auto_save is disabled)
                         save_chat_keymap = "sc",
                         -- Save all chats by default (disable to save only manually using 'sc')
-                        auto_save = false,
+                        auto_save = true,
+                        auto_save_filter = {
+                            -- 自定义复杂条件
+                            custom = function(data, chat)
+                                -- 统计用户交互次数
+                                local interaction_count = 0
+                                if chat and chat.messages then
+                                    for _, msg in ipairs(chat.messages) do
+                                        if msg.role == "user" then
+                                            interaction_count = interaction_count + 1
+                                        end
+                                    end
+                                end
+                                -- 只保存交互达到 3 次以上的 chat
+                                return interaction_count >= 3
+                            end,
+                        },
                         -- Number of days after which chats are automatically deleted (0 to disable)
                         expiration_days = 0,
                         -- Picker interface (auto resolved to a valid picker)
