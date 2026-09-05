@@ -1,7 +1,6 @@
 return {
     "hedyhli/outline.nvim",
-    lazy = true,
-    tag = "v1.1.0",
+    event = "VeryLazy",
     enabled = true,
     cmd = { "Outline", "OutlineToggle" },
     config = function()
@@ -19,8 +18,19 @@ return {
                 -- Eg, `topleft 20vsp` to prevent a flash of windows when resizing.
                 split_command = nil,
 
-                -- Percentage or integer of columns
+                -- Percentage or integer of columns; serves as the base/minimum width
+                -- for the outline window (and for auto_width calculations)
                 width = 20,
+                -- When auto_width.enabled = true, 'width' is the minimum window width.
+                -- When auto_width.enabled = false, 'width' is the exact/default window width.
+                auto_width = {
+                    -- Dynamically resize window width to fit content
+                    enabled = true,
+                    -- Maximum width (columns or percent if relative_width)
+                    max_width = 40,
+                    -- Include symbol details in width calculation
+                    include_symbol_details = false,
+                },
                 -- Whether width is relative to the total width of nvim
                 -- When relative_width = true, this means take 25% of the total
                 -- screen width for outline window.
@@ -68,7 +78,10 @@ return {
                 -- See :help 'winhl'
                 -- To change background color to "CustomHl" for example, use "Normal:CustomHl".
                 winhl = "",
+                -- Message displayed when there are no providers avialable.
+                no_provider_message = "No supported provider...",
             },
+
             outline_items = {
                 -- Show extra details with the symbols (lsp dependent) as virtual next
                 show_symbol_details = true,
@@ -84,6 +97,18 @@ return {
                 -- `:OutlineFollow[!]` from any window or `<C-g>` from outline window to
                 -- trigger this manually.
                 auto_set_cursor = true,
+                -- Autocmd events to automatically trigger these operations.
+                auto_update_events = {
+                    -- Includes both setting of cursor and highlighting of hovered item.
+                    -- The above two options are respected.
+                    -- This can be triggered manually through `follow_cursor` lua API,
+                    -- :OutlineFollow command, or <C-g>.
+                    follow = { "CursorMoved" },
+                    -- Re-request symbols from the provider.
+                    -- This can be triggered manually through `refresh_outline` lua API, or
+                    -- :OutlineRefresh command.
+                    items = { "InsertLeave", "WinEnter", "BufEnter", "BufWinEnter", "TabEnter", "BufWritePost" },
+                },
             },
 
             preview_window = {
@@ -93,7 +118,7 @@ return {
                 -- hover_symbol).
                 -- If you disable this you can still open hover_symbol using your keymap
                 -- below.
-                open_hover_on_preview = false,
+                open_hover_on_preview = true,
                 width = 65, -- Percentage or integer of columns
                 min_width = 30, -- Minimum number of columns
                 -- Whether width is relative to the total width of nvim.
@@ -111,13 +136,19 @@ return {
                 -- characters.
                 -- See :help nvim_open_win() and search for "border" option.
                 border = "rounded",
-                -- winhl options for the preview window, see ':h winhl'
-                winhl = "NormalFloat:",
-                -- Pseudo-transparency of the preview window, see ':h winblend'
-                winblend = 0,
-                -- Experimental feature that let's you edit the source content live
-                -- in the preview window. Like VS Code's "peek editor".
-                live = false,
+            },
+
+            providers = {
+                priority = { "lsp", "coc", "markdown", "norg", "man" },
+                -- Configuration for each provider (3rd party providers are supported)
+                lsp = {
+                    -- Lsp client names to ignore
+                    blacklist_clients = {},
+                },
+                markdown = {
+                    -- List of supported ft's to use the markdown provider
+                    filetypes = { "markdown" },
+                },
             },
         })
     end,
