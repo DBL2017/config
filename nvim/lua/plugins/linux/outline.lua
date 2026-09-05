@@ -3,6 +3,9 @@ return {
     event = "VeryLazy",
     enabled = true,
     cmd = { "Outline", "OutlineToggle" },
+    dependencies = {
+        "epheien/outline-treesitter-provider.nvim",
+    },
     config = function()
         require("outline").setup({
             outline_window = {
@@ -139,7 +142,7 @@ return {
             },
 
             providers = {
-                priority = { "lsp", "coc", "markdown", "norg", "man" },
+                priority = { "treesitter", "lsp", "coc", "markdown", "norg", "man" },
                 -- Configuration for each provider (3rd party providers are supported)
                 lsp = {
                     -- Lsp client names to ignore
