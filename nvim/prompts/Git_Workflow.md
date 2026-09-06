@@ -77,7 +77,7 @@ chore: no staged changes
 
 使用 Step1 生成的 Commit Message 调用 @{git}
 
-调用格式必须为：
+调用格式**必须**包含 message 字段，缺少 message 字段的调用一律视为非法:
 
 ```text
 {
@@ -86,9 +86,9 @@ chore: no staged changes
 }
 ```
 
-禁止：
+规则如下：
 
-- 禁止输出 git commit -m
+- **禁止提交不携带 Commit Message 的 git 调用**
 - 禁止输出不带 message 字段的 JSON
 - 禁止使用 extra_args 构造 commit
 - 禁止使用 -m 参数
@@ -194,17 +194,15 @@ action=commit 时：
   "extra_args": [...]
 }
 
-禁止：
+规则如下：
 
-git commit -m ...
-
-禁止：
-
-输出 Shell 命令
-
-禁止：
-
-要求用户手动提交
+- 禁止 `git commit -m ...`
+- 禁止输出 Shell 命令
+- 禁止要求用户手动提交
+- 如果 commit 调用因缺少 message 被拒绝（返回 "Commit message is required"）：
+  - **立即重新生成**包含完整 message 字段的调用
+  - 禁止在两次失败间重复发出相同的不完整调用
+  - 连续 3 次失败则停止并排查 prompt 配置
 
 ---
 
@@ -216,6 +214,7 @@ git commit -m ...
 2. 如果存在已暂变更：
    - Step1：生成 Commit Message
    - Step2：调用 @{git} 执行 commit，如果未携带 commit message → 判定为错误 → 必须重新生成，直到包含完整 commit message。
+   - **提交前自检**：确认 JSON 中已包含完整 message 字段，如未包含则视为错误并重新生成
    - Step3：获取远端仓库名
    - Step4：获取上游分支名
    - Step5：调用 @{git} 执行 push
