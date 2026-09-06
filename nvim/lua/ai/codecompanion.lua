@@ -521,7 +521,13 @@ return -- lazy.nvim
                                             meta = { context_window = 1048576 },
                                             opts = { can_reason = false, can_use_tools = true },
                                         },
-                                        ["deepseek-ai/DeepSeek-V4-Pro"] = { opts = { can_reason = true } },
+                                        ["deepseek-ai/DeepSeek-V4-Pro"] = {
+                                            opts = { can_reason = true },
+                                        },
+                                        ["Qwen/Qwen3.6-35B-A3B"] = {
+                                            meta = { context_window = 256 * 1024 },
+                                            opts = { can_reason = false, can_use_tools = true },
+                                        },
                                     },
                                 },
                                 max_tokens = {
