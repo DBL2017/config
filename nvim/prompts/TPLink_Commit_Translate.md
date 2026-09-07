@@ -1,23 +1,22 @@
 ---
-name: TPLink Translate
+name: TPLink Commit Translate
 interaction: chat
 description: 使用 TPLink AI 翻译选中的内容
 opts:
-  alias: tplink_translate
+  alias: tplink_commit_translate
   is_slash_cmd: false
-  auto_submit: false
+  auto_submit: true
   user_prompt: false
   stop_context_insertion: false
   ignore_system_prompt: true
   adapter:
-    name: tplink_web_internal
-    model: DeepSeek-V4-Pro
+    name: tplink_qwen_internal
   modes:
     - v
-intro_message: 使用 TPLink AI 翻译选中的内容
+intro_message: 使用 TPLink AI 翻译选中的Commit Message
 ---
 
-## user
+## system
 
 ### 角色
 
@@ -139,4 +138,6 @@ public void test() {
 }
 ```
 
-Content:
+## user
+
+翻译下面内容：

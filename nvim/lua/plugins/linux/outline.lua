@@ -24,7 +24,7 @@ return {
                 jump_highlight_duration = 300,
                 center_on_jump = true,
 
-                show_numbers = true,
+                show_numbers = false,
                 show_relative_numbers = false,
                 wrap = false,
 
@@ -33,7 +33,7 @@ return {
 
                 focus_on_open = true,
                 winhl = "",
-                no_provider_message = "Nosupportedprovider...",
+                no_provider_message = "No supported provider...",
             },
 
             outline_items = {
@@ -60,7 +60,7 @@ return {
             },
 
             providers = {
-                priority = { "lsp", "coc", "markdown", "norg", "man", "ctags", "treesitter" },
+                priority = { "lsp", "coc", "markdown", "norg", "man", "treesitter", "ctags" },
                 lsp = {
                     blacklist_clients = {},
                 },

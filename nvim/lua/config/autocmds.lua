@@ -114,8 +114,8 @@ autocmd("FileType", {
     },
     group = group,
     callback = function()
-        -- tab转空格
-        vim.bo.expandtab = true
+        -- tab不转空格
+        vim.bo.expandtab = false
         -- tab占位符的宽度，不修改键入tab时的行为，可用来格式化对齐
         vim.bo.tabstop = 8
         -- 键入tab时插入的空格数

@@ -26,6 +26,11 @@ return {
                     },
                     -- 优先展示buffer，其次展示tabs
                     line.bufs().foreach(function(buf, i, count)
+                        local bufname = ""
+                        if vim.bo[buf.id].filetype == "codecompanion" then
+                            bufname = string.format("%.32s", buf.name())
+                        end
+                        bufname = buf.is_changed() and bufname .. "[*]" or bufname
                         return {
                             line.sep(" ", theme.win, theme.fill),
                             buf.is_current() and "" or "",

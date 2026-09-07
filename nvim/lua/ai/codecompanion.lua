@@ -232,7 +232,7 @@ return -- lazy.nvim
                 chat = {
                     -- adapter = "siliconflow_r1",
                     -- adapter = "qwen2_coder_local",
-                    adapter = platform.is_office and "tplink_qwen_internal" or "siliconflow_deepseek_online",
+                    adapter = platform.is_office and "copilot_acp" or "siliconflow_deepseek_online",
                     -- adapter = {
                     --     -- 适配器名称
                     --     -- 当前效果：使用 "anthropic" 适配器
