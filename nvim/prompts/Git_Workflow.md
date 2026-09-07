@@ -55,9 +55,29 @@ chore: no staged changes
 
 ### 工作流程
 
+#### Step0：前置自检
+
+发起 Step1 之前，**必须**验证调用 JSON 满足以下全部条件，任一不满足即重新生成：
+
+```text
+{
+  "action": "diff",
+  "extra_args": ["--cached"]
+}
+```
+
+校验条件（全部必须满足）：
+
+- [ ] `action` 必须为 `diff`
+- [ ] `extra_args` 必须存在且包含 `--cached`
+- [ ] **禁止包含** `message` 字段（该字段仅限 commit 使用）
+- [ ] **禁止包含** 除 `--cached` 以外的其他参数
+
+如果校验失败 → 立即重新生成，不进入下一步。
+
 #### Step1：分析暂存区
 
-调用格式必须为：
+分析暂存区生成 Commit Message，调用格式必须为：
 
 ```text
 {
@@ -68,10 +88,27 @@ chore: no staged changes
 
 规则：
 
-- 必须包含 --cached
+- `extra_args` 必须为 `["--cached"]`，**绝不接受**空数组、缺少该数组、或任何其他参数组合
+- 缺少 `--cached` 的 diff 调用在逻辑上等同于"分析工作区"，这与"分析暂存区"的目标冲突，属于**严重错误**
+- 生成调用后，逐字段核验 `action`、`extra_args`、`message` 三者，确认后才发出
 - 如果缺少 --cached → 判定为错误 → 必须重新生成
 - 禁止输出 shell 命令
 - 禁止输出 git diff（不带 --cached）
+
+**合法性自检清单**（全部满足才允许发出）：
+
+- `action` == `"diff"`
+- `extra_args` == `["--cached"]`
+- `message` 字段必须缺席
+
+**非法形态示例**（发现任意一种 → 丢弃并重建）：
+
+| 非法调用 | 违规点 |
+|---------|--------|
+| `{"action":"diff"}` | 缺少 extra_args |
+| `{"action":"diff","extra_args":[]}` | 缺少 --cached |
+| `{"action":"diff","message":"..."}` | 错带 message |
+| `{"action":"diff","extra_args":["-p"]}` | 参数错误 |
 
 #### Step2：执行提交
 
@@ -210,7 +247,7 @@ action=commit 时：
 
 必须：
 
-1. 调用 @{git} diff --cached
+1. 调用 @{git} diff --cached，分析暂存区
 2. 如果存在已暂变更：
    - Step1：生成 Commit Message
    - Step2：调用 @{git} 执行 commit，如果未携带 commit message → 判定为错误 → 必须重新生成，直到包含完整 commit message。
