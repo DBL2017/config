@@ -35,6 +35,13 @@ return {
             end
 
             local output = vim.fn.system(cmd)
+            -- 将 JSON 参数输出到 chat
+            if self.output then
+                local success, arg_json = pcall(vim.json.encode, args)
+                if success then
+                    self.output:add_tool_output(self, arg_json, "Git command arguments")
+                end
+            end
 
             if vim.v.shell_error ~= 0 then
                 return make_response("error", string.format("Git %s failed: %s", action, output))

@@ -3,14 +3,14 @@ name: Claude Generate Function Comment
 interaction: chat
 description: 为选中的 C/C++ 函数生成嵌入式 Linux 风格注释
 opts:
-  alias: generate_function_comment_chat
+  alias: tplink_generate_function_comment_chat
   is_slash_cmd: true
   auto_submit: false
   user_prompt: false
   stop_context_insertion: true
   ignore_system_prompt: true
   adapter:
-    name: claude_opus_online
+    name: tplink_qwen_internal
   modes:
     - v
 intro_message: 使用 Claude 生成函数注释
@@ -56,20 +56,22 @@ intro_message: 使用 Claude 生成函数注释
 输出格式：
 
 /*
- * fn           <function prototype>
- * brief        <brief description>
- *
- * param[in]    <name>      <description>
- *              <name>      <description>
- *
- * param[out]   <name>      <description>
- *
- * return       <return description>
- * retval       <value>     <description>
- *              <value>     <description>
- *
- * note:
- *
+
+- fn           <function prototype>
+- brief        <brief description>
+-
+- param[in]    <name>      <description>
+-              <name>      <description>
+-
+- param[out]   <name>      <description>
+-
+- return       <return description>
+- retval       <value>     <description>
+-              <value>     <description>
+-
+- note:
+-
+
  */
 
 编写规范：
@@ -160,8 +162,8 @@ note规范：
 
 否则保持：
 
-* note:
-*
+- note:
+-
 
 格式规范：
 

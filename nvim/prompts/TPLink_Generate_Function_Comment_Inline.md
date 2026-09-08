@@ -3,14 +3,14 @@ name: Claude Generate Function Comment Inline
 interaction: inline
 description: 为函数生成嵌入式Linux风格注释
 opts:
-  alias: generate_function_comment_inline
+  alias: tplink_generate_function_comment_inline
   is_slash_cmd: true
   auto_submit: false
   user_prompt: false
   stop_context_insertion: true
   ignore_system_prompt: true
   adapter:
-    name: claude_opus_online
+    name: tplink_qwen_internal
   modes:
     - v
 intro_message: 使用 Claude 生成函数注释
