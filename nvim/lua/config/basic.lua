@@ -175,7 +175,7 @@ vim.o.backspace = "indent,eol,start"
 -- 作用: 当编辑器意外退出时，swap 文件可用于恢复未保存的更改。
 -- 取值范围: boolean (true/false)。
 -- 当前取值含义: true -> 启用 swapfile，配合专用目录可防止在工作目录生成临时文件。
-vim.go.swapfile = true
+vim.o.swapfile = true
 -- autoread: 是否自动在外部修改文件时重新加载缓冲区。
 -- 作用: 提高与其他工具/编辑器协作时的同步性。
 -- 取值范围: boolean (true/false)。
@@ -185,7 +185,7 @@ vim.o.autoread = true
 -- 作用: 指定 swap 和 undo 文件的存放位置。
 -- 取值范围: 文件路径字符串。
 -- 当前取值含义: 使用 stdpath('state') 下的 swap/ 和 undo/ 子目录。
-vim.go.directory = vim.fn.stdpath("state") .. "/swap//"
+vim.o.directory = vim.fn.stdpath("state") .. "/swap//"
 -- undofile: 是否启用持久 undo（撤销历史保存到磁盘）。
 -- 作用: 允许跨会话保留撤销历史。
 -- 取值范围: boolean (true/false)。
@@ -195,10 +195,10 @@ vim.opt.undofile = true
 -- 作用: 保存 undo 文件以便会话间恢复撤销历史。
 -- 取值范围: 文件路径字符串。
 -- 当前取值含义: 使用 stdpath('state') 下的 undo/ 子目录。
-vim.go.undodir = vim.fn.stdpath("state") .. "/undo//"
+vim.o.undodir = vim.fn.stdpath("state") .. "/undo//"
 
 -- 该值指定tab line是否被显示，2表示总是显示
-vim.go.showtabline = 2
+vim.o.showtabline = 2
 
 -- diff
 -- filler：显示填充行，以两个窗口文本位置同步
@@ -207,7 +207,7 @@ vim.go.showtabline = 2
 -- closeoff：当tab中仅剩一个启用了diff的窗口时自动关闭diff模式，相当于执行:diffoff
 -- iblank：忽略空白行的修改
 -- vertical：diff使用竖直分屏
-vim.go.diffopt = "internal,iwhiteeol,filler,closeoff,vertical,iblank"
+vim.o.diffopt = "internal,iwhiteeol,filler,closeoff,vertical,iblank"
 
 vim.o.winborder = "rounded"
 

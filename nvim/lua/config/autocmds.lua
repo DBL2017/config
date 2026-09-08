@@ -214,3 +214,15 @@ vim.api.nvim_create_autocmd("User", {
     end,
     desc = "删除会话时给出提示",
 })
+
+-- 外部修改自动重载
+-- autoread 本身不会主动检测文件变更，它只在特定事件（如进入 buffer、CursorHold）发生时检查磁盘文件。
+-- 通过 autocmd 绑定这些事件并执行 checktime，实现更接近"实时"的自动重新加载。
+autocmd({ "CursorHold", "BufEnter", "FocusGained" }, {
+    group = group,
+    desc = "检测文件是否被外部修改并自动重新加载",
+    callback = function()
+        -- 仅对未修改过的 buffer 生效（已修改未保存的 buffer 不会被强制丢弃）
+        pcall(vim.cmd, "checktime")
+    end,
+})
