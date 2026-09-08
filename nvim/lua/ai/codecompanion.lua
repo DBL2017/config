@@ -17,25 +17,31 @@ return -- lazy.nvim
     dependencies = {
         "nvim-lua/plenary.nvim",
         "nvim-treesitter/nvim-treesitter",
-        --other plugins
+        -- 以下为自定义新增依赖
+        -- codecompanion-history: 提供聊天历史记录/摘要/记忆功能（配合 extensions.history 使用）
         "DBL2017/codecompanion-history.nvim",
+        -- codecompanion-agentskills: 提供基于 skills 目录的 agent 技能发现（配合 extensions.agentskills 使用）
         "bahaaza/codecompanion-agentskills.nvim",
+        -- lualine: 用于状态栏显示（history 扩展可能用到）
         "nvim-lualine/lualine.nvim",
     },
     cmd = {
-        "CodeCompanion",
-        "CodeCompanionChat",
-        "CodeCompanionActions",
-        "CodeCompanionHistory",
+        "CodeCompanion", -- 打开主菜单
+        "CodeCompanionChat", -- 打开聊天窗口
+        "CodeCompanionActions", -- 打开操作面板
+        "CodeCompanionHistory", -- 打开历史记录
     },
+    -- 锁定插件版本范围，避免升级引入破坏性变更
     version = "^19.22.0",
     config = function()
         require("codecompanion").setup({
+            -- 提示词库（prompt library）配置
             prompt_library = {
                 markdown = {
+                    -- 自定义提示词目录：优先使用项目目录，其次使用用户配置目录
                     dirs = {
-                        vim.fs.joinpath(vim.fn.getcwd(), ".prompts"),
-                        vim.fs.joinpath(vim.fn.stdpath("config"), "prompts"),
+                        vim.fs.joinpath(vim.fn.getcwd(), ".prompts"), -- 项目级 .prompts 目录
+                        vim.fs.joinpath(vim.fn.stdpath("config"), "prompts"), -- 用户配置 prompts 目录
                     },
                 },
             },
@@ -125,7 +131,7 @@ return -- lazy.nvim
                         position = "right",
 
                         -- Chat Buffer 的宽度比例
-                        -- 当前效果：占编辑器宽度的 50%
+                        -- 当前效果：办公环境占 40%（0.4），非办公环境占 50%（0.5）
                         -- 可选取值：0–1 的浮点数（比例），或函数动态计算
                         width = platform.is_office and 0.4 or 0.5,
 
@@ -230,6 +236,10 @@ return -- lazy.nvim
             },
             interactions = {
                 chat = {
+                    -- 聊天功能使用的适配器
+                    -- 当前效果：办公环境用 copilot_acp，非办公环境用 siliconflow_deepseek_online
+                    -- 可选取值：任意已定义适配器名称（见下方 adapters 部分）
+                    -- 注：以下为备选适配器配置示例，默认已注释
                     -- adapter = "siliconflow_r1",
                     -- adapter = "qwen2_coder_local",
                     adapter = platform.is_office and "copilot_acp" or "siliconflow_deepseek_online",
@@ -348,21 +358,26 @@ return -- lazy.nvim
                         },
                     },
                     tools = {
+                        -- 联网搜索工具，使用 duckduckgo 作为搜索后端
                         ["web_search"] = {
                             opts = {
                                 adapter = "duckduckgo",
                             },
                         },
+                        -- 长期记忆工具，基于本地目录持久化聊天记忆
                         ["memory"] = {
                             opts = {
+                                -- 白名单：指定可写入记忆的目录及其别名
                                 whitelist = {
                                     -- { path = vim.fs.joinpath(vim.fn.getcwd()), as = "/memories" },
-                                    { path = "~/projects/notes/content/post", as = "/notes" },
-                                    { path = vim.fs.joinpath(os.getenv("HOME"), "ai"), as = "ai" },
+                                    { path = "~/projects/notes/content/post", as = "/notes" }, -- 笔记目录
+                                    { path = vim.fs.joinpath(os.getenv("HOME"), "ai"), as = "ai" }, -- AI 目录
                                 },
                             },
                         },
+                        -- 自定义 git 工具（来自 codecompanion_tools/git.lua）
                         git = require("ai.codecompanion_tools.git"),
+                        -- 工具组：将多个工具组合为一个动作
                         groups = {
                             ["git_workflow"] = {
                                 description = "My git workflow",
@@ -375,9 +390,9 @@ return -- lazy.nvim
                                 end,
                                 tools = { "git" },
                                 opts = {
-                                    collapse_tools = false,
-                                    ignore_system_prompt = true, -- Remove the chat's default system prompt
-                                    ignore_tool_system_prompt = false, -- Remove the default tool system prompt
+                                    collapse_tools = false, -- 不折叠工具输出
+                                    ignore_system_prompt = true, -- 移除聊天的默认系统提示词
+                                    ignore_tool_system_prompt = false, -- 保留工具默认系统提示词
                                     judge_in_yolo_mode = true,
                                 },
                             },
@@ -474,7 +489,8 @@ return -- lazy.nvim
                         -- 不显示预设的适配器
                         show_presets = false,
                     },
-                    -- Define your custom adapters here
+                    -- 以下为自定义适配器：扩展内置适配器以满足特定需求
+                    -- 办公环境默认聊天适配器，基于 GitHub Copilot ACP
                     copilot_acp = function()
                         return require("codecompanion.adapters").extend("copilot_acp", {
                             name = "copilot_acp",
@@ -488,12 +504,13 @@ return -- lazy.nvim
                 http = {
                     opts = {
                         show_defaults = false,
-                        allow_insecure = true,
+                        allow_insecure = true, -- 允许使用非 HTTPS 接口
                         -- 不显示预设的适配器
                         show_presets = false,
                         -- 显示模型选择
                         show_model_choices = true,
                     },
+                    -- 非办公环境默认聊天适配器：硅基流动（SiliconFlow）上的 DeepSeek 在线版
                     siliconflow_deepseek_online = function()
                         return require("codecompanion.adapters").extend("deepseek", {
                             name = "siliconflow_r1_deepseek_online",
@@ -543,6 +560,7 @@ return -- lazy.nvim
                             },
                         })
                     end,
+                    -- 本地局域网 Ollama 上的 Qwen2.5-Coder 模型
                     qwen2_coder_local = function()
                         return require("codecompanion.adapters").extend("ollama", {
                             name = "qwen2_coder_local",
@@ -587,6 +605,7 @@ return -- lazy.nvim
                             },
                         })
                     end,
+                    -- 月之暗面（Moonshot/Kimi）OpenAI 兼容接口在线适配器
                     kimi_openai_online = function()
                         return require("codecompanion.adapters").extend("openai", {
                             name = "kimi_openai_online",
@@ -618,6 +637,7 @@ return -- lazy.nvim
                         })
                     end,
 
+                    -- 阿里云百炼（DashScope）OpenAI 兼容接口适配器
                     dashscope_online = function()
                         return require("codecompanion.adapters").extend("openai", {
                             name = "qwen3_coder_plus_2025_online",
@@ -654,6 +674,7 @@ return -- lazy.nvim
                             },
                         })
                     end,
+                    -- 七牛云 API 的 Claude 在线适配器（OpenAI 兼容模式）
                     claude_opus_online = function()
                         return require("codecompanion.adapters").extend("openai", {
                             name = "claude_opus_online",
@@ -692,6 +713,7 @@ return -- lazy.nvim
                             },
                         })
                     end,
+                    -- 公司内网 TP-Link 网页版适配器（使用账号密码登录）
                     tplink_web_internal = function()
                         return require("codecompanion.adapters").extend("tplink", {
                             name = "tplink",
@@ -712,6 +734,7 @@ return -- lazy.nvim
                             },
                         })
                     end,
+                    -- 办公环境内联适配器：内网 vLLM 服务上的 Qwen3，关闭了 thinking 输出
                     tplink_qwen_internal = function()
                         return require("codecompanion.adapters").extend("tplink_qwen", {
                             name = "tplink_qwen_internal",
@@ -878,61 +901,72 @@ return -- lazy.nvim
                         },
                     },
                 },
+                -- 基于 skills 目录发现 agent 技能的扩展
                 agentskills = {
                     opts = {
+                        -- 技能搜索路径：递归扫描 ~/.config/skills 目录下的技能文件
                         paths = {
-                            { "~/.config/skills", recursive = true }, -- Recursive search
+                            { "~/.config/skills", recursive = true }, -- 递归搜索
                         },
-                        notify_on_discovery = true, -- Show a notification when skills are discovered
+                        -- 发现新技能时是否弹窗通知
+                        notify_on_discovery = true, -- 发现技能时显示通知
                     },
                 },
             },
+            -- MCP（Model Context Protocol）服务器配置
             mcp = {
                 servers = {
+                    -- 文件系统访问服务器
                     ["filesystem"] = {
                         cmd = {
                             "npx",
                             "-y",
                             "@modelcontextprotocol/server-filesystem",
-                            vim.fn.getcwd(),
+                            vim.fn.getcwd(), -- 以当前工作目录为根
                         },
                         -- 最新版本的mcp已经启用roots
+                        -- 旧版通过 roots 限制可访问目录（当前版本已内置，无需设置）
                         -- roots = function()
                         --     return { { name = "project", path = vim.fn.getcwd() } }
                         -- end,
                     },
+                    -- 顺序思考服务器（用于复杂推理任务）
                     ["sequential-thinking"] = {
                         cmd = { "npx", "-y", "@modelcontextprotocol/server-sequential-thinking" },
                     },
-                    -- 联网
+                    -- 联网搜索服务器
                     ["tavily-mcp"] = {
                         cmd = { "npx", "-y", "tavily-mcp@latest" },
                     },
+                    -- Obsidian 笔记库访问服务器
                     ["obsidian"] = {
-                        -- 使用 mcp-remote 包装 HTTP MCP server
+                        -- 使用 mcp-remote 包装 HTTP MCP server，通过局域网远程连接
                         cmd = {
                             "mcp-remote",
-                            "http://192.168.100.1:27123/mcp/",
-                            "--allow-http",
+                            "http://192.168.100.1:27123/mcp/", -- Obsidian Local REST API 地址
+                            "--allow-http", -- 允许 HTTP 调用
                             "--header",
-                            "Authorization: Bearer ${AUTH_TOKEN}",
+                            "Authorization: Bearer ${AUTH_TOKEN}", -- 携带认证令牌请求头
                         },
                         env = {
-                            -- OBSIDIAN_TOKEN = os.getenv("OBSIDIAN_TOKEN"), -- 如果需要认证
+                            -- OBSIDIAN_TOKEN = os.getenv("OBSIDIAN_TOKEN"), -- 如需要认证可启用
+                            -- 从环境变量读取 Obsidian API Key
                             AUTH_TOKEN = os.getenv("OBSIDIAN_API_KEY"),
                         },
                     },
+                    -- Zotero 文献管理服务器
                     ["zotero-mcp"] = {
-                        -- 使用 mcp-remote 包装 HTTP MCP server
+                        -- 使用 mcp-remote 包装 HTTP MCP server，远程连接 Zotero API
                         cmd = {
                             "mcp-remote",
-                            "http://192.168.100.1:23120/mcp",
+                            "http://192.168.100.1:23120/mcp", -- Zotero MCP 服务地址
                             "--debug",
                         },
                     },
                 },
                 opts = {
-                    -- default_servers = { "sequential-thinking" },
+                    -- 默认启用的 MCP 服务器
+                    default_servers = { "sequential-thinking", "filesystem" },
                 },
             },
         })
