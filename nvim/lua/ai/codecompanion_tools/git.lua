@@ -147,6 +147,9 @@ Interaction Style:
             local cmd = { "git", action }
 
             if action == "commit" then
+                if not self.args.message or self.args.message == "" then
+                    return "Commit message is required for git commit. Please provide a message."
+                end
                 cmd = {
                     "git",
                     action,
