@@ -19,7 +19,7 @@ return {
                     include_symbol_details = false,
                 },
                 relative_width = true,
-                auto_close = true,
+                auto_close = false,
                 auto_jump = false,
                 jump_highlight_duration = 300,
                 center_on_jump = true,
@@ -31,7 +31,7 @@ return {
                 show_cursorline = true,
                 hide_cursor = false,
 
-                focus_on_open = true,
+                focus_on_open = false,
                 winhl = "",
                 no_provider_message = "No supported provider...",
             },
@@ -48,7 +48,7 @@ return {
             },
 
             preview_window = {
-                auto_preview = true,
+                auto_preview = false,
                 open_hover_on_preview = true,
                 width = 65,
                 min_width = 30,
