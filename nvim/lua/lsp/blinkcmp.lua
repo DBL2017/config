@@ -369,6 +369,7 @@ return {
                 ["tmux"] = { inherit_defaults = true, "tmux" },
                 ["lua"] = { inherit_defaults = true, "lazydev" },
                 ["*"] = { inherit_defaults = true },
+                ["codecompanion"] = { "codecompanion" },
             },
             providers = {
                 -- score_offset设置优先级数字越大优先级越高
