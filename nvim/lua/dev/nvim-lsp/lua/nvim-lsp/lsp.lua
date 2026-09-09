@@ -189,12 +189,14 @@ function M.stop_lsp()
     )
 end
 
-function M.attach_buffer(bufnr)
+function M.attach_buffer(bufnr, silent)
     local bufnr = bufnr or vim.api.nvim_get_current_buf()
 
     -- 检查buffer是否有效
     if not vim.api.nvim_buf_is_valid(bufnr) or not vim.api.nvim_buf_is_loaded(bufnr) then
-        vim.notify("Buffer is not valid or loaded", vim.log.levels.WARN)
+        if not silent then
+            vim.notify("Buffer is not valid or loaded", vim.log.levels.WARN)
+        end
         return false
     end
 
@@ -208,38 +210,50 @@ function M.attach_buffer(bufnr)
         end
     end
     if #real_clients > 0 then
-        vim.notify("Buffer already has LSP attached", vim.log.levels.INFO)
+        if not silent then
+            vim.notify("Buffer already has LSP attached", vim.log.levels.INFO)
+        end
         return true
     end
 
     local filetype = vim.bo[bufnr].filetype
     if filetype == "" then
-        vim.notify("Buffer has no filetype", vim.log.levels.WARN)
+        if not silent then
+            vim.notify("Buffer has no filetype", vim.log.levels.WARN)
+        end
         return false
     end
 
     local server_name = M.get_lsp_for_filetype(filetype)
     if not server_name then
-        vim.notify(string.format("No LSP server configured for filetype: " .. filetype), vim.log.levels.WARN)
+        if not silent then
+            vim.notify(string.format("No LSP server configured for filetype: " .. filetype), vim.log.levels.WARN)
+        end
         return false
     end
 
     local server_config = M.lsp_servers[server_name]
     if not server_config then
-        vim.notify(string.format("LSP server not configured: " .. server_name), vim.log.levels.WARN)
+        if not silent then
+            vim.notify(string.format("LSP server not configured: " .. server_name), vim.log.levels.WARN)
+        end
         return false
     end
 
     -- 检查是否已安装
     if vim.fn.executable(server_config.config.name or server_name) == 0 then
-        vim.notify(string.format(server_name .. " is not installed"), vim.log.levels.WARN)
+        if not silent then
+            vim.notify(string.format(server_name .. " is not installed"), vim.log.levels.WARN)
+        end
         return false
     end
 
     -- 获取当前文件的合理根目录
     local buf_path = vim.api.nvim_buf_get_name(bufnr)
     if buf_path == "" then
-        vim.notify("Buffer has no file path", vim.log.levels.WARN)
+        if not silent then
+            vim.notify("Buffer has no file path", vim.log.levels.WARN)
+        end
         return false
     end
 
@@ -274,7 +288,9 @@ function M.attach_buffer(bufnr)
                 end
                 if is_supported then
                     vim.lsp.buf_attach_client(bufnr, client.id)
-                    vim.notify("Attached to existing LSP client", vim.log.levels.INFO)
+                    if not silent then
+                        vim.notify("Attached to existing LSP client", vim.log.levels.INFO)
+                    end
                 end
                 return true
             end
@@ -311,10 +327,14 @@ function M.attach_buffer(bufnr)
     if client_id then
         -- 将新客户端附加到当前buffer
         -- vim.lsp.buf_attach_client(bufnr, client_id)
-        vim.notify("Started new LSP client and attached", vim.log.levels.INFO)
+        if not silent then
+            vim.notify("Started new LSP client and attached", vim.log.levels.INFO)
+        end
         return true
     else
-        vim.notify("Failed to start LSP client", vim.log.levels.WARN)
+        if not silent then
+            vim.notify("Failed to start LSP client", vim.log.levels.WARN)
+        end
         return false
     end
 end
@@ -337,7 +357,7 @@ function M.attach_all()
             if buf_name == "" or filetype == "" then
                 results.skipped = results.skipped + 1
             else
-                local success = M.attach_buffer(bufnr)
+                local success = M.attach_buffer(bufnr, true)
 
                 if success then
                     results.success = results.success + 1

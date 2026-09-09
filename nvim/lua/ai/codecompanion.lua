@@ -963,10 +963,14 @@ return -- lazy.nvim
                             "--debug",
                         },
                     },
+                    ["mcp-atlassian"] = {
+                        cmd = { "uvx", "mcp-atlassian" },
+                    },
                 },
                 opts = {
                     -- 默认启用的 MCP 服务器
-                    default_servers = { "sequential-thinking", "filesystem" },
+                    default_servers = platform.is_office and { "sequential-thinking", "filesystem", "mcp-atlassian" }
+                        or { "sequential-thinking", "filesystem" },
                 },
             },
         })

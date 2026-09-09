@@ -385,7 +385,7 @@ return {
                     max_items = 6,
                     min_keyword_length = 0,
                     -- Replace the already typed prefix instead of appending it again.
-                    transform_items = normalize_copilot_items,
+                    -- transform_items = normalize_copilot_items,
                     -- Give Copilot a high score offset so its items are prioritized in the menu
                     score_offset = 100,
                     -- 如果多个 Provider 共用同一个 fallback，那么必须这些 Provider 都返回 0 项后，fallback 才会触发
@@ -397,7 +397,7 @@ return {
                     score_offset = 100,
                     async = true,
                     -- Same prefix fix for the native blink-copilot source.
-                    transform_items = normalize_copilot_items,
+                    -- transform_items = normalize_copilot_items,
                     fallbacks = { "copilot", "lsp" },
                 },
                 lsp = {
@@ -411,7 +411,7 @@ return {
                     async = false, -- Whether we should show the completions before this provider returns, without waiting for it
                     timeout_ms = 2000, -- How long to wait for the provider to return before showing completions and treating it as asynchronous
                     -- Keep server-provided edits, but expand them when they miss the current prefix.
-                    transform_items = normalize_lsp_items,
+                    -- transform_items = normalize_lsp_items,
                     should_show_items = true, -- Whether or not to show the items
                     max_items = 10, -- Maximum number of items to display in the menu
                     -- 设置为0才会对C语言中的.和->进行补全提示
