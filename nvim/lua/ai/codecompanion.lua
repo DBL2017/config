@@ -242,7 +242,7 @@ return -- lazy.nvim
                     -- 注：以下为备选适配器配置示例，默认已注释
                     -- adapter = "siliconflow_r1",
                     -- adapter = "qwen2_coder_local",
-                    adapter = platform.is_office and "copilot_acp" or "siliconflow_deepseek_online",
+                    adapter = platform.is_office and "tplink_qwen_internal" or "siliconflow_deepseek_online",
                     -- adapter = {
                     --     -- 适配器名称
                     --     -- 当前效果：使用 "anthropic" 适配器
@@ -259,7 +259,7 @@ return -- lazy.nvim
                             description = "Share the current buffer with the LLM(diff)",
                             opts = {
                                 -- 默认参数设置为 "diff"
-                                -- 当前效果：每次对话时自动同步 buffer 的差异部分
+                                -- 当前效果：使用 @buffer 添加上下文时，发送当前 buffer 的差异部分
                                 -- 可选取值："diff"（只共享修改部分）、"all"（共享整个 buffer）
                                 default_params = "diff",
                             },
@@ -267,8 +267,8 @@ return -- lazy.nvim
                         ["buffer-all"] = {
                             description = "Share the current buffer with the LLM(all)",
                             opts = {
-                                -- 默认参数设置为 "diff"
-                                -- 当前效果：每次对话时自动同步整个 buffer
+                                -- 默认参数设置为 "all"
+                                -- 当前效果：使用 @buffer-all 添加上下文时，发送当前 buffer 的全部内容
                                 -- 可选取值："diff"（只共享修改部分）、"all"（共享整个 buffer）
                                 default_params = "all",
                             },
@@ -296,6 +296,33 @@ return -- lazy.nvim
                         },
                     },
                     opts = {
+                        -- 已添加到聊天上下文的这些文件类型会持续监听变化，
+                        -- 后续对话时自动同步修改内容，无需重新添加 buffer。
+                        -- 这里的 key 使用文件扩展名，不包含点号。
+                        sync_diff = {
+                            ipynb = true,
+                            lua = true,
+                            py = true,
+                            js = true,
+                            jsx = true,
+                            ts = true,
+                            tsx = true,
+                            json = true,
+                            yaml = true,
+                            yml = true,
+                            md = true,
+                            sh = true,
+                            bash = true,
+                            go = true,
+                            rs = true,
+                            c = true,
+                            h = true,
+                            cpp = true,
+                            hpp = true,
+                            java = true,
+                            html = true,
+                            css = true,
+                        },
                         -- 指定补全引擎
                         -- 当前效果：使用 "blink" 作为补全引擎
                         -- 可选取值：
@@ -497,6 +524,7 @@ return -- lazy.nvim
                             -- copilot不需要设置环境变量api_key，而是copilot_cli直接读取环境变量COPILOT_GITHUB_TOKEN
                             defaults = {
                                 timeout = 30000, -- 30 seconds
+                                model = "gpt-5.6-luna", -- Add default model here
                             },
                         })
                     end,
@@ -922,7 +950,7 @@ return -- lazy.nvim
                             "npx",
                             "-y",
                             "@modelcontextprotocol/server-filesystem",
-                            vim.fn.getcwd(), -- 以当前工作目录为根
+                            os.getenv("HOME"), -- 兼容 windows/mac/linux 的用户目录
                         },
                         -- 最新版本的mcp已经启用roots
                         -- 旧版通过 roots 限制可访问目录（当前版本已内置，无需设置）

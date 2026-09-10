@@ -266,7 +266,7 @@ action=commit 时：
 
 ## user
 
-使用 @{git} 工具分析暂存区内容生成 Commit Message，然后完成 git commit，最后推送到远端
+严格按照流程来执行每一步，即使用 @{git} 工具分析暂存区内容生成 Commit Message，然后完成 git commit，最后推送到远端
 
 ```yaml opts
 auto_submit: true

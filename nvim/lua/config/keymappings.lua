@@ -911,8 +911,13 @@ _G.set_gitsign_keymap = function(bufnr)
         require("gitsigns").stage_hunk()
     end, { noremap = true, silent = true, buffer = bufnr, desc = "暂存补丁块" })
     -- hunk unstage
+    -- 注意：undo_stage_hunk() 已废弃，且仅能撤销"当前会话内"通过 stage_hunk()
+    -- 暂存的最后一个 hunk（基于内部栈，与光标位置无关），一旦 hunk 是之前
+    -- 会话/外部 git add 暂存的，或使用了 stage_buffer()，该函数会静默失败。
+    -- 新版 gitsigns 中 stage_hunk() 对已暂存的 hunk 会自动切换为取消暂存，
+    -- 且按光标位置定位，因此改用 stage_hunk() 实现取消暂存。
     vim.keymap.set("n", "<LocalLeader>hu", function()
-        require("gitsigns").undo_stage_hunk()
+        require("gitsigns").stage_hunk()
     end, { noremap = true, silent = true, buffer = bufnr, desc = "取消暂存补丁块" })
     -- hunk reset
     vim.keymap.set("n", "<LocalLeader>hr", function()
