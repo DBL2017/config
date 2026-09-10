@@ -45,6 +45,22 @@ return -- lazy.nvim
                     },
                 },
             },
+            rules = {
+                tplink_rules = {
+                    description = "Rule files for TPLink C",
+                    enabled = true,
+                    files = {
+                        vim.fs.joinpath(vim.fn.stdpath("config"), "rules", "tplink_c_standard.md"), -- 用户配置 prompts 目录
+                    },
+                },
+                opts = {
+                    chat = {
+                        autoload = platform.is_office and "tplink_rules" or "default", -- The rule groups to load
+                        autoload_groups_in_prompt_library = true,
+                        enabled = true,
+                    },
+                },
+            },
             display = {
                 action_palette = {
                     width = 100,
@@ -525,6 +541,7 @@ return -- lazy.nvim
                             defaults = {
                                 timeout = 30000, -- 30 seconds
                                 model = "gpt-5.6-luna", -- Add default model here
+                                mcpServers = "inherit_from_config",
                             },
                         })
                     end,
