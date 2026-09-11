@@ -224,7 +224,7 @@ return -- lazy.nvim
                     -- 当前效果：false → 不显示标题分隔符
                     -- 可选取值：true（显示）、false（隐藏）
                     -- 建议：如果使用外部 markdown 渲染插件，设为 false
-                    show_header_separator = false,
+                    show_header_separator = true,
 
                     -- 是否在聊天缓冲区顶部显示 LLM 设置
                     -- 当前效果：false → 不显示设置
