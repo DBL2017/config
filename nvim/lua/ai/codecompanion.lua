@@ -412,6 +412,13 @@ return -- lazy.nvim
                                 adapter = "duckduckgo",
                             },
                         },
+                        ["grep_search"] = {
+                            ---@param adapter CodeCompanion.HTTPAdapter
+                            ---@return boolean
+                            enabled = function(adapter)
+                                return vim.fn.executable("rg") == 1
+                            end,
+                        },
                         -- 长期记忆工具，基于本地目录持久化聊天记忆
                         ["memory"] = {
                             opts = {
