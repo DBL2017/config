@@ -46,11 +46,16 @@ return -- lazy.nvim
                 },
             },
             rules = {
+                default = {
+                    files = {
+                        vim.fs.joinpath(vim.fn.stdpath("config"), "rules", "clang_format_rules.md"),
+                    },
+                },
                 tplink_rules = {
                     description = "Rule files for TPLink C",
                     enabled = true,
                     files = {
-                        vim.fs.joinpath(vim.fn.stdpath("config"), "rules", "tplink_c_standard.md"), -- 用户配置 prompts 目录
+                        vim.fs.joinpath(vim.fn.stdpath("config"), "rules", "tplink_c_coding_standard.md"),
                     },
                 },
                 opts = {
@@ -258,7 +263,7 @@ return -- lazy.nvim
                     -- 注：以下为备选适配器配置示例，默认已注释
                     -- adapter = "siliconflow_r1",
                     -- adapter = "qwen2_coder_local",
-                    adapter = platform.is_office and "tplink_qwen_internal" or "siliconflow_deepseek_online",
+                    adapter = platform.is_office and "copilot_acp" or "siliconflow_deepseek_online",
                     -- adapter = {
                     --     -- 适配器名称
                     --     -- 当前效果：使用 "anthropic" 适配器

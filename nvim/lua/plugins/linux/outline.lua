@@ -31,7 +31,7 @@ return {
                 show_cursorline = true,
                 hide_cursor = false,
 
-                focus_on_open = false,
+                focus_on_open = true,
                 winhl = "",
                 no_provider_message = "No supported provider...",
             },
