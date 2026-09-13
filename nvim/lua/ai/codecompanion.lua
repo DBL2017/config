@@ -20,8 +20,6 @@ return -- lazy.nvim
         -- 以下为自定义新增依赖
         -- codecompanion-history: 提供聊天历史记录/摘要/记忆功能（配合 extensions.history 使用）
         "DBL2017/codecompanion-history.nvim",
-        -- codecompanion-agentskills: 提供基于 skills 目录的 agent 技能发现（配合 extensions.agentskills 使用）
-        "bahaaza/codecompanion-agentskills.nvim",
         -- lualine: 用于状态栏显示（history 扩展可能用到）
         "nvim-lualine/lualine.nvim",
     },
@@ -63,6 +61,22 @@ return -- lazy.nvim
                         autoload = platform.is_office and "tplink_rules" or "default", -- The rule groups to load
                         autoload_groups_in_prompt_library = true,
                         enabled = true,
+                    },
+                },
+            },
+            skills = {
+                dirs = {
+                    vim.fs.joinpath(vim.fn.stdpath("config"), "skills"),
+                },
+                ["demo"] = {
+                    description = "demo",
+                    skills = { "demo-skill" },
+                },
+                opts = {
+                    chat = {
+                        enabled = true,
+                        -- Skills and groups can be autoloaded into the chat buffer on startup.
+                        -- autoload = { "demo" },
                     },
                 },
             },
@@ -956,17 +970,6 @@ return -- lazy.nvim
                             -- (requires VectorCode 0.6.12+ for efficient incremental indexing)
                             index_on_startup = false,
                         },
-                    },
-                },
-                -- 基于 skills 目录发现 agent 技能的扩展
-                agentskills = {
-                    opts = {
-                        -- 技能搜索路径：递归扫描 ~/.config/skills 目录下的技能文件
-                        paths = {
-                            { "~/.config/skills", recursive = true }, -- 递归搜索
-                        },
-                        -- 发现新技能时是否弹窗通知
-                        notify_on_discovery = true, -- 发现技能时显示通知
                     },
                 },
             },
