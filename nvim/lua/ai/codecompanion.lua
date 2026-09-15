@@ -58,9 +58,10 @@ return -- lazy.nvim
                 },
                 opts = {
                     chat = {
-                        autoload = platform.is_office and "tplink_rules" or "default", -- The rule groups to load
-                        autoload_groups_in_prompt_library = true,
-                        enabled = true,
+                        -- autoload = platform.is_office and "tplink_rules" or "default",
+                        -- 不要在prompt_library中自动加载rules，可以主动配置到对应的prompt中
+                        autoload_groups_in_prompt_library = false,
+                        enabled = false,
                     },
                 },
             },
@@ -566,7 +567,7 @@ return -- lazy.nvim
                             -- copilot不需要设置环境变量api_key，而是copilot_cli直接读取环境变量COPILOT_GITHUB_TOKEN
                             defaults = {
                                 timeout = 30000, -- 30 seconds
-                                model = "gpt-5.6-luna", -- Add default model here
+                                model = platform.is_office and "gpt-5.6-luna" or nil, -- Add default model here
                                 mcpServers = "inherit_from_config",
                             },
                         })
