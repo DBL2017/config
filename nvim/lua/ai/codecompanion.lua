@@ -328,6 +328,7 @@ return -- lazy.nvim
                                 --   "mini_pick" → 使用 mini_pick 插件
                                 --   "snacks"    → 使用 snacks.nvim 插件
                                 provider = "telescope",
+                                dirs = { vim.fn.getcwd() },
                             },
                         },
                     },
