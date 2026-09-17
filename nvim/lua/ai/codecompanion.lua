@@ -68,6 +68,7 @@ return -- lazy.nvim
             skills = {
                 dirs = {
                     vim.fs.joinpath(vim.fn.stdpath("config"), "skills"),
+                    "/home/blduan/projects/open_source/skills/skills",
                 },
                 ["demo"] = {
                     description = "demo",
