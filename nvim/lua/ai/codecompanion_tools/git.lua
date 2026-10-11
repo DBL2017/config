@@ -122,6 +122,25 @@ Interaction Style:
     },
     opts = {
         require_approval_before = true,
+        -- 让后台 LLM 在 auto 模式下判断非只读的 git 命令是否安全
+        judge = true,
+    },
+    gates = {
+        ---@param self CodeCompanion.Tool.Git
+        ---@return boolean 只读且安全的命令在 auto 模式下直接放行
+        is_safe = function(self)
+            local read_only = { status = true, diff = true, log = true, fetch = true, remote = true }
+            return read_only[self.args.action] == true
+        end,
+
+        ---@param self CodeCompanion.Tool.Git
+        ---@param meta { tools: CodeCompanion.Tools }
+        ---@return string 交给后台 judge 判断的上下文
+        judge_context = function(self, meta)
+            local cmd = { "git", self.args.action }
+            vim.list_extend(cmd, self.args.extra_args or {})
+            return string.format("Run the git command: %s", table.concat(cmd, " "))
+        end,
     },
     handlers = {
         ---@param self CodeCompanion.Tool.Git

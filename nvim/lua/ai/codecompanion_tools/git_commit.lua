@@ -104,7 +104,24 @@ For git_commit specifically:
         end,
     },
     opts = {
-        -- judge_in_yolo_mode = true,
         require_approval_before = true,
+        -- 让后台 LLM 在 auto 模式下判断本次 commit 是否安全
+        judge = true,
+        -- 提交操作会修改提交历史，视为受保护，auto 模式下也默认询问
+        protect = true,
+    },
+    gates = {
+        ---@param self CodeCompanion.Tool.Git_Commit
+        ---@return boolean commit 是写操作，不接受自动放行
+        is_safe = function(self)
+            return false
+        end,
+
+        ---@param self CodeCompanion.Tool.Git_Commit
+        ---@param meta { tools: CodeCompanion.Tools }
+        ---@return string 交给后台 judge 判断的上下文
+        judge_context = function(self, meta)
+            return string.format("Run the git commit: %s", self.args.message)
+        end,
     },
 }

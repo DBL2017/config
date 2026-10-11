@@ -274,6 +274,19 @@ return -- lazy.nvim
                 },
             },
             interactions = {
+                -- 后台交互：用便宜的模型执行标题生成、LLM judge 等任务
+                background = {
+                    -- 后台交互使用的默认适配器
+                    adapter = platform.is_office and "tplink_qwen_internal" or "siliconflow_deepseek_online",
+                    gates = {
+                        judge = {
+                            -- 是否启用 LLM judge 机制
+                            -- 当前效果：true → 在 auto 模式下，不在安全列表的命令先由后台 LLM 判断是否安全
+                            -- 可选取值：true（启用）、false（禁用）
+                            enabled = true,
+                        },
+                    },
+                },
                 chat = {
                     -- 聊天功能使用的适配器
                     -- 当前效果：办公环境用 copilot_acp，非办公环境用 siliconflow_deepseek_online
@@ -449,6 +462,32 @@ return -- lazy.nvim
                                 },
                             },
                         },
+                        -- 执行 shell 命令。在 auto 模式下命中 safe_commands 不询问，其余交由 LLM judge 判断
+                        ["run_command"] = {
+                            opts = {
+                                judge = true, -- 让后台 LLM 判断不在安全列表的命令是否安全
+                                require_approval_before = true,
+                                require_cmd_approval = true,
+                                safe_commands = {
+                                    "git status",
+                                    "git diff",
+                                    "git log",
+                                    "ls",
+                                    "pwd",
+                                    "make build",
+                                    "make test",
+                                }, -- 命中这些命令作为前缀的命令在 auto 模式下免询问
+                                timeout = 300000, -- 命令超时（毫秒）
+                            },
+                        },
+                        -- 删除文件。受保护，在任何模式下都默认询问
+                        ["delete_file"] = {
+                            opts = {
+                                protect = true,
+                                judge = true,
+                                require_approval_before = true,
+                            },
+                        },
                         -- 自定义 git 工具（来自 codecompanion_tools/git.lua）
                         git = require("ai.codecompanion_tools.git"),
                         -- 工具组：将多个工具组合为一个动作
@@ -467,9 +506,21 @@ return -- lazy.nvim
                                     collapse_tools = false, -- 不折叠工具输出
                                     ignore_system_prompt = true, -- 移除聊天的默认系统提示词
                                     ignore_tool_system_prompt = false, -- 保留工具默认系统提示词
-                                    judge_in_yolo_mode = true,
+                                    judge = true,
                                 },
                             },
+                        },
+                        opts = {
+                            -- 所有聊天缓冲区默认的审批模式
+                            -- 当前效果：auto → 除受保护规则/需要审批的命令外，工具自动运行
+                            -- 可选取值："ask"（每次询问）、"auto"（自动放行）、"yolo"（全部放行）
+                            approval_mode = "auto",
+                            -- 工具出错（status=error）时是否自动回传给 LLM
+                            auto_submit_errors = true,
+                            -- 工具成功时是否自动回传给 LLM
+                            auto_submit_success = true,
+                            -- 工具运行需要审批时是否发送通知
+                            notify_on_approval = true,
                         },
                     },
                 },
