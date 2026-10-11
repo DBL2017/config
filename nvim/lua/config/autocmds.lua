@@ -131,6 +131,31 @@ autocmd("FileType", {
     end,
     desc = "C[PP]设置Tab不转空格，宽度为8",
 })
+-- 根据上一行的缩进样式决定当前 buffer 是否将 Tab 转为空格。
+autocmd("InsertEnter", {
+    pattern = "*",
+    group = group,
+    callback = function(args)
+        local current_line = vim.fn.line(".")
+        local first_indent_char
+
+        if current_line > 1 then
+            first_indent_char = vim.fn.getline(current_line - 1):match("^[ \t]")
+        end
+        if first_indent_char == nil and current_line < vim.fn.line("$") then
+            first_indent_char = vim.fn.getline(current_line + 1):match("^[ \t]")
+        end
+        if first_indent_char == nil then
+            return
+        end
+
+        local use_spaces = first_indent_char ~= "\t"
+        vim.bo[args.buf].expandtab = use_spaces
+        vim.bo[args.buf].softtabstop = use_spaces and 4 or 0
+        vim.bo[args.buf].shiftwidth = use_spaces and 4 or 8
+    end,
+    desc = "根据上/下一行缩进样式设置 Tab",
+})
 
 -- 在 treesitter-context 设置后添加
 -- 解决切换tab时nvim-treesitter-context失效的问题

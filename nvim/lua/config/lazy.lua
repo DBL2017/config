@@ -52,11 +52,9 @@ require("lazy").setup({
         -- import your plugins
         { import = "ui" },
         { import = "plugins" },
-        { import = "plugins.linux" },
         { import = "lsp" },
         { import = "dap" },
         { import = "ai" },
-        { import = "ai.linux" },
         { import = "custom" },
     },
 

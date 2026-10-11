@@ -5,7 +5,7 @@ return {
     cmd = { "Outline", "OutlineToggle" },
     dependencies = {
         "epheien/outline-treesitter-provider.nvim",
-        --  sudo apt install universal-ctags
+        -- Optional fallback provider; install universal-ctags if needed.
         "epheien/outline-ctags-provider.nvim",
     },
     config = function()

@@ -7,6 +7,8 @@ return {
     -- 当前取值含义: { "BufReadPost", "BufNewFile" } -> 打开或新建文件时加载 treesitter，通常能延迟启动时的开销。
     event = { "BufReadPost", "BufNewFile" },
     "nvim-treesitter/nvim-treesitter",
+    -- main 分支已重写并移除了 nvim-treesitter.configs；当前配置仍使用旧版 API。
+    branch = "master",
     dependencies = {
         "nvim-tree/nvim-web-devicons",
     },

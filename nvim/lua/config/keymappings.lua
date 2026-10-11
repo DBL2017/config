@@ -428,41 +428,40 @@ vim.keymap.set(
 )
 
 -- CodeCompanion
-if platform.is_linux or platform.is_mac then
-    vim.keymap.set({ "n", "v" }, "<LocalLeader>cl", function()
-        local ok, cc = pcall(require, "codecompanion")
-        if not ok then
-            vim.notify("CodeCompanion not installed or enabled", vim.log.levels.WARN)
-            return
-        end
-        cc.cli({ focus = true })
-    end, {
-        desc = "打开 CodeCompanion CLI",
-        -- 这里必须注释，因为在codecompanion cli界面需要将快捷键继续扩展
-        -- noremap = true,
-        silent = true,
+vim.keymap.set({ "n", "v" }, "<LocalLeader>cl", function()
+    local ok, cc = pcall(require, "codecompanion")
+    if not ok then
+        vim.notify("CodeCompanion not installed or enabled", vim.log.levels.WARN)
+        return
+    end
+    cc.cli({ focus = true })
+end, {
+    desc = "打开 CodeCompanion CLI",
+    -- 这里必须注释，因为在codecompanion cli界面需要将快捷键继续扩展
+    -- noremap = true,
+    silent = true,
+})
+-- 在当前 buffer 或选区中触发 CodeCompanion 的 CLI 提示，弹出输入框以手动输入自定义提示并与代理交互。
+-- #{this} → 普通模式下是当前 buffer，视觉模式下是选区。
+-- #{terminal} -> 终端输出
+-- 可以用 #{buffer}、#{buffers}、#{diagnostics} 等引用
+vim.keymap.set({ "n", "v" }, "<LocalLeader>cp", function()
+    local ok, cc = pcall(require, "codecompanion")
+    if not ok then
+        vim.notify("CodeCompanion not installed or enabled", vim.log.levels.WARN)
+        return
+    end
+    cc.cli({
+        -- 是否打开输入缓冲区, true表示打开
+        -- 输入缓冲区 → 支持复杂提示和 slash 命令。
+        prompt = true,
+        -- 是否切入cli窗口，默认为true表示切入
+        focus = false,
+        -- 是否自动提交提示， 默认为false
+        -- prompt为true时，submit会失效，只有直接传入字符串才会生效
+        submit = true,
     })
-    -- 在当前 buffer 或选区中触发 CodeCompanion 的 CLI 提示，弹出输入框以手动输入自定义提示并与代理交互。
-    -- #{this} → 普通模式下是当前 buffer，视觉模式下是选区。
-    -- #{terminal} -> 终端输出
-    -- 可以用 #{buffer}、#{buffers}、#{diagnostics} 等引用
-    vim.keymap.set({ "n", "v" }, "<LocalLeader>cp", function()
-        local ok, cc = pcall(require, "codecompanion")
-        if not ok then
-            vim.notify("CodeCompanion not installed or enabled", vim.log.levels.WARN)
-        end
-        cc.cli({
-            -- 是否打开输入缓冲区, true表示打开
-            -- 输入缓冲区 → 支持复杂提示和 slash 命令。
-            prompt = true,
-            -- 是否切入cli窗口，默认为true表示切入
-            focus = false,
-            -- 是否自动提交提示， 默认为false
-            -- prompt为true时，submit会失效，只有直接传入字符串才会生效
-            submit = true,
-        })
-    end, { noremap = true, silent = true, desc = "向 CLI 代理发送提示" })
-end
+end, { noremap = true, silent = true, desc = "向 CLI 代理发送提示" })
 vim.keymap.set(
     { "n", "v" },
     "<LocalLeader>aa",
@@ -483,6 +482,7 @@ vim.keymap.set({ "n", "v" }, "<LocalLeader>ct", function()
     local ok, cc = pcall(require, "codecompanion")
     if not ok then
         vim.notify("CodeCompanion not installed or enabled", vim.log.levels.WARN)
+        return
     end
     cc.toggle()
 end, {
@@ -708,141 +708,118 @@ vim.keymap.set("n", "tfw", function()
     })
 end, { noremap = true, silent = true, desc = "frecency 搜索（工作区）" })
 
+-- FzfLua
+vim.keymap.set("n", "fgd", "<cmd>FzfLua lsp_definitions<CR>", { noremap = true, silent = true, desc = "定义" })
+vim.keymap.set("n", "fgD", "<cmd>FzfLua lsp_declarations<CR>", { noremap = true, silent = true, desc = "声明" })
+vim.keymap.set("n", "flr", "<cmd>FzfLua lsp_references<CR>", { noremap = true, silent = true, desc = "引用" })
+vim.keymap.set("n", "flf", "<cmd>FzfLua lsp_finder<CR>", { noremap = true, silent = true, desc = "所有 LSP 位置" })
+vim.keymap.set("n", "fli", "<cmd>FzfLua lsp_implementations<CR>", { noremap = true, silent = true, desc = "实现" })
+vim.keymap.set("n", "flt", "<cmd>FzfLua lsp_typedefs<CR>", { noremap = true, silent = true, desc = "类型定义" })
+vim.keymap.set("n", "fca", "<cmd>FzfLua code_action<CR>", { noremap = true, silent = true, desc = "代码操作" })
+vim.keymap.set("n", "fic", function()
+    custom_function.incoming_call_chain()
+end, { noremap = true, silent = true, desc = "显示传入调用" })
+vim.keymap.set(
+    "n",
+    "foc",
+    "<cmd>FzfLua lsp_outgoing_calls<CR>",
+    { noremap = true, silent = true, desc = "显示传出调用" }
+)
+
+vim.keymap.set(
+    "n",
+    "fgc",
+    "<cmd>FzfLua git_commits<CR>",
+    { noremap = true, silent = true, desc = "Git 提交日志（项目）" }
+)
+vim.keymap.set(
+    "n",
+    "fgb",
+    "<cmd>FzfLua git_bcommits<CR>",
+    { noremap = true, silent = true, desc = "Git 提交日志（缓冲区）" }
+)
+vim.keymap.set(
+    "n",
+    "fgr",
+    "<cmd>FzfLua grep_cword<CR>",
+    { noremap = true, silent = true, desc = "搜索光标下的单词" }
+)
+
+-- Toggleterm
+-- 设置toggleterm的快捷键，使其能够在打开终端的情况下切换到其他窗口
+function _G.set_terminal_keymaps()
+    vim.keymap.set("t", "<esc>", [[<C-\><C-n>]], { noremap = true, silent = true, buffer = 0 })
+    vim.keymap.set("t", "jk", [[<C-\><C-n>]], { noremap = true, silent = true, buffer = 0 })
+    -- 有些终端模拟器上，<Backspace>按键会发送0x08，与<C-h>一致，下面的映射就可能导致<BS>失效，需要修改终端模拟对<BS>的配置
+    vim.keymap.set("t", "<C-h>", [[<cmd>wincmd h<CR>]], { noremap = true, silent = true, buffer = 0 })
+    vim.keymap.set("t", "<C-j>", [[<cmd>wincmd j<CR>]], { noremap = true, silent = true, buffer = 0 })
+    vim.keymap.set("t", "<C-k>", [[<cmd>wincmd k<CR>]], { noremap = true, silent = true, buffer = 0 })
+    vim.keymap.set("t", "<C-l>", [[<cmd>wincmd l<CR>]], { noremap = true, silent = true, buffer = 0 })
+    vim.keymap.set("t", "<C-w>", [[<C-\><C-n><C-w>]], { noremap = true, silent = true, buffer = 0 })
+    vim.keymap.set("t", "<C-q>", function()
+        local job_id = vim.b.terminal_job_id
+        if job_id then
+            vim.fn.jobstop(job_id)
+        end
+        vim.api.nvim_buf_delete(0, { force = true })
+    end, { noremap = true, silent = true, buffer = 0 })
+end
+
+-- Trouble
+-- diagnostic键映射
+vim.keymap.set(
+    "n",
+    "<LocalLeader>xx",
+    "<cmd>Trouble diagnostics toggle filter.buf=0<cr>",
+    { noremap = true, silent = true, desc = "切换 Trouble 诊断" }
+)
+vim.keymap.set(
+    "n",
+    "<LocalLeader>xw",
+    "<cmd>Trouble workspace_diagnostics toggle<cr>",
+    { noremap = true, silent = true, desc = "切换工作区诊断" }
+)
+vim.keymap.set(
+    "n",
+    "<LocalLeader>xd",
+    "<cmd>Trouble document_diagnostics toggle<cr>",
+    { noremap = true, silent = true, desc = "切换文档诊断" }
+)
+vim.keymap.set(
+    "n",
+    "<LocalLeader>xl",
+    "<cmd>Trouble loclist toggle<cr>",
+    { noremap = true, silent = true, desc = "切换位置列表诊断" }
+)
+vim.keymap.set(
+    "n",
+    "<LocalLeader>xq",
+    "<cmd>Trouble quickfix toggle<cr>",
+    { noremap = true, silent = true, desc = "切换 quickfix 诊断" }
+)
+vim.keymap.set(
+    "n",
+    "gR",
+    "<cmd>Trouble lsp_references toggle<cr>",
+    { noremap = true, silent = true, desc = "切换 Trouble 中的 LSP 引用" }
+)
+
+-- lspsaga
+vim.keymap.set("n", "K", "<cmd>Lspsaga hover_doc<CR>", { noremap = true, silent = true, desc = "Lspsaga 查看文档" })
+vim.keymap.set(
+    "n",
+    "pd",
+    "<cmd>Lspsaga peek_definition<CR>",
+    { noremap = true, silent = true, desc = "Lspsaga 查看定义" }
+)
+vim.keymap.set(
+    "n",
+    "<LocalLeader>ca",
+    "<cmd>Lspsaga code_action<CR>",
+    { noremap = true, silent = true, desc = "Lspsaga 代码扩展" }
+)
+
 if platform.is_linux or platform.is_mac then
-    -- FzfLua
-    vim.keymap.set("n", "fgd", "<cmd>FzfLua lsp_definitions<CR>", { noremap = true, silent = true, desc = "定义" })
-    vim.keymap.set("n", "fgD", "<cmd>FzfLua lsp_declarations<CR>", { noremap = true, silent = true, desc = "声明" })
-    vim.keymap.set("n", "flr", "<cmd>FzfLua lsp_references<CR>", { noremap = true, silent = true, desc = "引用" })
-    vim.keymap.set(
-        "n",
-        "flf",
-        "<cmd>FzfLua lsp_finder<CR>",
-        { noremap = true, silent = true, desc = "所有 LSP 位置" }
-    )
-    vim.keymap.set(
-        "n",
-        "fli",
-        "<cmd>FzfLua lsp_implementations<CR>",
-        { noremap = true, silent = true, desc = "实现" }
-    )
-    vim.keymap.set("n", "flt", "<cmd>FzfLua lsp_typedefs<CR>", { noremap = true, silent = true, desc = "类型定义" })
-    vim.keymap.set("n", "fca", "<cmd>FzfLua code_action<CR>", { noremap = true, silent = true, desc = "代码操作" })
-    vim.keymap.set(
-        "n",
-        "fic",
-        function()
-            custom_function.incoming_call_chain()
-        end,
-        { noremap = true, silent = true, desc = "显示传入调用" }
-    )
-    vim.keymap.set(
-        "n",
-        "foc",
-        "<cmd>FzfLua lsp_outgoing_calls<CR>",
-        { noremap = true, silent = true, desc = "显示传出调用" }
-    )
-
-    vim.keymap.set(
-        "n",
-        "fgc",
-        "<cmd>FzfLua git_commits<CR>",
-        { noremap = true, silent = true, desc = "Git 提交日志（项目）" }
-    )
-    vim.keymap.set(
-        "n",
-        "fgb",
-        "<cmd>FzfLua git_bcommits<CR>",
-        { noremap = true, silent = true, desc = "Git 提交日志（缓冲区）" }
-    )
-    vim.keymap.set(
-        "n",
-        "fgr",
-        "<cmd>FzfLua grep_cword<CR>",
-        { noremap = true, silent = true, desc = "搜索光标下的单词" }
-    )
-
-    -- Outline
-    vim.keymap.set("n", "<F12>", "<cmd>Outline<CR>", { noremap = true, silent = true, desc = "切换大纲" })
-
-    -- Toggleterm
-    -- 设置toggleterm的快捷键，使其能够在打开终端的情况下切换到其他窗口
-    function _G.set_terminal_keymaps()
-        vim.keymap.set("t", "<esc>", [[<C-\><C-n>]], { noremap = true, silent = true, buffer = 0 })
-        vim.keymap.set("t", "jk", [[<C-\><C-n>]], { noremap = true, silent = true, buffer = 0 })
-        -- 有些终端模拟器上，<Backspace>按键会发送0x08，与<C-h>一致，下面的映射就可能导致<BS>失效，需要修改终端模拟对<BS>的配置
-        vim.keymap.set("t", "<C-h>", [[<cmd>wincmd h<CR>]], { noremap = true, silent = true, buffer = 0 })
-        vim.keymap.set("t", "<C-j>", [[<cmd>wincmd j<CR>]], { noremap = true, silent = true, buffer = 0 })
-        vim.keymap.set("t", "<C-k>", [[<cmd>wincmd k<CR>]], { noremap = true, silent = true, buffer = 0 })
-        vim.keymap.set("t", "<C-l>", [[<cmd>wincmd l<CR>]], { noremap = true, silent = true, buffer = 0 })
-        vim.keymap.set("t", "<C-w>", [[<C-\><C-n><C-w>]], { noremap = true, silent = true, buffer = 0 })
-        vim.keymap.set("t", "<C-q>", function()
-            local job_id = vim.b.terminal_job_id
-            if job_id then
-                vim.fn.jobstop(job_id)
-            end
-            vim.api.nvim_buf_delete(0, { force = true })
-        end, { noremap = true, silent = true, buffer = 0 })
-    end
-
-    -- Trouble
-    -- diagnostic键映射
-    vim.keymap.set(
-        "n",
-        "<LocalLeader>xx",
-        "<cmd>Trouble diagnostics toggle filter.buf=0<cr>",
-        { noremap = true, silent = true, desc = "切换 Trouble 诊断" }
-    )
-    vim.keymap.set(
-        "n",
-        "<LocalLeader>xw",
-        "<cmd>Trouble workspace_diagnostics toggle<cr>",
-        { noremap = true, silent = true, desc = "切换工作区诊断" }
-    )
-    vim.keymap.set(
-        "n",
-        "<LocalLeader>xd",
-        "<cmd>Trouble document_diagnostics toggle<cr>",
-        { noremap = true, silent = true, desc = "切换文档诊断" }
-    )
-    vim.keymap.set(
-        "n",
-        "<LocalLeader>xl",
-        "<cmd>Trouble loclist toggle<cr>",
-        { noremap = true, silent = true, desc = "切换位置列表诊断" }
-    )
-    vim.keymap.set(
-        "n",
-        "<LocalLeader>xq",
-        "<cmd>Trouble quickfix toggle<cr>",
-        { noremap = true, silent = true, desc = "切换 quickfix 诊断" }
-    )
-    vim.keymap.set(
-        "n",
-        "gR",
-        "<cmd>Trouble lsp_references toggle<cr>",
-        { noremap = true, silent = true, desc = "切换 Trouble 中的 LSP 引用" }
-    )
-
-    -- lspsaga
-    vim.keymap.set(
-        "n",
-        "K",
-        "<cmd>Lspsaga hover_doc<CR>",
-        { noremap = true, silent = true, desc = "Lspsaga 查看文档" }
-    )
-    vim.keymap.set(
-        "n",
-        "pd",
-        "<cmd>Lspsaga peek_definition<CR>",
-        { noremap = true, silent = true, desc = "Lspsaga 查看定义" }
-    )
-    vim.keymap.set(
-        "n",
-        "<LocalLeader>ca",
-        "<cmd>Lspsaga code_action<CR>",
-        { noremap = true, silent = true, desc = "Lspsaga 代码扩展" }
-    )
-
     -- nvim-dap
     vim.keymap.set("n", "<F5>", "<cmd>DapContinue<CR>", { noremap = true, silent = true, desc = "启动/继续调试" })
     vim.keymap.set("n", "<C-F5>", "<cmd>DapTerminate<CR>", { noremap = true, silent = true, desc = "终止调试" })
@@ -869,6 +846,8 @@ if platform.is_linux or platform.is_mac then
         { noremap = true, silent = true, desc = "单步跳出" }
     )
 end
+-- Outline
+vim.keymap.set("n", "<F12>", "<cmd>Outline<CR>", { noremap = true, silent = true, desc = "切换大纲" })
 
 -- gitsigns
 _G.set_gitsign_keymap = function(bufnr)

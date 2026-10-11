@@ -458,7 +458,8 @@ return -- lazy.nvim
                                 whitelist = {
                                     -- { path = vim.fs.joinpath(vim.fn.getcwd()), as = "/memories" },
                                     { path = "~/projects/notes/content/post", as = "/notes" }, -- 笔记目录
-                                    { path = vim.fs.joinpath(os.getenv("HOME"), "ai"), as = "ai" }, -- AI 目录
+                                    -- 使用 Neovim 展开的用户目录，避免 Windows 未设置 HOME 时传入 nil。
+                                    { path = vim.fs.joinpath(vim.fn.expand("~"), "ai"), as = "ai" }, -- AI 目录
                                 },
                             },
                         },
@@ -676,7 +677,7 @@ return -- lazy.nvim
                                 },
                                 max_tokens = {
                                     -- The maximum number of tokens to generate, excluding chain-of-thought. Avoid setting max_tokens to the window's upper bound; reserve ~10k tokens as buffer for input and system overhead.
-                                    default = 1024 * 512,
+                                    default = 32768,
                                 },
                                 ["enable_thinking"] = {
                                     default = false,
@@ -1038,7 +1039,7 @@ return -- lazy.nvim
                             "npx",
                             "-y",
                             "@modelcontextprotocol/server-filesystem",
-                            os.getenv("HOME"), -- 兼容 windows/mac/linux 的用户目录
+                            vim.fn.expand("~"), -- 跨平台获取用户目录
                         },
                         -- 最新版本的mcp已经启用roots
                         -- 旧版通过 roots 限制可访问目录（当前版本已内置，无需设置）
@@ -1085,7 +1086,7 @@ return -- lazy.nvim
                 },
                 opts = {
                     -- 默认启用的 MCP 服务器
-                    default_servers = platform.is_office and { "sequential-thinking", "filesystem", "mcp-atlassian" }
+                    default_servers = platform.is_office and { "sequential-thinking", "filesystem" }
                         or { "sequential-thinking", "filesystem" },
                 },
             },
