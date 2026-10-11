@@ -122,6 +122,8 @@ Interaction Style:
     },
     opts = {
         require_approval_before = true,
+        -- 按具体命令逐个审批（auto 模式不会整体放行，需先经 is_safe/judge 判定）
+        require_cmd_approval = true,
         -- 让后台 LLM 在 auto 模式下判断非只读的 git 命令是否安全
         judge = true,
     },
@@ -156,6 +158,20 @@ Interaction Style:
         end,
     },
     output = {
+        ---@param self CodeCompanion.Tool.Git
+        ---@param meta { tools: CodeCompanion.Tools }
+        ---@return string 实际执行的命令，用于按命令审批缓存
+        cmd_string = function(self, meta)
+            local action = self.args.action or "unknown"
+            local cmd = { "git", action }
+            if action == "commit" then
+                cmd = { "git", action, "-m", self.args.message or "" }
+            else
+                vim.list_extend(cmd, self.args.extra_args or {})
+            end
+            return table.concat(cmd, " ")
+        end,
+
         ---提示用户确认执行的命令
         ---@param self CodeCompanion.Tool.Git
         ---@param meta { tools: CodeCompanion.Tools }
