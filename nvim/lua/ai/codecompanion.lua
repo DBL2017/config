@@ -192,16 +192,18 @@ return -- lazy.nvim
                             breakindent = true,
 
                             -- 在单词边界换行
-                            linebreak = true,
+                            linebreak = false,
 
                             -- 长段落自动换行，避免横向滚动
                             wrap = true,
 
                             -- 不高亮当前行，避免干扰
-                            cursorline = false,
+                            cursorline = true,
 
                             -- 不显示标记列
                             signcolumn = "no",
+                            -- nvim-tree 开关时保持 Chat 窗口的初始宽度
+                            winfixwidth = true,
                         },
                     },
 

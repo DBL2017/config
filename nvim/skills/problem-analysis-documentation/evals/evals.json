@@ -1,0 +1,28 @@
+{
+  "skill_name": "problem-analysis-documentation",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "我有一个 API 偶发返回 500 的问题，提供了相关源码片段和两段脱敏日志。请定位根因，区分已证实和推测结论，给出修复方案、回归测试和一份可归档的问题分析报告。",
+      "expected_output": "报告包含问题范围、证据清单、时间线、代码与日志因果链、置信度、推荐修复、回归测试、发布回滚和行动项。",
+      "files": [],
+      "expectations": [
+        "Separates confirmed findings from hypotheses",
+        "Cites source/log evidence rather than relying on the last error line",
+        "Includes mitigation, permanent fix, regression validation, rollout, and rollback",
+        "Produces a structured archival report"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "线上出现设备重启后配置丢失。请结合我给出的启动日志、配置读写代码和版本信息分析问题，不要假设缺失事实；如果证据不足，请列出需要补充的最小信息，并先给出临时缓解和验证方案。",
+      "expected_output": "输出应明确证据缺口、按优先级排列的假设、最小补证清单、临时缓解、验证步骤和格式化报告。",
+      "files": [],
+      "expectations": [
+        "Does not invent missing timestamps, versions, or reproduction facts",
+        "Provides ranked hypotheses and falsification checks",
+        "Identifies safe temporary containment and evidence needed next"
+      ]
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 return {
-    "hedyhli/outline.nvim",
+    "DBL2017/outline.nvim",
     event = "VeryLazy",
     enabled = true,
     cmd = { "Outline", "OutlineToggle" },
@@ -11,7 +11,11 @@ return {
     config = function()
         require("outline").setup({
             outline_window = {
-                position = "right",
+                position = "float",
+                float = {
+                    border = "rounded",
+                    position = "right", -- "left" / "center" / "right"
+                },
                 width = 20,
                 auto_width = {
                     enabled = true,
@@ -19,12 +23,12 @@ return {
                     include_symbol_details = false,
                 },
                 relative_width = true,
-                auto_close = false,
+                auto_close = true,
                 auto_jump = false,
                 jump_highlight_duration = 300,
                 center_on_jump = true,
 
-                show_numbers = false,
+                show_numbers = true,
                 show_relative_numbers = false,
                 wrap = false,
 
