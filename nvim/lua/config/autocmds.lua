@@ -132,28 +132,33 @@ autocmd("FileType", {
     desc = "C[PP]设置Tab不转空格，宽度为8",
 })
 -- 根据上一行的缩进样式决定当前 buffer 是否将 Tab 转为空格。
-autocmd("InsertEnter", {
+local function set_indent_style(args)
+    local current_line = vim.fn.line(".")
+    local first_indent_char
+
+    if current_line > 1 then
+        first_indent_char = vim.fn.getline(current_line - 1):match("^[ \t]")
+    end
+    if first_indent_char == nil and current_line < vim.fn.line("$") then
+        first_indent_char = vim.fn.getline(current_line + 1):match("^[ \t]")
+    end
+    if first_indent_char == nil then
+        return
+    end
+
+    local use_spaces = first_indent_char ~= "\t"
+    vim.bo[args.buf].expandtab = use_spaces
+    vim.bo[args.buf].softtabstop = use_spaces and 4 or 0
+    vim.bo[args.buf].shiftwidth = use_spaces and 4 or 8
+end
+
+autocmd({
+    "BufEnter",
+    "InsertEnter",
+}, {
     pattern = "*",
     group = group,
-    callback = function(args)
-        local current_line = vim.fn.line(".")
-        local first_indent_char
-
-        if current_line > 1 then
-            first_indent_char = vim.fn.getline(current_line - 1):match("^[ \t]")
-        end
-        if first_indent_char == nil and current_line < vim.fn.line("$") then
-            first_indent_char = vim.fn.getline(current_line + 1):match("^[ \t]")
-        end
-        if first_indent_char == nil then
-            return
-        end
-
-        local use_spaces = first_indent_char ~= "\t"
-        vim.bo[args.buf].expandtab = use_spaces
-        vim.bo[args.buf].softtabstop = use_spaces and 4 or 0
-        vim.bo[args.buf].shiftwidth = use_spaces and 4 or 8
-    end,
+    callback = set_indent_style,
     desc = "根据上/下一行缩进样式设置 Tab",
 })
 

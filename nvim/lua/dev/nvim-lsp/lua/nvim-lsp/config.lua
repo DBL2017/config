@@ -30,7 +30,7 @@ function M.setup(opts)
     M.options = vim.tbl_extend("force", M.options, opts or {})
 
     -- 设置日志等级
-    vim.lsp.set_log_level(M.options.log_level)
+    vim.lsp.log.set_level(M.options.log_level)
 
     -- 解决插件缺失导致的配置错误问题
     local blink_ok = pcall(require, "blink.cmp")

@@ -6,9 +6,7 @@ return {
     -- 当前取值含义: "telescope.builtin" -> 只有调用 require('telescope.builtin') 或其子模块时才会加载 telescope 插件。
     module = "telescope.builtin",
     cmd = { "Telescope" },
-    tag = "0.1.8",
     dependencies = { "nvim-lua/plenary.nvim" },
-    pin = true,
     event = "VeryLazy",
     config = function()
         require("telescope").setup({
