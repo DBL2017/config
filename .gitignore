@@ -6,3 +6,7 @@
 nvim/dependencies/fzf-0.74.5-windows_amd64/
 nvim/dependencies/ripgrep-15.2.0-x86_64-pc-windows-msvc/
 nvim/dependencies/tree-sitter-cli-windows-x64/
+nvim/dependencies/fzf-0.74.5-windows_amd64.zip
+nvim/dependencies/ripgrep-15.2.0-x86_64-pc-windows-msvc.zip
+nvim/dependencies/tree-sitter-cli-windows-x64.zip
+nvim/dependencies/tree-sitter.exe

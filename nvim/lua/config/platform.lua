@@ -3,7 +3,10 @@ local uv = vim.uv or vim.loop
 local M = {}
 
 local function has_compiler()
-    return vim.fn.executable("gcc") == 1 or vim.fn.executable("clang") == 1 or vim.fn.executable("zig") == 1
+    return vim.fn.executable("gcc") == 1
+        or vim.fn.executable("clang") == 1
+        or vim.fn.executable("zig") == 1
+        or vim.fn.executable("cl.exe") == 1
 end
 -- 判断是否为办公室
 local function is_office()
