@@ -68,17 +68,67 @@ return -- lazy.nvim
             skills = {
                 dirs = {
                     vim.fs.joinpath(vim.fn.stdpath("config"), "skills"),
-                    "/home/blduan/projects/open_source/skills/skills",
+                    vim.fs.joinpath(vim.fn.stdpath("config"), "..", "skills"),
                 },
                 ["demo"] = {
                     description = "demo",
                     skills = { "demo-skill" },
                 },
+                ["tplink-security"] = {
+                    description = "security code",
+                    skills = {
+                        "skl-archer-platform-code-baseline",
+                        "skl-c-lua-safecoding",
+                        "skl-repo-security-scan",
+                    },
+                },
+                ["tplink-baseline"] = {
+                    description = "tplink baseline",
+                    skills = {
+                        "gerrit-code-review",
+                        "ai-review-line-number-resolution",
+                        "code-review-token-optimization",
+                        "deadlock-review-rules",
+                        "resource_management_review",
+                        "sashiko-kernel-review",
+                    },
+                },
+                ["tplink-jira"] = {
+                    description = "tplink jira",
+                    skills = {
+                        "tempo-submit",
+                    },
+                },
+                ["common"] = {
+                    description = "common skills",
+                    skills = {
+                        "academy-guide",
+                        "algorithmic-art",
+                        "brand-guidelines",
+                        "canvas-design",
+                        "claude-api",
+                        "discernment-nudge",
+                        "doc-coauthoring",
+                        "docx",
+                        "frontend-design",
+                        "internal-comms",
+                        "mcp-builder",
+                        "pdf",
+                        "pptx",
+                        "problem-analysis-documentation",
+                        "skill-creator",
+                        "slack-gif-creator",
+                        "theme-factory",
+                        "web-artifacts-builder",
+                        "webapp-testing",
+                        "xlsx",
+                    },
+                },
                 opts = {
                     chat = {
                         enabled = true,
                         -- Skills and groups can be autoloaded into the chat buffer on startup.
-                        -- autoload = { "demo" },
+                        autoload = platform.is_office and { "tplink-baseline", "tplink-security" } or {},
                     },
                 },
             },
@@ -1082,9 +1132,18 @@ return -- lazy.nvim
                     },
                     ["mcp-atlassian"] = {
                         cmd = { "uvx", "mcp-atlassian" },
+                        env = {
+                            CONFLUENCE_URL = os.getenv("CONFLUENCE_URL"),
+                            CONFLUENCE_USERNAME = os.getenv("CONFLUENCE_USERNAME"),
+                            CONFLUENCE_API_TOKEN = os.getenv("CONFLUENCE_API_TOKEN"),
+                            JIRA_URL = os.getenv("JIRA_URL"),
+                            JIRA_USERNAME = os.getenv("JIRA_USERNAME"),
+                            JIRA_API_TOKEN = os.getenv("JIRA_API_TOKEN"),
+                        },
                     },
                 },
                 opts = {
+                    acp_enabled = true,
                     -- 默认启用的 MCP 服务器
                     default_servers = platform.is_office and { "sequential-thinking", "filesystem" }
                         or { "sequential-thinking", "filesystem" },

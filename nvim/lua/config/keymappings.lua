@@ -524,6 +524,19 @@ vim.keymap.set({ "v" }, "<LocalLeader>at", function()
     end
 end, { noremap = true, silent = true, desc = "通过Chat Prompt翻译当前内容" })
 
+vim.keymap.set({ "n" }, "<LocalLeader>cr", function()
+    local ok, cc = pcall(require, "codecompanion")
+    if not ok then
+        vim.notify("CodeCompanion not installed or enabled", vim.log.levels.WARN)
+        return
+    end
+    cc.prompt("tplink_code_review_chat")
+end, {
+    desc = "使用CodeCompanion进行代码评审",
+    noremap = true,
+    silent = true,
+})
+
 -- telescope
 -- " Find files using Telescope command-line sugar.
 -- live-grep 依赖于外部工具ripgrep， sudo apt install ripgrep
