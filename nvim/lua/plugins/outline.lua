@@ -15,6 +15,7 @@ return {
                 float = {
                     border = "rounded",
                     position = "right", -- "left" / "center" / "right"
+                    title = "Table of Contents",
                 },
                 width = 20,
                 auto_width = {

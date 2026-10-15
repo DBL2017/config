@@ -13,6 +13,7 @@ return {
         lint.linters.markdownlint.args = {
             "--disable",
             "MD013",
+            "MD060",
             "--stdin",
         }
 

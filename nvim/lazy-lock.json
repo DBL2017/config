@@ -49,7 +49,7 @@
   "nvim-web-devicons": { "branch": "master", "commit": "ec309a0eaff6ea967e58c275996155ab5c16938d" },
   "outline-ctags-provider.nvim": { "branch": "main", "commit": "5485e36c2b141e7f9471894974959193c0778c5c" },
   "outline-treesitter-provider.nvim": { "branch": "main", "commit": "08d8f520fdf5a4eb795f251fe0a09488c5d8335f" },
-  "outline.nvim": { "branch": "main", "commit": "404208d2db1d7daa6d4d5e1ad7c636a24bf0fcc2" },
+  "outline.nvim": { "branch": "main", "commit": "3cc54268c213851a891eb6100319b3e14efdcc5a" },
   "persisted.nvim": { "branch": "main", "commit": "f276b33befabbe92796605eaeb191e8058da95c9" },
   "plenary.nvim": { "branch": "master", "commit": "74b06c6c75e4eeb3108ec01852001636d85a932b" },
   "render-markdown.nvim": { "branch": "main", "commit": "8e8795368391036643b622875a6da6a51bcd33f4" },
