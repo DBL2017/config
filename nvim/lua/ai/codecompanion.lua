@@ -394,7 +394,11 @@ return -- lazy.nvim
                                 --   "mini_pick" → 使用 mini_pick 插件
                                 --   "snacks"    → 使用 snacks.nvim 插件
                                 provider = "telescope",
-                                dirs = { vim.fn.getcwd() },
+                                dirs = {
+                                    vim.fn.getcwd(),
+                                    vim.fs.joinpath(vim.fn.expand("~"), "windows_share/mobaxterm"),
+                                    vim.fs.joinpath(vim.fn.expand("~"), "ai"),
+                                },
                             },
                         },
                     },
@@ -527,6 +531,8 @@ return -- lazy.nvim
                                     "pwd",
                                     "make build",
                                     "make test",
+                                    "grep",
+                                    "find",
                                 }, -- 命中这些命令作为前缀的命令在 auto 模式下免询问
                                 timeout = 300000, -- 命令超时（毫秒）
                             },
@@ -714,7 +720,14 @@ return -- lazy.nvim
                                         ["deepseek-ai/DeepSeek-V3"] = { opts = { can_reason = false } },
                                         ["deepseek-ai/DeepSeek-V4-Flash"] = {
                                             meta = { context_window = 1048576 },
-                                            opts = { can_reason = false, can_use_tools = true },
+                                            opts = {
+                                                can_reason = false,
+                                                can_use_tools = true,
+                                                -- vLLM 支持 OpenAI 的 response_format.json_schema，
+                                                -- 缺少该声明会让 background judge 的结构化裁决被静默丢弃，
+                                                -- 导致 "The judge returned an unreadable response"。
+                                                can_form_structured_outputs = true,
+                                            },
                                         },
                                         ["deepseek-ai/DeepSeek-V4-Pro"] = {
                                             opts = { can_reason = true },
@@ -928,7 +941,14 @@ return -- lazy.nvim
                                     choices = {
                                         ["Qwen3.6-35B-A3B"] = {
                                             meta = { context_window = 262144 },
-                                            opts = { can_reason = true, can_use_tools = true },
+                                            opts = {
+                                                can_reason = true,
+                                                can_use_tools = true,
+                                                -- vLLM 支持 OpenAI 的 response_format.json_schema，
+                                                -- 缺少该声明会让 background judge 的结构化裁决被静默丢弃，
+                                                -- 导致 "The judge returned an unreadable response"。
+                                                can_form_structured_outputs = true,
+                                            },
                                         },
                                     },
                                 },
