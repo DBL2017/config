@@ -1060,7 +1060,13 @@ vim.keymap.set("i", "<S-Tab>", function()
 end, { noremap = true, silent = true, expr = true })
 
 -- zen-mode
-vim.keymap.set("n", "<LocalLeader>z", "<cmd>ZenMode<cr>", { noremap = true, silent = true, desc = "专注模式" })
+vim.keymap.set("n", "<LocalLeader>z", function()
+    if vim.bo.filetype == "NvimTree" then
+        vim.notify("当前 buffer 不支持 ZenMode", vim.log.levels.WARN)
+        return
+    end
+    vim.cmd.ZenMode()
+end, { noremap = true, silent = true, desc = "专注模式" })
 
 vim.keymap.set("n", "]t", function()
     local ok, todo = pcall(require, "todo-comments")

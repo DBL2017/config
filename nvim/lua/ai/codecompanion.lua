@@ -190,7 +190,7 @@ return -- lazy.nvim
                         -- 是否在 buffer 列表中显示 Chat Buffer
                         -- 当前效果：会出现在 :ls 或 buffer 切换列表中
                         -- 可选取值：true（显示）、false（隐藏）
-                        buflisted = true,
+                        buflisted = false,
 
                         -- 切换 tab 时 Chat Buffer 是否保持打开，只有当pertab为false时有用
                         -- 当前效果：切换 tab 时 Chat Buffer 不会跟随
