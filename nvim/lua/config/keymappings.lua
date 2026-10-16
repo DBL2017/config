@@ -1061,7 +1061,7 @@ end, { noremap = true, silent = true, expr = true })
 
 -- zen-mode
 vim.keymap.set("n", "<LocalLeader>z", function()
-    if vim.bo.filetype == "NvimTree" then
+    if vim.bo.filetype == "NvimTree" or vim.bo.filetype == "Outline" then
         vim.notify("当前 buffer 不支持 ZenMode", vim.log.levels.WARN)
         return
     end
