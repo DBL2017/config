@@ -860,7 +860,13 @@ if platform.is_linux or platform.is_mac then
     )
 end
 -- Outline
-vim.keymap.set("n", "<F12>", "<cmd>Outline<CR>", { noremap = true, silent = true, desc = "切换大纲" })
+vim.keymap.set("n", "<F12>", function()
+    if vim.bo.filetype == "NvimTree" then
+        vim.notify("当前 buffer 不支持 Outline", vim.log.levels.WARN)
+        return
+    end
+    vim.cmd.Outline()
+end, { noremap = true, silent = true, desc = "切换大纲" })
 
 -- gitsigns
 _G.set_gitsign_keymap = function(bufnr)

@@ -52,6 +52,24 @@ return {
                 side = "left",
                 width = 40,
                 number = true,
+                float = {
+                    enable = true,
+                    open_win_config = function()
+                        local border_width = 2 -- 左右各一列边框
+                        local width = math.min(40, math.max(1, vim.o.columns - border_width))
+
+                        return {
+                            relative = "editor",
+                            width = width,
+                            height = 30,
+                            row = 0,
+                            col = math.max(0, vim.o.columns - width - border_width),
+                            border = "rounded",
+                            title = "File Tree",
+                            title_pos = "center",
+                        }
+                    end,
+                },
             },
             renderer = {
                 group_empty = true,
