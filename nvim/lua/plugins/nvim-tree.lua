@@ -50,7 +50,14 @@ return {
             },
             view = {
                 side = "left",
-                width = 40,
+                -- 文件树的宽度，不设上限，避免右侧文件树无法展开
+                width = {
+                    min = function()
+                        local border_width = 2 -- 左右各一列边框
+                        return math.min(40, math.max(1, vim.o.columns - border_width))
+                    end,
+                    max = -1,
+                },
                 number = true,
                 float = {
                     enable = true,
@@ -60,10 +67,11 @@ return {
 
                         return {
                             relative = "editor",
+                            -- 浮动窗口的初始宽度，最小是40
                             width = width,
                             height = 30,
                             row = 0,
-                            col = math.max(0, vim.o.columns - width - border_width),
+                            col = math.max(0, vim.o.columns - 1),
                             border = "rounded",
                             title = "File Tree",
                             title_pos = "center",
