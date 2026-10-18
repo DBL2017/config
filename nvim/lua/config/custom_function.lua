@@ -1,3 +1,5 @@
+local usage_frequency = require("config.usage_frequency")
+
 local function copy_current_filepath()
     local file_path = vim.api.nvim_buf_get_name(0)
     local dir_path = vim.fn.fnamemodify(file_path, ":h")
@@ -228,6 +230,66 @@ local function check_tmux()
     return os.getenv("TMUX") ~= nil
 end
 
+-- 从 todo-comments 的运行时配置中选择并插入一个关键词
+local function insert_todo_keyword()
+    local ok, todo_config = pcall(require, "todo-comments.config")
+    if not ok then
+        vim.notify("todo-comments 插件未安装或尚未加载", vim.log.levels.WARN)
+        return
+    end
+
+    local keyword_frequency = usage_frequency.load("todo-comments-keyword-frequency.json", {})
+    if type(keyword_frequency) ~= "table" then
+        keyword_frequency = {}
+    end
+
+    local keywords = vim.tbl_keys(todo_config.keywords)
+
+    if #keywords == 0 then
+        vim.notify("todo-comments 未配置关键词", vim.log.levels.WARN)
+        return
+    end
+
+    table.sort(keywords, function(first, second)
+        local first_frequency = tonumber(keyword_frequency[first]) or 0
+        local second_frequency = tonumber(keyword_frequency[second]) or 0
+
+        if first_frequency == second_frequency then
+            return first < second
+        end
+
+        return first_frequency > second_frequency
+    end)
+
+    vim.ui.select(keywords, {
+        prompt = "选择 todo-comments 关键词: ",
+    }, function(keyword)
+        if not keyword then
+            return
+        end
+
+        keyword_frequency[keyword] = (tonumber(keyword_frequency[keyword]) or 0) + 1
+        usage_frequency.save("todo-comments-keyword-frequency.json", keyword_frequency)
+
+        local cursor = vim.api.nvim_win_get_cursor(0)
+        local line = cursor[1] - 1
+        local column = cursor[2]
+        local current_line = vim.api.nvim_buf_get_lines(0, line, line + 1, false)[1] or ""
+        local prefix = current_line:sub(1, column)
+        local separator = ""
+
+        -- todo-comments uses a word boundary before the keyword. Keep that
+        -- boundary when inserting in the middle of an existing word.
+        if vim.fn.match(prefix, [[\k$]]) >= 0 then
+            separator = " "
+        end
+
+        vim.api.nvim_buf_set_text(0, line, column, line, column, {
+            separator .. keyword .. ":",
+        })
+    end)
+end
+
 local function align_column()
     local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
     local max_len = 0
@@ -338,6 +400,8 @@ local M = {
     diagnostic_goto_next = diagnostics_goto_next,
     -- 调用链
     incoming_call_chain = incoming_call_chain,
+    -- 选择并插入 todo-comments 关键词
+    insert_todo_keyword = insert_todo_keyword,
 }
 
 return M

@@ -142,6 +142,13 @@ end, {
     desc = "LSP 引用",
 })
 
+-- 选择并插入 todo-comments 关键词
+vim.keymap.set("n", "<LocalLeader>td", custom_function.insert_todo_keyword, {
+    noremap = true,
+    silent = true,
+    desc = "插入 todo-comments 关键词",
+})
+
 -- tab快捷键
 -- Move to previous/next
 vim.keymap.set(
@@ -1068,6 +1075,7 @@ vim.keymap.set("n", "<LocalLeader>z", function()
     vim.cmd.ZenMode()
 end, { noremap = true, silent = true, desc = "专注模式" })
 
+-- todo-comments
 vim.keymap.set("n", "]t", function()
     local ok, todo = pcall(require, "todo-comments")
     if not ok then
@@ -1077,7 +1085,6 @@ vim.keymap.set("n", "]t", function()
     todo.jump_next()
 end, { noremap = true, silent = true, desc = "跳转到下一个 TODO 注释" })
 
--- todo-comments
 vim.keymap.set("n", "[t", function()
     local ok, todo = pcall(require, "todo-comments")
     if not ok then
