@@ -1046,7 +1046,7 @@ return -- lazy.nvim
                         title_generation_opts = {
                             ---Adapter for generating titles (defaults to current chat adapter)
                             -- adapter = platform.is_office and "tplink_qwen_internal" or "siliconflow_deepseek_online", -- "copilot"
-                            adapter = platform.is_office and "tplink_qwen_internal" or false,
+                            adapter = platform.is_office and "tplink_qwen_internal" or nil,
                             ---Model for generating titles (defaults to current chat model)
                             model = platform.is_office and "Qwen3.6-35B-A3B" or nil, -- "gpt-4o"
                             ---Number of user prompts after which to refresh the title (0 to disable)
