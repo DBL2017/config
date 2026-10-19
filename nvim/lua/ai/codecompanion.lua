@@ -580,6 +580,12 @@ return -- lazy.nvim
                             notify_on_approval = true,
                         },
                     },
+                    sessions = {
+                        enabled = true,
+                        autosave = true,
+                        continuous_save = true,
+                        save_dir = vim.fs.joinpath(vim.fn.stdpath("data"), "codecompanion", "sessions"),
+                    },
                 },
                 inline = {
                     -- 作用: 配置内联模式下使用的 AI 适配器后端
@@ -1039,7 +1045,8 @@ return -- lazy.nvim
                         auto_generate_title = true,
                         title_generation_opts = {
                             ---Adapter for generating titles (defaults to current chat adapter)
-                            adapter = platform.is_office and "tplink_qwen_internal" or "siliconflow_deepseek_online", -- "copilot"
+                            -- adapter = platform.is_office and "tplink_qwen_internal" or "siliconflow_deepseek_online", -- "copilot"
+                            adapter = platform.is_office and "tplink_qwen_internal" or false,
                             ---Model for generating titles (defaults to current chat model)
                             model = platform.is_office and "Qwen3.6-35B-A3B" or nil, -- "gpt-4o"
                             ---Number of user prompts after which to refresh the title (0 to disable)
