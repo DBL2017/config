@@ -1052,7 +1052,7 @@ end
 
 -- insert 模式 Tab → bullets 缩进
 vim.keymap.set("i", "<Tab>", function()
-    if has_bullets() and vim.bo.filetype == "markdown" or vim.bo.filetype == "text" then
+    if has_bullets() and (vim.bo.filetype == "markdown" or vim.bo.filetype == "text") then
         return "<Plug>(bullets-demote)"
     end
     return "\t"
@@ -1060,7 +1060,7 @@ end, { noremap = true, silent = true, expr = true })
 
 -- insert 模式 Shift-Tab → 反缩进
 vim.keymap.set("i", "<S-Tab>", function()
-    if has_bullets() and vim.bo.filetype == "markdown" or vim.bo.filetype == "text" then
+    if has_bullets() and (vim.bo.filetype == "markdown" or vim.bo.filetype == "text") then
         return "<Plug>(bullets-promote)"
     end
     return "<S-Tab>"

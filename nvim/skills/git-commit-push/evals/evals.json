@@ -1,0 +1,23 @@
+{
+  "skill_name": "git-commit-push",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "按仓库通用 Git workflow 提交并推送暂存区里的缺陷修复，只根据暂存差异写简短英文提交说明。不要套用 TP-LINK 双语模板。",
+      "expected_output": "只运行 git diff --cached 作为提交说明事实来源；使用允许的 type 和英文祈使句标题；以标准输入传 message 执行系统 git commit；成功后只推送当前分支配置的 remote 和 merge ref，不调用 git_workflow。",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "帮我生成 commit message 并完成提交和 push。如果暂存区为空，就按流程结束。",
+      "expected_output": "暂存区为空时运行 git status，精确返回 chore: no staged changes，不执行 commit 或 push。",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "暂存区有改动，完成 Git 提交流程并推送；本地分支名和 upstream 名可能不同。如果当前分支没有 upstream，不要猜远端。",
+      "expected_output": "提交成功后读取当前分支对应的 remote 和 merge ref；将 HEAD 推送到 refs/heads/<merge branch> 而不是假设本地同名分支；没有 upstream 时说明已提交但跳过推送；不调用 git_workflow。",
+      "files": []
+    }
+  ]
+}

@@ -1,7 +1,50 @@
 local log = require("codecompanion.utils.log")
 
+local function find_repository_root(path)
+    if path == "" or vim.fn.filereadable(path) == 0 then
+        return nil
+    end
+
+    local git_path = vim.fs.find(".git", {
+        path = vim.fs.dirname(path),
+        upward = true,
+    })[1]
+
+    if git_path then
+        return vim.fs.dirname(git_path)
+    end
+
+    return nil
+end
+
+local function get_repository_root()
+    local buffer_names = {
+        vim.api.nvim_buf_get_name(0),
+    }
+
+    for _, buffer in ipairs(vim.api.nvim_list_bufs()) do
+        if vim.api.nvim_buf_is_loaded(buffer) then
+            table.insert(buffer_names, vim.api.nvim_buf_get_name(buffer))
+        end
+    end
+
+    for _, buffer_name in ipairs(buffer_names) do
+        local repository_root = find_repository_root(buffer_name)
+        if repository_root then
+            return repository_root
+        end
+    end
+
+    local output = vim.fn.systemlist({ "git", "rev-parse", "--show-toplevel" })
+    if vim.v.shell_error == 0 and output[1] and output[1] ~= "" then
+        return vim.trim(output[1])
+    end
+
+    return nil
+end
+
 local function make_response(status, msg)
-    return { status = status, data = msg }
+    return { status = status, content = msg }
 end
 
 return {
@@ -16,7 +59,15 @@ return {
                 return make_response("error", "Git action is required")
             end
 
-            local cmd
+            local repository_root = get_repository_root()
+            if not repository_root then
+                return make_response(
+                    "error",
+                    "Git repository could not be located from the current buffer or cwd"
+                )
+            end
+
+            local cmd = { "git", "-C", repository_root }
 
             if action == "commit" then
                 if not args.message or args.message == "" then
@@ -25,25 +76,21 @@ return {
 
                 cmd = {
                     "git",
+                    "-C",
+                    repository_root,
                     "commit",
                     "-m",
                     args.message,
                 }
             else
-                cmd = { "git", action }
+                table.insert(cmd, action)
                 vim.list_extend(cmd, args.extra_args or {})
             end
 
             local output = vim.fn.system(cmd)
-            -- 将 JSON 参数输出到 chat
-            if self.output then
-                local success, arg_json = pcall(vim.json.encode, args)
-                if success then
-                    self.output:add_tool_output(self, arg_json, "Git command arguments")
-                end
-            end
+            local exit_code = vim.v.shell_error
 
-            if vim.v.shell_error ~= 0 then
+            if exit_code ~= 0 then
                 return make_response("error", string.format("Git %s failed: %s", action, output))
             end
 
@@ -163,9 +210,17 @@ Interaction Style:
         ---@return string 实际执行的命令，用于按命令审批缓存
         cmd_string = function(self, meta)
             local action = self.args.action or "unknown"
-            local cmd = { "git", action }
+            local repository_root = get_repository_root() or "<repository-root>"
+            local cmd = { "git", "-C", repository_root, action }
             if action == "commit" then
-                cmd = { "git", action, "-m", self.args.message or "" }
+                cmd = {
+                    "git",
+                    "-C",
+                    repository_root,
+                    action,
+                    "-m",
+                    self.args.message or "",
+                }
             else
                 vim.list_extend(cmd, self.args.extra_args or {})
             end
@@ -179,7 +234,8 @@ Interaction Style:
         prompt = function(self, meta)
             local action = self.args.action or "unknown"
             local extra_args = self.args.extra_args or {}
-            local cmd = { "git", action }
+            local repository_root = get_repository_root() or "<repository-root>"
+            local cmd = { "git", "-C", repository_root, action }
 
             if action == "commit" then
                 if not self.args.message or self.args.message == "" then
@@ -187,12 +243,13 @@ Interaction Style:
                 end
                 cmd = {
                     "git",
+                    "-C",
+                    repository_root,
                     action,
                     "-m",
                     self.args.message,
                 }
             else
-                cmd = { "git", action }
                 vim.list_extend(cmd, extra_args)
             end
             return string.format("Execute command:\n`%s`\nConfirm?", table.concat(cmd, " "))

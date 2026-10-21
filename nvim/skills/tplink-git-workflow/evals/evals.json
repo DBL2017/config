@@ -1,0 +1,29 @@
+{
+  "skill_name": "tplink-git-workflow",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "请按 TP-LINK Git workflow 检查已暂存改动，生成中英文 Bug 修复 commit message，并完成提交。若暂存差异无法确认 Bug ID 或测试范围，不要猜。",
+      "expected_output": "只运行 git diff --cached 获取事实；选择 Bug fix 模板；仅在暂存差异中能确认时使用 Bug ID；缺失测试范围写明暂存区未提供；通过系统 Git 提交。",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "请给已暂存的 client-mgmt 配置导出功能生成双语提交说明并提交。只依据暂存差异；如果其中没有明确的需求号或测试信息，按规范处理。",
+      "expected_output": "只运行 git diff --cached 获取事实；选择 Feature 模板；只使用 Requirement/Test Scope 与对应中文标签；仅在暂存差异确有证据时记录需求号和测试项；经系统 Git 提交。",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "帮我按 TP-LINK 规范提交已暂存的机型适配改动，生成中英文 commit message。只依据暂存差异，不要补写测试结果。",
+      "expected_output": "只运行 git diff --cached 获取事实；选择 Device adaptation 模板；不编造机型名或测试结果；测试范围使用规定的中英文未提供文本；经系统 Git 提交。",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "按 TP-LINK Git workflow 生成提交说明并提交。",
+      "expected_output": "如果 staged diff 为空，只调用 status 并精确返回 `chore: no staged changes`，不生成消息、不提交。",
+      "files": []
+    }
+  ]
+}

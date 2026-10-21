@@ -138,22 +138,7 @@ return {
             },
         },
         term = {
-            enabled = true,
-            keymap = { preset = "inherit" }, -- Inherits from top level `keymap` config when not set
-            -- 目前没有源给terminal提供补全
-            sources = {},
-            completion = {
-                trigger = {
-                    show_on_blocked_trigger_characters = {},
-                    show_on_x_blocked_trigger_characters = nil, -- Inherits from top level `completion.trigger.show_on_blocked_trigger_characters` config when not set
-                },
-                -- Inherits from top level config options when not set
-                list = { selection = { preselect = false, auto_insert = false } },
-                -- Whether to automatically show the window when new completion items are available
-                menu = { auto_show = true },
-                -- Displays a preview of the selected item on the current line
-                ghost_text = { enabled = false },
-            },
+            enabled = false,
         },
         keymap = {
             preset = "none",

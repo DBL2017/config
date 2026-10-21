@@ -328,6 +328,19 @@ return -- lazy.nvim
                 background = {
                     -- 后台交互使用的默认适配器
                     adapter = platform.is_office and "tplink_qwen_internal" or "siliconflow_deepseek_online",
+                    chat = {
+                        callbacks = {
+                            ["on_ready"] = {
+                                actions = {
+                                    "interactions.background.builtin.chat_make_title",
+                                },
+                                enabled = true,
+                            },
+                        },
+                        opts = {
+                            enabled = true,
+                        },
+                    },
                     gates = {
                         judge = {
                             -- 是否启用 LLM judge 机制
@@ -580,10 +593,26 @@ return -- lazy.nvim
                             notify_on_approval = true,
                         },
                     },
+                    -- 聊天会话持久化（v19+ 内置的 sessions 系统，取代 history 扩展）
                     sessions = {
+                        -- 是否启用会话管理
+                        -- 当前效果：true → 聊天会被记录为会话，可通过 :CodeCompanionHistory 浏览/恢复
+                        -- 可选取值：true（启用）、false（禁用）
                         enabled = true,
-                        autosave = true,
+
+                        -- 是否在交互结束时自动保存会话
+                        -- 当前效果： false→ 手动保存之后每轮会话结束会根据continuous_save判断是否自动保存
+                        -- 可选取值：true（自动保存）、false（仅手动保存）
+                        autosave = false,
+
+                        -- 是否在流式响应过程中持续保存
+                        -- 当前效果：true → LLM 输出过程中就写入磁盘，Neovim 崩溃时可恢复到最新状态
+                        -- 可选取值：true（持续保存）、false（仅在响应结束后保存）
                         continuous_save = true,
+
+                        -- 会话文件的存储目录
+                        -- 当前效果：保存到 Neovim 数据目录下的 codecompanion/sessions
+                        -- 可选取值：任意绝对路径字符串
                         save_dir = vim.fs.joinpath(vim.fn.stdpath("data"), "codecompanion", "sessions"),
                     },
                 },
@@ -668,7 +697,7 @@ return -- lazy.nvim
             },
             opts = {
                 log_level = "WARN", -- or "TRACE"
-                language = "Chinese",
+                language = "English",
             },
             adapters = {
                 acp = {
@@ -1042,7 +1071,7 @@ return -- lazy.nvim
                             duplicate = { n = "<C-y>", i = "<C-y>" },
                         },
                         ---Automatically generate titles for new chats
-                        auto_generate_title = true,
+                        auto_generate_title = false,
                         title_generation_opts = {
                             ---Adapter for generating titles (defaults to current chat adapter)
                             -- adapter = platform.is_office and "tplink_qwen_internal" or "siliconflow_deepseek_online", -- "copilot"
