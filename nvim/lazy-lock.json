@@ -9,7 +9,7 @@
   "bullets.vim": { "branch": "master", "commit": "81570b98ca44b4100b3ddcf8d9ca74b9a9b0c884" },
   "codecompanion-history.nvim": { "branch": "main", "commit": "c71d53b27c8e4b6e42d6edf8da6abe37482bf4b7" },
   "codecompanion-lualine.nvim": { "branch": "main", "commit": "87a81763e0e976c00fb706a64391b1c94b2f5569" },
-  "codecompanion.nvim": { "branch": "main", "commit": "4297920d8f79bdd437807620217a6b7f6ca64fad" },
+  "codecompanion.nvim": { "branch": "main", "commit": "567a7121d1e44b463114e548247d5439dd17709e" },
   "conform.nvim": { "branch": "master", "commit": "016802de402556da54c36bd7359b441266b01cdd" },
   "copilot.vim": { "branch": "release", "commit": "a12fd5672110c8aa7e3c8419e28c96943ca179be" },
   "csvview.nvim": { "branch": "main", "commit": "f190de76d2eca0380ddcb2425cd582d740699b55" },
