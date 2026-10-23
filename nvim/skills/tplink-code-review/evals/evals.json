@@ -1,0 +1,244 @@
+{
+  "skill_name": "tplink-code-review",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "请只依据当前暂存 diff 做 TP-LINK C 代码评审。变更在错误分支提前返回，但此前刚申请的缓冲区没有释放。请确认 diff 和附近代码能否证明泄漏；如果成立，按规定中文格式报告，不能把未运行的测试说成已运行。",
+      "expected_output": "仅审查 staged diff 及最少必要上下文；证实资源泄漏后按影响给级别，引用修改行、触发路径和 TP-LINK 规范章节；不修改代码、不声称运行测试。",
+      "files": [],
+      "expectations": [
+        "Uses only the staged diff as the review source when no revision is specified",
+        "Reports a resource leak only if the allocation and early-return path are evidenced",
+        "Provides a changed-line location, triggering condition, and actionable recommendation",
+        "Does not claim tests or builds were run"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "请评审这个指定 commit 相对其父提交的差异。某个旧函数本来就有一个边界缺陷，但本次修改没有触及它，也没有改变它的可达性。按 TP-LINK 规范评审本次变更，不要把旧问题列为本次缺陷。",
+      "expected_output": "只检查指定 commit 相对父提交的 diff；不报告未受本次变更影响的既有问题；没有其他明确缺陷时使用规定的通过格式。",
+      "files": [],
+      "expectations": [
+        "Limits the review to the specified commit's parent diff",
+        "Does not report a pre-existing defect that the commit neither changes nor makes reachable",
+        "Uses the exact no-findings output when no other issue is demonstrated"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "请按 TP-LINK 代码评审规范检查当前仓库改动；我没有暂存任何内容，也没有指定 commit 或文件。请严格按评审规则处理空 diff。",
+      "expected_output": "返回规定的无法评审两行文本，不猜测工作树内容，不继续扫描其他文件。",
+      "files": [],
+      "expectations": [
+        "Returns the exact no-valid-Git-diff message",
+        "Does not inspect unstaged or untracked content as a fallback"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "请评审 Gerrit change I0123456789abcdef 的指定 patchset。Gerrit 返回权限错误且没有有效 diff。不要根据当前工作树猜测问题，请按技能的失败处理规则作答。",
+      "expected_output": "返回规定的 Gerrit diff 获取失败两行文本，不用当前工作树替代目标 patchset。",
+      "files": [],
+      "expectations": [
+        "Returns the exact Gerrit retrieval failure message",
+        "Does not fall back to a local repository diff"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "请对仓库里的网络管理模块做一次 TP-LINK 代码评审，不是只看某个提交或当前 diff。请先确定模块涉及的源码和本地接口文件，再检查模块当前实现；必要时看直接相关的调用方来确认接口契约，但不要扩展成全仓扫描。",
+      "expected_output": "将请求识别为模块评审，检查目标模块当前实现及直接相关的本地接口/配置/测试，不要求 Git diff；仅为核实具体问题查看必要的调用方，并在输出中对发现的问题引用当前文件和行号。",
+      "files": [],
+      "expectations": [
+        "Treats the request as a review of the current module rather than a commit or diff review",
+        "Identifies the module's relevant implementation and local contract files",
+        "Does not require staged changes or a commit to proceed",
+        "Keeps callers and neighboring components limited to directly relevant context",
+        "Cites current source locations without claiming defects were introduced by a change"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "请评审这个功能分支相对 main 的变更。需求说明是“配置读取失败时继续使用上次有效配置”；仓库的 CONTRIBUTING.md 规定新增错误分支必须记录模块级错误码。请分别检查需求实现和仓库规范。如果分支没有按需求保留有效配置，也没有记录错误码，请分别指出，不要把两个问题合并。",
+      "expected_output": "按 Standards 和 Spec 两个维度分开检查；从仓库读取 CONTRIBUTING.md，并依据用户给出的需求验证变更；若两项都有证据则分别报告，行号准确且不重复根因。",
+      "files": [],
+      "expectations": [
+        "Performs separate standards and spec checks for the requested change",
+        "Uses the named repository standards document rather than relying only on generic style heuristics",
+        "Checks the changed behavior against the user-provided requirement",
+        "Reports independent findings under their respective axes without duplicating root causes"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "请评审我暂存的 C 代码变更。我没有关联 issue、需求文档或 spec；请检查变更和仓库编码规范，不要推测业务需求，也不要因为没有 spec 就停止评审。",
+      "expected_output": "继续 Standards 评审，检查可用的仓库规范和 TP-LINK C 规则；不虚构 Spec findings，只有缺少 spec 对结论造成实质限制时才注明。",
+      "files": [],
+      "expectations": [
+        "Continues the standards review when no spec is available",
+        "Does not invent requirements or spec-compliance findings",
+        "Applies relevant repository standards and TP-LINK C rules",
+        "Mentions missing spec only if it materially limits the review"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "请按 TP-LINK 规范评审 client-mgmt 模块的功能、资源、并发等，不限于 diff。以下是本用例的完整源码证据摘录，路径/行号为用例坐标，不需要访问真实 client-mgmt 仓库。Makefile:1 的 OBJS 为 main.o get_lan_info.o client_report.o。main.c:10-16 在主线程先调用 update_lan_info_by_uci()，再 pthread_create 启动 report_worker，然后把 update_lan_info_by_uci 注册为主事件循环的配置刷新回调并进入事件循环，回调可在工作线程运行时再次执行。get_lan_info.c:3-5 定义可变全局 unsigned lanIP、lanMask 和 pthread_mutex_t uci_lock；:20-27 的 update_lan_info_by_uci() 依次 lock(uci_lock)、成功读取新配置、赋值 lanIP、赋值 lanMask、unlock(uci_lock)。client_report.c:8-14 的 report_worker 循环直接读取 lanIP 和 lanMask 并调用 in_subnet(ip, mask)，没有锁、原子访问或快照协议。题面没有提供 in_subnet 的实现，也没有数组、索引或攻击者控制的证据。请只读评审这些当前实现证据，按 skill 格式输出。",
+      "expected_output": "盘点三个实现文件并逐个初审，再跨文件追踪 helper 中的运行期全局缓存写入与 worker 无锁读取；给出主事件循环刷新和工作线程确实可并发的调度证据及双方坐标；说明 UCI 写侧锁不能保护无锁读侧，不臆造越界、崩溃或可利用性；附包含文件总数和初审覆盖数的模块范围。",
+      "files": [],
+      "expectations": [
+        "Reports conflicting accesses to lanIP/lanMask in get_lan_info.c and client_report.c",
+        "Explains that refresh can run after pthread_create concurrently with report_worker",
+        "Explains why writer-only uci_lock does not synchronize the unlocked worker reads",
+        "Does not claim proven overflow, crash, or attacker-controlled exploit",
+        "Uses an incomplete module status if the missing in_subnet body materially blocks review; otherwise explicitly qualifies the reviewed excerpt scope, without claiming the unseen body was inspected"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "请按 TP-LINK 规范评审这个模块的并发；以下为完整用例证据，不必访问真实仓库。模块只有 main.c、cache.c、status.c 三个实现文件，所有相关访问已经列全。main.c:10-15 在 pthread_create 之前写入 startup_ip，此后没有任何写入；工作线程在 cache.c:5 只读 startup_ip。cache.c:10-30 有一组 config_ip/config_mask，所有运行期读写均在同一 config_lock 互斥锁内，getter 在锁内复制整个结构给调用方，不返回共享地址。status.c:5-20 的 static unsigned status_count 仅由同一非重入事件循环内串行回调读写；工作线程不访问它，不存在信号处理器或重入调用。所有线程启动、锁操作和退出均已成功且生命周期正常，没有其他已知缺陷。不要因为存在全局变量或多个回调就认定竞争。",
+      "expected_output": "对三个实现文件逐个初审后整合并发访问；不报告数据竞争或混合快照；正确识别启动前初始化、共同锁下完整复制、同一非重入事件循环约束；输出通过及包含文件总数和初审覆盖数的模块范围，不要求无依据的加锁或重构。",
+      "files": [],
+      "expectations": [
+        "Does not report a race for immutable state published before pthread_create",
+        "Does not report a race or inconsistent snapshot for complete copies under one mutex",
+        "Does not infer parallel access from callbacks serialized on a non-reentrant event loop",
+        "Returns 评审状态：已完成 and 结论：通过 with a scope line reporting 3/3 implementation files initially reviewed and no speculative locking recommendation"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "请评审指定 commit abc123 相对首父提交的差异；以下用例证据已覆盖所需目标快照，无需查找真实 Git 对象。abc123 的唯一修改是 README:7 将模块名称拼写纠正，没有行为变更，也没有关联 spec。为核对上下文，额外给出同一 abc123 快照的 get_lan_info.c:20 中无锁写全局 cached_ip、report.c:10 中工作线程无锁读取 cached_ip；两条访问路径在父提交中逐字相同且本次变更不影响它们的可达性、调度或数据。请仅报告该 commit 引入或影响的缺陷，不要把模块级并发排查扩大为既有代码审计。",
+      "expected_output": "保留变更归因边界，不将补充上下文中的既有竞争作为本次缺陷，不调用当前工作树或其他版本代替 abc123；无其他问题时使用原有通过两行输出。",
+      "files": [],
+      "expectations": [
+        "Does not report the unchanged cached_ip race as a finding attributable to abc123",
+        "Does not broaden the requested commit review into a full module audit",
+        "Returns the exact ordinary no-findings two-line output without a module coverage line"
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "请按 TP-LINK 规范评审 evals/fixtures/coverage-module 整个模块的功能、调用链、资源、并发。源码以磁盘文件为准，请自行盘点并逐文件检查，不要仅根据文件名或搜索结果推测内容。不要运行这个含故意缺陷的用例程序，不修改模块文件。完成前不要停在前几个发现上。",
+      "expected_output": "根据 Makefile 盘点并检查全部六个 C 文件，在会话存储保存逐文件四维检查及证据位置，发现端口上界错误和跨文件缓存竞争；实际读过辅助文件并追踪线程启动、读写双方。只有完成初审和重要跨文件问题后才输出已完成，不用六文件计数代替路径证据。",
+      "files": [
+        "evals/fixtures/coverage-module"
+      ],
+      "expectations": [
+        "Reads all six C implementation files and the Makefile/header before claiming completion, as evidenced by tool history",
+        "Saves a session-local ledger with source identity, all six files, four per-file checks and evidence locations",
+        "Reports rejection of valid port 65535 in a_policy.c",
+        "Reports the g_generation race with refresh_generation/read_generation and pthread_create scheduling evidence",
+        "Resolves material cross-file queue items and reports completed status with 6/6 initial-pass coverage",
+        "Does not modify the fixture or execute its intentionally racy program"
+      ]
+    },
+    {
+      "id": 12,
+      "prompt": "本例是用户明确停止后的阶段报告测试，不再调用工具继续评审，也不要虚构之前的文件读取记录。给定已核实进度：client-mgmt 发现并纳入 30 个 C 文件，排除 0 个；9 个完成四维初审，21 个待审，重要跨文件追踪也未完成；已确认 threadpool.c:40 在取消 worker 后不 join 就释放共享对象，worker.c:12 仍访问它。用户现在明确要求停止并给出阶段结果。完整剩余文件、路径列表和问题台账已保存到会话文件 /tmp/tplink-review-eval-session/files/review-client-mgmt.json，下一项是读取 get_lan_info.c；没有权限错误、超时或上下文上限证据。按 skill 输出阶段结果。",
+      "expected_output": "输出未完成阶段状态和当前需要修改结论，保留已证实问题，明确用户停止是中断原因，列明9/30初审及跨文件未完成，引用给定续接记录和下一项；不虚构资源限制，不声称完成或保存了额外记录。",
+      "files": [],
+      "expectations": [
+        "Starts with 评审状态：未完成（阶段结果） and 当前结论：需要修改 rather than an ordinary final verdict",
+        "Names the user stop as the reason and does not invent runtime, timeout or access failures",
+        "Preserves the confirmed lifetime finding and accurately reports 9/30 with incomplete cross-file tracing",
+        "Includes pending scope and the supplied absolute session record file path plus get_lan_info.c as the next step",
+        "Does not continue tool-based review after the explicit stop or claim additional work was completed"
+      ]
+    },
+    {
+      "id": 13,
+      "prompt": "请评审指定 commit 的 C 改动。以下是完整用例证据，无需访问真实仓库：目标快照 receiver.c:1 包含 sys/types.h，:2 包含 sys/socket.h，:10 新增 size_t count = recvfrom(fd, buf, capacity, 0, 0, 0);，:11 新增 if (count < 0) { report_error(); return -1; }。其余参数有效，正确声明可用，原实现使用 ssize_t，错误分支调用方约定为接收失败返回 -1。当前工作树已经把类型改回 ssize_t，但该修复不在指定 commit。目标交叉编译器不可用，已安装主机 cc 缺少目标头文件，不允许安装依赖。唯一项目 check 命令会运行 formatter --write 并推送设备。请据目标源码做评审，不能执行这个项目 check，也不能拿工作树的通过结果替代 commit。",
+      "expected_output": "识别 recvfrom 有符号错误结果进入 size_t 导致错误分支失效；不运行带写入/推送副作用的 check、不安装依赖、不验证混合快照；说明目标工具链不可用并继续手工类型和调用契约核对；不把缺头文件当提交编译缺陷，不要求必现崩溃。",
+      "files": [],
+      "expectations": [
+        "Reports the recvfrom signed error value stored in size_t and unreachable count < 0 branch, citing receiver.c:10-11",
+        "Uses the selected commit rather than the fixed worktree and does not claim a worktree pass validates the commit",
+        "Does not run formatter --write, device push, dependency installation or a mismatched host build",
+        "States the target toolchain limitation, continues manual checks, and does not report missing host headers as a source regression"
+      ]
+    },
+    {
+      "id": 14,
+      "prompt": "请按 TP-LINK 规范评审以下完整 Shell/Lua 改动证据，行号为用例坐标，不需要访问仓库。用户禁止执行这些生产脚本，但给出已核实的解析结果：bash -n job.sh 退出 0；配置的 Lua 编译检查也退出 0。job.sh 是被 source 的 Bash 脚本，:8 新增 var =1，意图赋值；环境中没有名为 var 的命令；:9 的 return 0 位于顶层。worker.lua:4 新增 if not ok then state = 'committed' end；显式调用方契约为失败时保留之前 ready 状态、仅成功后转 committed。worker.lua:8 使用 string.match(value, '^item%d+$')，意图接受 item 后跟一个或多个数字。请识别有证据的功能错误，区分解析通过与运行语义，不要把合法 source return 或预期 pattern 运算符误报。",
+      "expected_output": "报告 Shell 意图赋值却作为 var 命令调用的运行语义错误，以及 Lua 失败路径错误提交状态；不称 var =1 为 bash -n 必然检出的语法错误，不误报 source 顶层 return 和合法 pattern；不执行脚本、不声称自己运行了给定检查。",
+      "files": [],
+      "expectations": [
+        "Reports job.sh:8 as mistaken command invocation/assignment behavior rather than a proven parser failure",
+        "Reports worker.lua:4 advancing failed work to committed contrary to the explicit contract",
+        "Does not flag sourced top-level return or ^item%d+$ as invalid",
+        "Distinguishes supplied parse-only success from semantic correctness and does not claim it ran or execute production scripts"
+      ]
+    },
+    {
+      "id": 15,
+      "prompt": "请评审 evals/fixtures/coverage-module 模块，不运行用例程序、不修改源码。初审和跨文件追踪发现的所有具体疑点都应写入仓库外的会话 JSON 文件，不能只记在对话上下文中。请按技能完成初审交接和最终问题对账，记录已排除和重复合并项的依据。",
+      "expected_output": "实际创建并回读会话 review.json 和 issues.jsonl，覆盖记录与稳定编号的问题事件双向关联；运行初审、整合门禁并调用生成脚本输出报告，不删除已排除和重复项的事件历史。",
+      "files": ["evals/fixtures/coverage-module"],
+      "expectations": [
+        "Creates and reads back review.json and append-only issues.jsonl outside the reviewed repository instead of relying on conversation or a database alone",
+        "Records every concrete suspect and confirmed issue with stable IDs, status, evidence, dependencies, and disposition history",
+        "Links suspect-driven cross-file tasks and their originating issues in both directions",
+        "Runs initial/integration validators and generates the report with generate_review_report.py, preserving dismissed or merged events and the confirmed issue mapping",
+        "Does not modify source files or execute the intentionally defective program"
+      ]
+    },
+    {
+      "id": 16,
+      "prompt": "这是模块评审续接协议用例，不需要访问真实源码。会话记录中 R001 曾因“只有主事件循环访问 cache”而被排除，其依赖含 register_worker 和 cache 的访问契约；跨文件追踪的新证据表明 register_worker 创建独立线程，且该线程无锁写 cache，主事件循环无锁读 cache。R002 已确认但尚未进入报告映射。请说明并保存本次阶段交接和问题对账记录，不要把受影响问题留在已排除状态，也不要遗失 R002。若无法创建会话文件，明确报告持久化阻塞，不能以对话内容充当保存成功。",
+      "expected_output": "创建会话文件保存用例证据；重新打开 R001 并记录契约变化，作废相关检查/追踪后依新证据验证；对 R002 保留编号并记录缺失报告映射的待办，不编造其未知细节或宣称完成；保存失败时明确阻塞。",
+      "files": [],
+      "expectations": [
+        "Reopens R001 and records the changed scheduling contract and affected checks rather than silently retaining dismissal",
+        "Preserves R002 and tracks its missing report mapping without inventing its defect details",
+        "Uses an actual session-local record file and does not claim a final completed review with unresolved items",
+        "Treats inability to persist a file as a blocker rather than falling back to conversation-only tracking"
+      ]
+    },
+    {
+      "id": 17,
+      "prompt": "模块评审刚发生上下文压缩。保存的台账显示纳入30个文件、初审完成17个，7条跨文件任务和7个疑点都待核实；我没有要求停止。请从会话记录恢复评审，不要只复核几个显眼问题就输出完整报告。若脚本校验不通过，按实际缺口继续。",
+      "expected_output": "回读 review.json 和 issues.jsonl、验证源码身份并运行 progress 校验，从脚本推导的首个待审文件恢复；初审和整合门禁未通过前不输出完整结论，也不虚构中断原因。",
+      "files": [],
+      "expectations": [
+        "Loads both session files after compaction and runs the progress validator",
+        "Resumes remaining file coverage rather than generating a complete report from known suspects",
+        "Does not invent an interruption or promote pending issues to bypass a gate"
+      ]
+    },
+    {
+      "id": 18,
+      "prompt": "请评审以下完整模块证据，不访问生产仓库、不执行程序。cache.c:10-20 的 refresh 在 UCI_LOCK 内更新地址/掩码、接口数组/count；main.c:10 在创建 worker 前调用 refresh。server.c:1090 在 reload_handler 内再次调用 refresh，server.c:407 把 reload_handler 注册为 reload 方法，main.c:140 在线程池创建后进入事件循环。event.c:80-100 将读缓存的 query 作为任务投递到该线程池；query 在 cache.c:40-50 无 UCI_LOCK 读取缓存。此前台账将 server.c:1090 标为初始化，T006 只关联数组容量和分配失败问题。请按当前 skill 保存会话记录并纠正判断，不能用局部缺陷关闭同步检查；不要推断未证明的崩溃或越界。",
+      "expected_output": "建立持久 state_groups 及专用 shared_state 追踪，记录 main 初始化与 reload 运行期两个写路径、worker 读路径及注册/投递证据；推翻初始化-only 判断，确认缺少共同同步，生成报告；数组容量问题不替代同步问题，不夸大后果。",
+      "files": [],
+      "expectations": [
+        "Classifies server.c:1090 as a runtime callback using server.c:407 registration rather than assuming initialization",
+        "Persists separate startup/runtime writers and the worker reader with dispatch evidence in schema-version-3 state_groups",
+        "Uses a dedicated shared_state trace and confirmed synchronization issue rather than closing it with capacity/allocation findings",
+        "Reports conflicting accesses and missing common synchronization without inventing overflow or crash consequences"
+      ]
+    },
+    {
+      "id": 19,
+      "prompt": "以下为三个互不相干模块的完整并发证据，仅按证据分别评审并保存独立会话台账。A：cache 仅 main.c:10 初始化一次，main.c:20 才创建只读 worker；已核对所有符号、别名和回调，无运行期写入口。B：缓存运行期读写均在同一个非重入 uloop 内，所有注册和调用已核对，无线程创建或异步投递。C：刷新与 worker 可并发，但双方均持同一个 cache_mutex，完整复制地址/掩码/count/数组后释放锁，锁外仅使用私有副本，无借用指针，所有访问已核对。不要因为存在全局变量、刷新或 worker 就报告竞态；请对每个安全结论记录排序协议和反证检查。",
+      "expected_output": "A 以初始化先于 worker 发布、B 以单上下文无异步逃逸、C 以共同锁内完整快照分别有据排除；保存覆盖全部访问的 ordering 和 counterexample_check，报告已登记状态组闭环，不虚构数据竞争。",
+      "files": [],
+      "expectations": [
+        "Does not report races for startup-only publication, non-reentrant confinement, or complete common-lock snapshots",
+        "Persists distinct ordering proofs covering every recorded access and counterexample checks for runtime writers, async dispatch and both-side synchronization",
+        "Records per-access synchronization evidence for the common-lock case and registered state-group closure separately from file counts"
+      ]
+    },
+    {
+      "id": 20,
+      "prompt": "请续接模块评审：文件都已初审，但共享缓存 refresh 的一个函数指针调用无法解析，相关构建配置也暂不可获取；当前已完成其他可访问路径并确认一个独立的数组容量问题。请保存共享状态未决项，不能把缺少证据视为仅初始化，也不能用数组问题关闭同步追踪。本用例确实因所需依赖不可访问而中断，不要求继续生产仓库调查。",
+      "expected_output": "保存 blocked 状态组和专用同步任务、next_check 与具体缺失依赖；不生成完整通过结论，不把数组问题计作同步闭环；使用 partial 报告列出未决状态组，保留独立已确认问题。",
+      "files": [],
+      "expectations": [
+        "Preserves unresolved indirect-call/build-context evidence as blocked rather than initialization-only or dismissed",
+        "Does not substitute an unrelated array finding for synchronization closure",
+        "Final/integration gate stays closed and partial output lists remaining state groups and concrete interruption"
+      ]
+    }
+  ]
+}
