@@ -31,5 +31,5 @@ intro_message: 对已暂存的内容生成 Commit Message，并完成代码提�
 生成 Commit Message 并完成 git commit
 
 ```yaml opts
-auto_submit: true
+auto_submit: false
 ```
