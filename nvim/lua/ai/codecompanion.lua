@@ -49,6 +49,13 @@ return -- lazy.nvim
                         vim.fs.joinpath(vim.fn.stdpath("config"), "rules", "clang_format_rules.md"),
                     },
                 },
+                learning_to_code = {
+                    description = "Learning to Code",
+                    enabled = true,
+                    files = {
+                        vim.fs.joinpath(vim.fn.stdpath("config"), "rules", "learning_to_code.md"),
+                    },
+                },
                 tplink_rules = {
                     description = "Rule files for TPLink C",
                     enabled = true,
