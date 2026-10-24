@@ -362,8 +362,6 @@ return -- lazy.nvim
                     -- 当前效果：办公环境用 copilot_acp，非办公环境用 siliconflow_deepseek_online
                     -- 可选取值：任意已定义适配器名称（见下方 adapters 部分）
                     -- 注：以下为备选适配器配置示例，默认已注释
-                    -- adapter = "siliconflow_r1",
-                    -- adapter = "qwen2_coder_local",
                     adapter = platform.is_office and "copilot_acp" or "siliconflow_deepseek_online",
                     -- adapter = {
                     --     -- 适配器名称
@@ -626,7 +624,7 @@ return -- lazy.nvim
                 inline = {
                     -- 作用: 配置内联模式下使用的 AI 适配器后端
                     -- 当前: 使用 Siliconflow Deepseek 在线版作为内联模式适配器
-                    -- 可选: "copilot" | "openai" | "claude" | "gemini" | "siliconflow_r1" | "claude_opus_online"
+                    -- 可选: "copilot" | "openai" | "claude" | "gemini" |
                     -- 备注: 此适配器针对中文代码优化，支持长上下文理解
                     adapter = platform.is_office and "tplink_qwen_internal" or "siliconflow_deepseek_online",
                     keymaps = {
@@ -648,7 +646,6 @@ return -- lazy.nvim
                     },
                 },
                 agent = {
-                    --adapter = "siliconflow_r1"
                     adapter = "copilot_acp",
                 },
                 cli = {
@@ -757,9 +754,15 @@ return -- lazy.nvim
                                 model = {
                                     default = "deepseek-ai/DeepSeek-V4-Flash",
                                     choices = {
-                                        -- can_reason: false 表示禁用复杂推理任务
+                                        -- DeepSeek-R1：专为复杂推理任务设计的模型（数学、逻辑、算法难题、深度分析）。
+                                        -- 擅长长链式链式思考（chain-of-thought），在数学竞赛、代码难题、逻辑推理等对精细推理要求高的场景表现最佳。
+                                        -- 注意：当前配置 can_reason = false，若需要完整推理能力可改为 true。
                                         ["deepseek-ai/DeepSeek-R1"] = { opts = { can_reason = false } },
+                                        -- DeepSeek-V3：通用高性能模型，均衡的对话与代码能力。
+                                        -- 擅长日常对话、代码生成与重构、文档总结、知识问答等常规任务，性价比高、兼容性好。
                                         ["deepseek-ai/DeepSeek-V3"] = { opts = { can_reason = false } },
+                                        -- DeepSeek-V4-Flash：主打快速推理与低延迟吞吐。
+                                        -- 上下文窗口超大（1M），适合实时交互、大量代码补全、日志/长文档处理、流水线批处理等对速度敏感、对深度推理要求不高的场景。
                                         ["deepseek-ai/DeepSeek-V4-Flash"] = {
                                             meta = { context_window = 1048576 },
                                             opts = {
@@ -771,12 +774,55 @@ return -- lazy.nvim
                                                 can_form_structured_outputs = true,
                                             },
                                         },
+                                        -- DeepSeek-V4.1-Flash：V4-Flash 的增强升级版，在保持高速推理的同时提升回答质量。
+                                        -- 适合追求速度与质量平衡的日常辅助：代码编写/解释、快速总结、实时代码审查等。
+                                        ["deepseek-ai/DeepSeek-V4.1-Flash"] = {
+                                            meta = { context_window = 1048576 },
+                                            opts = {
+                                                can_reason = false,
+                                                can_use_tools = true,
+                                                -- vLLM 支持 OpenAI 的 response_format.json_schema，
+                                                -- 缺少该声明会让 background judge 的结构化裁决被静默丢弃，
+                                                -- 导致 "The judge returned an unreadable response"。
+                                                can_form_structured_outputs = true,
+                                            },
+                                        },
+                                        -- DeepSeek-V4-Pro：旗舰级模型，最强的综合能力（推理、代码、Agent 任务）。
+                                        -- 擅长高难度的代码生成与调试、复杂架构设计、长链路 Agent/工具调用、深度分析与疑难问题排查。成本较高，建议用于关键任务。
                                         ["deepseek-ai/DeepSeek-V4-Pro"] = {
                                             opts = { can_reason = true },
                                         },
+                                        -- Qwen/Qwen3.6-35B-A3B：MoE 稀疏模型（激活 3.5B 参数），推理高效、开销低。
+                                        -- 擅长代码生成与理解、工具调用，在中低硬件成本下保持不错的综合性能，适合日常代码辅助与批量任务。
                                         ["Qwen/Qwen3.6-35B-A3B"] = {
                                             meta = { context_window = 256 * 1024 },
                                             opts = { can_reason = false, can_use_tools = true },
+                                        },
+                                        -- Qwen/Qwen3.8-27B：Dense 稠密模型，代码与数学能力突出。
+                                        -- 擅长编程（生成、调试、优化）、数学推理、结构化任务，推理质量稳定，适合需要较高精度代码处理的场景。
+                                        ["Qwen/Qwen3.8-27B"] = {
+                                            meta = { context_window = 262144 },
+                                            opts = {
+                                                can_reason = false,
+                                                can_use_tools = true,
+                                                -- vLLM 支持 OpenAI 的 response_format.json_schema，
+                                                -- 缺少该声明会让 background judge 的结构化裁决被静默丢弃，
+                                                -- 导致 "The judge returned an unreadable response"。
+                                                can_form_structured_outputs = true,
+                                            },
+                                        },
+                                        -- Pro/moonshotai/Kimi-K2.6（月之暗面）：Agentic 编码与工具调用能力出众。
+                                        -- 擅长多步骤编程任务（自动改代码、跑测试、迭代修复）、长上下文理解和复杂工具编排，适合深度 Coding Agent 工作流。
+                                        ["Pro/moonshotai/Kimi-K2.6"] = {
+                                            meta = { context_window = 262144 },
+                                            opts = {
+                                                can_reason = false,
+                                                can_use_tools = true,
+                                                -- vLLM 支持 OpenAI 的 response_format.json_schema，
+                                                -- 缺少该声明会让 background judge 的结构化裁决被静默丢弃，
+                                                -- 导致 "The judge returned an unreadable response"。
+                                                can_form_structured_outputs = true,
+                                            },
                                         },
                                     },
                                 },
