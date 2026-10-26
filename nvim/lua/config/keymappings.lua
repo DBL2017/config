@@ -178,6 +178,13 @@ vim.keymap.set(
     { noremap = true, silent = true, desc = "仅保留当前标签页" }
 )
 
+vim.keymap.set(
+    { "n" },
+    "<LocalLeader>tc",
+    "<cmd>tabclose<CR>",
+    { noremap = true, silent = true, desc = "关闭当前标签页" }
+)
+
 -- 当前终端中Alt-t和Esc-t映射的是相同的编码，导致Esc-t也会产生相同效果
 vim.keymap.set({ "i", "n" }, "<LocalLeader>t", function()
     local input = vim.fn.input("请输入要跳转的 Tab Number: ")
