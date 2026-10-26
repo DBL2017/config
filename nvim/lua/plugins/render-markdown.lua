@@ -1,5 +1,5 @@
 return {
-    "MeanderingProgrammer/render-markdown.nvim",
+    "DBL2017/render-markdown.nvim",
     dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" }, -- if you prefer nvim-web-devicons
     ft = { "codecompanion", "markdown", "dap-view-help" },
     config = function()
