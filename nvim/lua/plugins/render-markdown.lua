@@ -6,6 +6,9 @@ return {
         require("render-markdown").setup({
             debounce = 200, -- 默认 100ms，合并更密集的渲染更新
             preset = "obsidian",
+            pipe_table = {
+                row_separator = true,
+            },
             -- The level of logs to write to file: vim.fn.stdpath('state') .. '/render-markdown.log'.
             -- Only intended to be used for plugin development / debugging.
             log_level = "error",
