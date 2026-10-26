@@ -1,21 +1,3 @@
--- Copilot sources can return a zero-width edit while the item text already
--- includes the typed prefix, which would produce MAXMAX_DEV_LENGTH.
-local function normalize_copilot_items(ctx, items)
-    local bounds = ctx.get_bounds("prefix")
-    local range = {
-        start = { line = ctx.cursor[1] - 1, character = bounds.start_col - 1 },
-        ["end"] = { line = ctx.cursor[1] - 1, character = ctx.cursor[2] },
-    }
-
-    for _, item in ipairs(items) do
-        if type(item.textEdit) == "table" and item.textEdit.range then
-            item.textEdit.range = vim.deepcopy(range)
-        end
-    end
-
-    return items
-end
-
 -- Snippets may expand from a trigger inside text that is also part of the
 -- snippet body, e.g. typing `int main` before a snippet that starts with `int main`.
 local function normalize_snippet_items(ctx, items)
@@ -38,45 +20,6 @@ local function normalize_snippet_items(ctx, items)
 
             if overlap > 0 then
                 text_edit.range.start.character = cursor_col - overlap
-            end
-        end
-    end
-
-    return items
-end
-
--- Some LSP servers return edits that start at the cursor even when the
--- completion text begins with the already typed prefix.
-local function normalize_lsp_items(ctx, items)
-    local bounds = ctx.get_bounds("prefix")
-    local prefix = ctx.line:sub(bounds.start_col, bounds.start_col + bounds.length - 1)
-
-    if prefix == "" then
-        return items
-    end
-
-    local current_line = ctx.cursor[1] - 1
-    local prefix_start = bounds.start_col - 1
-    local cursor_col = ctx.cursor[2]
-
-    for _, item in ipairs(items) do
-        local text_edit = item.textEdit
-        local new_text = type(text_edit) == "table" and text_edit.newText or item.insertText or item.label
-
-        if type(text_edit) == "table" and type(new_text) == "string" and new_text:sub(1, #prefix) == prefix then
-            local range = text_edit.range or text_edit.insert
-
-            if
-                type(range) == "table"
-                and range.start
-                and range["end"]
-                and range.start.line == current_line
-                and range["end"].line == current_line
-                and range.start.character > prefix_start
-                and range.start.character <= cursor_col
-            then
-                range.start.character = prefix_start
-                range["end"].character = math.max(range["end"].character, cursor_col)
             end
         end
     end
@@ -353,7 +296,7 @@ return {
                 ["tmux"] = { inherit_defaults = true, "tmux" },
                 ["lua"] = { inherit_defaults = true, "lazydev" },
                 ["*"] = { inherit_defaults = true },
-                ["codecompanion"] = { "codecompanion" },
+                ["codecompanion"] = { "codecompanion", "buffer", "path" },
             },
             providers = {
                 -- score_offset设置优先级数字越大优先级越高
@@ -369,7 +312,6 @@ return {
                     max_items = 6,
                     min_keyword_length = 0,
                     -- Replace the already typed prefix instead of appending it again.
-                    -- transform_items = normalize_copilot_items,
                     -- Give Copilot a high score offset so its items are prioritized in the menu
                     score_offset = 100,
                     -- 如果多个 Provider 共用同一个 fallback，那么必须这些 Provider 都返回 0 项后，fallback 才会触发
@@ -395,7 +337,6 @@ return {
                     async = false, -- Whether we should show the completions before this provider returns, without waiting for it
                     timeout_ms = 2000, -- How long to wait for the provider to return before showing completions and treating it as asynchronous
                     -- Keep server-provided edits, but expand them when they miss the current prefix.
-                    -- transform_items = normalize_lsp_items,
                     should_show_items = true, -- Whether or not to show the items
                     max_items = 10, -- Maximum number of items to display in the menu
                     -- 设置为0才会对C语言中的.和->进行补全提示
@@ -414,6 +355,12 @@ return {
                     min_keyword_length = 3, -- Minimum number of characters in the keyword to trigger the provider
                     score_offset = 80,
                     fallbacks = {},
+                },
+
+                codecompanion = {
+                    name = "CC",
+                    module = "codecompanion.providers.completion.blink",
+                    score_offset = 200,
                 },
 
                 path = { name = "PTH", score_offset = 70 },
