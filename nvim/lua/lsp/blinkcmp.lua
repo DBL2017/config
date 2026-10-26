@@ -93,7 +93,6 @@ return {
         "Kaiser-Yang/blink-cmp-avante",
         "Kaiser-Yang/blink-cmp-dictionary",
         dependencies = { "nvim-lua/plenary.nvim" },
-        "barrettruth/blink-cmp-tmux",
         "Kaiser-Yang/blink-cmp-git",
         "fang2hou/blink-copilot",
     },

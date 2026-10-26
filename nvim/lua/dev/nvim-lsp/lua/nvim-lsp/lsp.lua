@@ -315,6 +315,10 @@ function M.attach_buffer(bufnr, silent)
 
     -- 设置回调
     config.on_attach = function(client, attached_bufnr)
+        if client:supports_method("textDocument/inlayHint") then
+            vim.lsp.inlay_hint.enable(true, { bufnr = attached_bufnr })
+        end
+
         -- 这里增加快捷键的作用在于buffer内部跳转
         local bufopts = { noremap = true, silent = true, buffer = attached_bufnr }
         vim.keymap.set("n", "gD", vim.lsp.buf.declaration, bufopts)
