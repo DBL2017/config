@@ -74,10 +74,10 @@ committing.
 
 Use only facts supported by the staged diff. Do not invent module or device
 names, Bug IDs, requirement references, root causes, test results, or test
-scope. When a required field is not evidenced by the diff, use the exact
-category-specific missing-information text in the reference. In particular,
-do not claim code was compiled or tested merely because it appears in the
-diff.
+scope. When a field is not evidenced by the diff, keep that field empty rather
+than writing a missing-information placeholder such as `Not specified in
+staged changes` or `暂存区未提供`. In particular, do not claim code was
+compiled or tested merely because it appears in the diff.
 
 Before committing, verify that:
 
@@ -86,6 +86,14 @@ Before committing, verify that:
   (for example, `[tplink-code-review]`); never omit the brackets from the
   English title.
 - Separate every title/body item with a blank line in both language sections.
+- When a body field contains multiple independent facts, format them as a
+  numbered list with one item per line (`1.`, `2.`, `3.`, ...), rather than
+  concatenating them into one paragraph. This applies especially to
+  `[Test Scope]` and `[自测内容]`.
+- Keep corresponding English and Chinese numbered items in the same order and
+  preserve a one-to-one mapping between them.
+- Keep labels for fields without evidenced content, but leave their content
+  empty; do not emit `Not specified in staged changes` or `暂存区未提供`.
 - The two sections use the same category and corresponding title identifiers.
 - Each section has exactly the title and labels allowed for that category.
 - No unused template text, commentary, standalone change list, or other
