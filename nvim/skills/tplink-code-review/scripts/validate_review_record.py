@@ -13,12 +13,32 @@ STATUSES = ("pending", "confirmed", "dismissed", "blocked", "merged")
 
 
 class RecordError(ValueError):
-    pass
+    def __init__(self, message, *, kind=None, items=None):
+        super().__init__(message)
+        self.kind = kind
+        self.items = items
 
 
 def require(condition, message):
     if not condition:
         raise RecordError(message)
+
+
+def require_closed(items, label, kind):
+    if items:
+        preview = ", ".join(items[:3])
+        omitted = len(items) - 3
+        if omitted > 0:
+            preview += f" (+{omitted} more; query paginated gate diagnostics)"
+        raise RecordError(f"{label}: {preview}", kind=kind, items=items)
+
+
+def compact_summary(summary):
+    return {**{key: value for key, value in summary.items()
+               if not key.startswith("remaining")},
+            "next_file": next(iter(summary["remaining_files"]), None),
+            "pending_files": len(summary["remaining_files"]),
+            "pending_state_groups": len(summary["remaining_state_groups"])}
 
 
 def text(value):
@@ -222,7 +242,7 @@ def validate_state_groups(record, checks, traces, issues, gate):
                 trace_id in by_id[group_id]["trace_ids"] for trace_id in issue["trace_ids"]),
                 f"{issue_id}/{group_id}: missing shared-state trace link")
     if gate in ("integration", "final"):
-        require(not unresolved, "Unresolved state groups: " + ", ".join(unresolved))
+        require_closed(unresolved, "Unresolved state groups", "state")
     return {"state_total": len(groups), "state_completed": len(groups) - len(unresolved),
             "remaining_state_groups": unresolved}
 
@@ -362,13 +382,13 @@ def validate(record, issues, gate="progress"):
             "Report entries must be unique nonempty identifiers")
     if gate in ("initial", "integration", "final"):
         require(inventory.get("reconciled") is True, "Inventory is not reconciled")
-        require(not remaining, "Initial pass incomplete: " + ", ".join(remaining))
+        require_closed(remaining, "Initial pass incomplete", "file")
     if gate in ("integration", "final"):
         unresolved = [t["id"] for t in traces if t["status"] not in ("verified", "finding")]
-        require(not unresolved, "Unresolved traces: " + ", ".join(unresolved))
+        require_closed(unresolved, "Unresolved traces", "trace")
         unresolved = [key for key, issue in issues.items()
                       if issue["status"] in ("pending", "blocked")]
-        require(not unresolved, "Unresolved issues: " + ", ".join(unresolved))
+        require_closed(unresolved, "Unresolved issues", "issue")
         validation = record.get("validation", {})
         require(isinstance(validation, dict) and validation.get("status") in
                 ("executed", "unavailable", "unsafe", "not_applicable"),
@@ -388,14 +408,28 @@ def main():
     parser.add_argument("record", type=Path)
     parser.add_argument("--gate", choices=("progress", "initial", "integration", "final"),
                         default="progress")
+    parser.add_argument("--details", action="store_true",
+                        help="Return full success summary or all gap IDs (explicit opt-in)")
+    parser.add_argument("--offset", type=int, default=0, help="Offset into failed gate's gap IDs")
+    parser.add_argument("--limit", type=int, default=5, help="Gap IDs per diagnostic page")
     args = parser.parse_args()
     try:
+        require(args.offset >= 0 and args.limit > 0, "Invalid diagnostic pagination")
         _, record, issues = load_record(args.record)
         summary = validate(record, issues, args.gate)
     except (OSError, ValueError, TypeError, KeyError) as error:
-        print(f"Record validation failed: {error}", file=sys.stderr)
+        diagnostic = {"error": f"Record validation failed: {error}", "gate": args.gate}
+        if isinstance(error, RecordError) and error.items is not None:
+            end = len(error.items) if args.details else args.offset + args.limit
+            start = 0 if args.details else args.offset
+            diagnostic["gap"] = {
+                "kind": error.kind, "total": len(error.items), "offset": start,
+                "items": error.items[start:end],
+                "next_offset": end if end < len(error.items) else None,
+            }
+        print(json.dumps(diagnostic, ensure_ascii=False), file=sys.stderr)
         return 1
-    print(json.dumps(summary, ensure_ascii=False))
+    print(json.dumps(summary if args.details else compact_summary(summary), ensure_ascii=False))
     return 0
 
 

@@ -63,12 +63,16 @@ Stop these failure routes before loading review references or scanning code.
 | Shared mutable state, multiple contexts or async lifetimes | `references/concurrency-review.md` |
 | Non-module review, when preparing output | `references/report-format.md` |
 | Module record commands | `references/record-tools.md` |
+| Large search results or gate diagnostic pagination | `references/tool-output.md` |
 | Hand-editing, migration or unfamiliar record fields only | Relevant section of `references/review-record-format.md` |
 
 Do not preload all references, scripts, tests or evals. References own their
 respective protocols; do not reconstruct duplicate checklists. Module output
 comes from the generator, not the non-module output reference. Non-module
 reviews do not require a module ledger or module completion gates.
+Return scoped search locations/short context and use bounded source ranges;
+expand for actual verification, never truncate required coverage. For large
+results use the output reference's counted pages, not silent `head` clipping.
 
 ## 3. Inspect and verify
 

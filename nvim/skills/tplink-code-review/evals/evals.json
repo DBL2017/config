@@ -274,6 +274,30 @@
         "Detects changed tracked source and requires explicit invalidation before reuse",
         "Reopens linked checks/proofs/issues and preserves unaffected file coverage without claiming a completed production review"
       ]
+    },
+    {
+      "id": 24,
+      "prompt": "这是大结果集导航用例。请在仓库外临时目录创建只用于搜索的文本源码，至少200行包含 refresh_cache，其中包含超长行。使用技能的分页搜索工具查看前两页，按原始文件行号核对命中；不要把整份源码或完整搜索结果读入对话。明确还有多少匹配、从哪个 offset 继续，以及哪些预览被截断。本例不要求完成模块评审，不能将搜索分页误称为评审覆盖。",
+      "expected_output": "使用明确根目录、路径和 glob，返回匹配总行数、短上下文和 next_offset；超长行带预览截断标志，按精确位置读取必要原文；不把第一页当作完整访问清单或评审结论。",
+      "files": [],
+      "expectations": [
+        "Uses search_review_source.py with an explicit selected root, paths and source globs",
+        "Returns bounded pages with total_matching_lines, next_offset and explicit preview truncation",
+        "Uses original file/line positions to read needed source instead of treating previews as inspected coverage",
+        "Does not dump all matches or claim a completed module review from a search page"
+      ]
+    },
+    {
+      "id": 25,
+      "prompt": "这是门禁输出用例。请用临时会话台账构造1000个待初审文件，不需要真实生产源码。运行 progress 与 initial 门禁：成功应只返回精简计数；失败必须非零退出，并返回具体缺口类别、总数和一页 ID，再读取下一页。不能通过缩小清单或改状态绕过门禁，也不要对最终已确认问题报告设置条数上限。",
+      "expected_output": "progress 内部检查完整台账但只打印精简摘要；initial 非零失败，stderr 包含 file 类型、1000个缺口总数和可继续的分页；库 API 仍保留完整派生清单，最终模块报告仍由原有脚本输出全部确认问题。",
+      "files": [],
+      "expectations": [
+        "Keeps all 1000 inventory/check entries and returns compact successful gate output",
+        "Uses failed gate's total, kind, paginated IDs and next_offset without treating a page as full coverage",
+        "Preserves nonzero failure status and does not promote or remove pending checks to pass",
+        "Leaves generate_review_report.py as the full final-report path without a finding quota"
+      ]
     }
   ]
 }

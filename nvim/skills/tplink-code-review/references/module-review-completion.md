@@ -48,6 +48,8 @@ python3 <skill-dir>/scripts/validate_review_record.py <review.json> --gate initi
 
 Only then begin concentrated integration. Pending suspects and state proofs can
 cross this gate; inaccessible files keep it open while other review work continues.
+Gate CLI output is compact; use `tool-output.md` only when additional diagnostic
+pages are needed. Never mistake a returned subset for the full outstanding scope.
 
 ## 3. Integrate and reconcile
 

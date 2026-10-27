@@ -199,12 +199,14 @@ python3 <skill-dir>/scripts/generate_review_report.py <session-dir>/review.json
 python3 <skill-dir>/scripts/validate_review_record.py <session-dir>/review.json --gate final
 ```
 
-`progress` validates structure/links and prints derived coverage; `initial`
+`progress` validates structure/links and prints compact derived coverage; `initial`
 also checks reconciled inventory and per-file coverage; `integration` also
 checks resolved traces/issues and recorded validation; `final` additionally
 requires a bijection between confirmed IDs and report entries. The generator
 constructs that mapping from confirmed issues and validates it before output.
 A final validator alone does not prove a report was actually delivered.
+CLI `--details` opts into full derived lists; failed coverage/closure conditions
+expose paginated IDs with `--offset` and `--limit` (see `tool-output.md`).
 
 Older single-file records are not silently accepted. Preserve the original;
 create a version-3 review directory and transfer only evidenced source,

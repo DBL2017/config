@@ -13,7 +13,7 @@ import sys
 import tempfile
 
 from validate_review_record import (
-    CHECKS, evidence_references, load_record, require, text, validate, validate_event,
+    CHECKS, compact_summary, evidence_references, load_record, require, text, validate, validate_event,
     validate_record_location,
 )
 
@@ -24,14 +24,6 @@ def encoded(value):
 
 def digest(data):
     return hashlib.sha256(data).hexdigest()
-
-
-def compact_summary(summary):
-    return {**{key: value for key, value in summary.items()
-               if not key.startswith("remaining")},
-            "next_file": next(iter(summary["remaining_files"]), None),
-            "pending_files": len(summary["remaining_files"]),
-            "pending_state_groups": len(summary["remaining_state_groups"])}
 
 
 def atomic_write(path, data):

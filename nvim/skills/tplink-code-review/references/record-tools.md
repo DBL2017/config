@@ -149,6 +149,10 @@ and `history` (one issue's full history, only when needed). Pagination uses
 These commands read back saved facts and run the progress gate, but do not claim
 initial/integration gates passed or source analysis was complete.
 
+Standalone gate commands return compact counts on success and a failed condition
+with paginated gap IDs on stderr; `tool-output.md` documents `--offset`, `--limit`
+and opt-in `--details`. This changes returned text, not what the gate validates.
+
 ## Recover interrupted writes
 
 An update validates first, saves a `transaction.json`, flushes appended issue
