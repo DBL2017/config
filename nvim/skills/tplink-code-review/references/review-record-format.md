@@ -46,6 +46,13 @@ owns field definitions and migrations, not stage gates or write policy (see
 }
 ```
 
+The report generator adds optional `report_file`, the Markdown basename
+(`YYYY-MM-DD-Module-评审报告-v1.md`), and `report_directory`, the absolute working
+directory at first generation. Preserve both during updates and recovery so
+every continuation refreshes the same report in the original working directory,
+not the session directory. These are delivery metadata, not evidence that the
+completion gates passed.
+
 Set `inventory.reconciled` only after cross-checking build/conditional inputs.
 Inventory counts must match its unique paths. Excluded items require a reason.
 All in-scope paths must have file checks and actual content identities.

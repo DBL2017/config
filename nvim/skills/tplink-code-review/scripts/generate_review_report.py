@@ -2,9 +2,11 @@
 """Render confirmed module findings only after validating the session record."""
 
 import argparse
+from datetime import datetime
 import json
 import os
 from pathlib import Path
+import re
 import sys
 import tempfile
 
@@ -66,35 +68,64 @@ def render(record, issues, partial=False):
     return "\n".join(lines) + "\n"
 
 
+def report_destination(record):
+    filename = record.get("report_file")
+    if filename is None:
+        module = Path(record["source"]["module"]).name
+        if module in ("", ".", ".."):
+            module = Path(record["source"]["repository"]).name
+        module = re.sub(r"[^\w.-]+", "-", module).strip(".-") or "Module"
+        filename = f"{datetime.now().astimezone():%Y-%m-%d}-{module}-评审报告-v1.md"
+    require(isinstance(filename, str) and Path(filename).name == filename
+            and re.fullmatch(r"\d{4}-\d{2}-\d{2}-[\w.-]+-评审报告-v1\.md", filename),
+            "report_file must be a YYYY-MM-DD-Module-评审报告-v1.md basename")
+    directory = record.get("report_directory", str(Path.cwd()))
+    require(isinstance(directory, str) and Path(directory).is_absolute(),
+            "report_directory must be an absolute working-directory path")
+    destination = Path(directory) / filename
+    require(not destination.is_symlink(), "Report must not be a symlink")
+    record["report_file"] = filename
+    record["report_directory"] = str(destination.parent)
+    return destination
+
+
+def atomic_write(path, content):
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=path.parent,
+                                         delete=False) as handle:
+            temporary = Path(handle.name)
+            handle.write(content)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary, path)
+    finally:
+        if temporary is not None and temporary.exists():
+            temporary.unlink()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("record", type=Path)
     parser.add_argument("--partial", action="store_true")
     args = parser.parse_args()
-    temporary = None
     try:
         path, record, issues = load_record(args.record)
         report = render(record, issues, args.partial)
-        # Only the session record is updated; the reviewed repository is untouched.
-        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=path.parent,
-                                         delete=False) as handle:
-            temporary = Path(handle.name)
-            json.dump(record, handle, ensure_ascii=False, indent=2)
-            handle.write("\n")
-            handle.flush()
-            os.fsync(handle.fileno())
-        os.replace(temporary, path)
+        destination = report_destination(record)
+        atomic_write(path, json.dumps(record, ensure_ascii=False, indent=2) + "\n")
         _, saved, saved_issues = load_record(path)
         validate(saved, saved_issues, "progress" if args.partial else "final")
         report += f"续接记录：{path}；下一项检查：{record['progress']['next_step']}\n" \
             if args.partial else f"会话记录：{path}\n"
+        atomic_write(destination, report)
+        require(destination.read_text(encoding="utf-8") == report,
+                "Saved report read-back mismatch")
     except (OSError, ValueError, TypeError, KeyError) as error:
         print(f"Report generation refused: {error}", file=sys.stderr)
         return 1
-    finally:
-        if temporary is not None and temporary.exists():
-            temporary.unlink()
-    print(report, end="")
+    print(report.splitlines()[0])
+    print(f"报告文件：{destination}")
     return 0
 
 

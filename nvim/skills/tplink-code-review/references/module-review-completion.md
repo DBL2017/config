@@ -76,10 +76,19 @@ material traces/issues/state groups, and recorded validation outcomes/limitation
 Unavailable tools alone do not block static review; unresolved material questions
 do. Several serious findings, elapsed effort or a batch boundary are not exits.
 
-The generator builds the confirmed-issue/report bijection, saves atomically,
-reads back and validates the final gate. Deliver its output without dropping,
-adding or regrouping findings from memory. It does not prove source reasoning
-or enforce a runtime hook. A rejected gate means repair the evidenced gap and
+The generator builds the confirmed-issue/report bijection, saves the record,
+reads back and validates the final gate, then atomically writes and reads back
+the Markdown report in the working directory where the review starts, not beside
+the session record. Run the first generation from that working directory.
+Its filename is
+`YYYY-MM-DD-Module-评审报告-v1.md`: the date is the first report's local date,
+and Module is the module path's final component (repository name for a root
+module), with filename-unsafe characters replaced. The record's `report_file`
+and absolute `report_directory` preserve the name and destination across
+continuations, including on a later date or from a different working directory.
+Deliver only the saved report path and review status in chat, not its full
+findings. Do not drop, add or regroup findings from memory. It does not prove
+source reasoning or enforce a runtime hook. A rejected gate means repair the evidenced gap and
 continue, not hand-write a substitute complete report.
 
 ## 4. Durable updates and recovery
@@ -127,5 +136,10 @@ run the generator with `--partial`. Preserve confirmed findings; use
 never `通过`. Include concrete interruption, coverage, pending file/trace/state/
 issue IDs, checkpoint path and next check. Keep item-level blocker/closure detail
 in the queried record; a long pending list may reference that saved record.
+At each continuation handoff, regenerate this same report with current findings,
+coverage and next check; do not create a new date/version file or substitute chat
+for the saved report. Continue accessible work instead of inventing interruptions
+just to publish updates. On completion, clear the interruption and run the
+generator without `--partial` to replace the same file with `评审状态：已完成`.
 If records/tools are inaccessible, report the actual blocker without claiming
 successful report generation or completion.

@@ -1,7 +1,9 @@
 # Incremental module record tools
 
-Use Python 3 on POSIX (`flock`), no third-party dependencies. Commands operate only on session files and read
-selected current source for hashes; they do not execute or edit reviewed code.
+Use Python 3 on POSIX (`flock`), no third-party dependencies. Record commands
+operate only on session files and read selected current source for hashes;
+the report generator writes Markdown to the review's working directory.
+Neither executes or edits reviewed code.
 Do not read tool implementations just to invoke them. Full field definitions
 are in `review-record-format.md`; load only the section needed.
 
@@ -96,6 +98,27 @@ Other fields: `state_groups` (see schema section Shared-state evidence),
 build reconciliation). Updating always clears the stale report mapping; generate
 the report again. Initial inventory/scope edits require evidenced manual migration
 or repair under the schema reference, not a silent count adjustment.
+
+### Save or refresh the module report
+
+```sh
+python3 <skill-dir>/scripts/generate_review_report.py <record> --partial
+python3 <skill-dir>/scripts/generate_review_report.py <record>
+```
+
+Use `--partial` only for an actual interruption recorded in
+`progress.interruption`; use the second command after completion gates pass and
+the interruption is cleared. Both atomically write and read back a Markdown
+file in the working directory where the review starts, named
+`YYYY-MM-DD-Module-评审报告-v1.md`. Run the first generation from that directory,
+not the skill/session directory. It stores the basename in `report_file` and the
+absolute destination directory in `report_directory`; later runs update that same
+file even from a different directory, retaining the original date and version.
+The internal record/journal stay outside the reviewed repository, but the report
+may be written inside it. Refresh it at every continuation
+handoff and on completion. The CLI prints only review status and the absolute
+report path for chat; findings remain in the file. A write/read-back failure
+is an explicit error, not a delivered report.
 
 ### Reuse and invalidate evidence
 

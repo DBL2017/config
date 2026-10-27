@@ -369,13 +369,19 @@ class ManageRecordTests(unittest.TestCase):
         self.update(payload)
         script = Path(__file__).with_name("generate_review_report.py")
         result = subprocess.run([sys.executable, str(script), str(self.path)],
-                                capture_output=True, text=True)
+                                capture_output=True, text=True, cwd=self.repository)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("评审状态：已完成", result.stdout)
-        self.assertIn("初审 2/2", result.stdout)
-        self.assertIn("- [High] main.c:1", result.stdout)
-        self.assertEqual(result.stdout.count("- [High]"), 1)
         record, issues = self.read()
+        report_path = self.repository / record["report_file"]
+        self.assertEqual(record["report_directory"], str(self.repository))
+        self.assertEqual(list(self.path.parent.glob("*.md")), [])
+        report = report_path.read_text(encoding="utf-8")
+        self.assertIn("初审 2/2", report)
+        self.assertIn("- [High] main.c:1", report)
+        self.assertEqual(report.count("- [High]"), 1)
+        self.assertNotIn("- [High]", result.stdout)
+        self.assertIn(str(report_path), result.stdout)
         validate(record, issues, "final")
 
 

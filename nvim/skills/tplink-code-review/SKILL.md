@@ -12,10 +12,13 @@ compatibility: Requires repository/file access and Git for local diffs; incremen
 
 # TP-LINK Code Review
 
-Review behavior, not just style. Keep the reviewed repository read-only:
-do not edit files, generate patches, commit, install dependencies, or claim
-checks ran unless they actually did. Save module progress outside that
-repository in the runtime-provided session directory.
+Review behavior, not just style. Keep reviewed code read-only: do not edit
+source/configuration files, generate patches, commit, install dependencies, or
+claim checks ran unless they actually did. Save internal module progress outside
+the reviewed repository in the runtime-provided session directory. Write module
+reports as `YYYY-MM-DD-Module-评审报告-v1.md` in the working directory where the
+review starts, even if it is inside that repository; this report is the only
+permitted review output there. Other reviews report in chat.
 
 ## 1. Resolve the exact source
 
@@ -121,8 +124,15 @@ and dependency IDs through the record tools rather than re-reading shared paths.
 Do not stop at a findings quota or confuse inspected files with proven paths.
 After compaction, use the validated recovery working set, verify source identity,
 then continue the first unfinished task; do not dump the historical journal.
+Deliver the generated module report as a file, with only its path and review
+status in chat. For continuations, update the same report at each handoff and
+on completion until it says `评审状态：已完成`; keep its original date and `v1`
+filename rather than creating a new report per turn.
+Preserve the original working-directory destination even if a continuation
+starts in a different directory; do not run the generator from the skill directory.
 
 For other reviews, retain the narrow source boundary and render using
-`references/report-format.md`. Write explanatory prose in Simplified Chinese;
+`references/report-format.md` directly in chat, without creating a report file.
+Write explanatory prose in Simplified Chinese;
 preserve paths, symbols, commands and excerpts verbatim. Report material limits
 honestly, without generic summaries, praise, checklists or internal reasoning.

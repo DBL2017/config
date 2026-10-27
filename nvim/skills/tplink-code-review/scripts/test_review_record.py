@@ -295,6 +295,8 @@ class ReviewRecordTests(unittest.TestCase):
 
     def test_actual_files_event_history_and_cli(self):
         with tempfile.TemporaryDirectory() as directory:
+            working = Path(directory) / "work"
+            working.mkdir()
             path = Path(directory) / "review.json"
             journal = path.with_name("issues.jsonl")
             path.write_text(json.dumps(record_for()), encoding="utf-8")
@@ -306,17 +308,24 @@ class ReviewRecordTests(unittest.TestCase):
             self.assertEqual(issues["R001"]["status"], "pending")
             script = Path(__file__).with_name("generate_review_report.py")
             failed = subprocess.run([sys.executable, str(script), str(path)],
-                                    capture_output=True, text=True)
+                                    capture_output=True, text=True, cwd=working)
             self.assertEqual(failed.returncode, 1)
             self.assertEqual(failed.stdout, "")
             third = {**issue(), "seq": 3}
             with journal.open("a", encoding="utf-8") as handle:
                 handle.write(json.dumps(third) + "\n")
             result = subprocess.run([sys.executable, str(script), str(path)],
-                                    capture_output=True, text=True)
+                                    capture_output=True, text=True, cwd=working)
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertIn("评审状态：已完成", result.stdout)
             _, saved, latest = load_record(path)
+            report_path = working / saved["report_file"]
+            self.assertEqual(saved["report_directory"], str(working))
+            self.assertEqual(list(path.parent.glob("*.md")), [])
+            self.assertRegex(report_path.name, r"^\d{4}-\d{2}-\d{2}-example-评审报告-v1\.md$")
+            self.assertIn(f"报告文件：{report_path}", result.stdout)
+            self.assertNotIn("- [High]", result.stdout)
+            self.assertEqual(report_path.read_text(encoding="utf-8").count("- [High]"), 1)
             validate(saved, latest, "final")
             self.assertEqual(len(journal.read_text().splitlines()), 3)
             # A truncated append must never be ignored as an empty issue list.
@@ -324,6 +333,68 @@ class ReviewRecordTests(unittest.TestCase):
                 handle.write("{")
             with self.assertRaisesRegex(RecordError, "issues.jsonl:4"):
                 load_record(path)
+
+    def test_partial_report_is_updated_in_place_until_complete(self):
+        with tempfile.TemporaryDirectory() as directory:
+            working = Path(directory) / "work"
+            working.mkdir()
+            path = Path(directory) / "review.json"
+            record = record_for(completed=0)
+            record["progress"]["interruption"] = "用户要求暂停"
+            record["report_file"] = "2020-01-02-example-评审报告-v1.md"
+            path.write_text(json.dumps(record), encoding="utf-8")
+            path.with_name("issues.jsonl").write_text("", encoding="utf-8")
+            script = Path(__file__).with_name("generate_review_report.py")
+            command = [sys.executable, str(script), str(path)]
+            report_path = working / record["report_file"]
+            for step in ("Inspect first file", "Resume first file"):
+                record["progress"]["next_step"] = step
+                path.write_text(json.dumps(record), encoding="utf-8")
+                result = subprocess.run(command + ["--partial"], capture_output=True,
+                                        text=True, cwd=working)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                report = report_path.read_text(encoding="utf-8")
+                self.assertIn("评审状态：未完成（阶段结果）", report)
+                self.assertIn(step, report)
+                self.assertIn("初审 0/1", report)
+                self.assertIn(str(report_path), result.stdout)
+                record = json.loads(path.read_text())
+            previous = report
+            failed = subprocess.run(command, capture_output=True, text=True, cwd=directory)
+            self.assertEqual(failed.returncode, 1)
+            self.assertEqual(report_path.read_text(encoding="utf-8"), previous)
+            completed = record_for()
+            completed["report_file"] = record["report_file"]
+            completed["report_directory"] = record["report_directory"]
+            path.write_text(json.dumps(completed), encoding="utf-8")
+            result = subprocess.run(command, capture_output=True, text=True, cwd=directory)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            report = report_path.read_text(encoding="utf-8")
+            self.assertIn("评审状态：已完成", report)
+            self.assertIn("初审 1/1", report)
+            self.assertNotIn("中断原因", report)
+            self.assertEqual(list(working.glob("*.md")), [report_path])
+            self.assertEqual(list(path.parent.glob("*.md")), [])
+            self.assertEqual(json.loads(path.read_text())["report_file"], record["report_file"])
+
+    def test_report_rejects_escaping_filename_and_symlink(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "review.json"
+            path.with_name("issues.jsonl").write_text("", encoding="utf-8")
+            script = Path(__file__).with_name("generate_review_report.py")
+            report_path = path.parent / "2020-01-02-example-评审报告-v1.md"
+            report_path.symlink_to(path)
+            original = None
+            for filename in ("../2020-01-02-example-评审报告-v1.md", report_path.name):
+                record = record_for()
+                record["report_file"] = filename
+                original = json.dumps(record)
+                path.write_text(original, encoding="utf-8")
+                result = subprocess.run([sys.executable, str(script), str(path)],
+                                        capture_output=True, text=True, cwd=directory)
+                self.assertEqual(result.returncode, 1)
+                self.assertEqual(result.stdout, "")
+                self.assertEqual(path.read_text(encoding="utf-8"), original)
 
     def test_sequence_and_record_location(self):
         with tempfile.TemporaryDirectory() as directory:
