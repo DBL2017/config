@@ -132,7 +132,7 @@ return -- lazy.nvim
                     chat = {
                         enabled = true,
                         -- Skills and groups can be autoloaded into the chat buffer on startup.
-                        autoload = platform.is_office and { "tplink-baseline", "tplink-security" } or {},
+                        -- autoload = platform.is_office and { "tplink-baseline", "tplink-security" } or {},
                     },
                 },
             },
@@ -192,9 +192,9 @@ return -- lazy.nvim
                     -- 布局
                     window = {
                         -- 是否在 buffer 列表中显示 Chat Buffer
-                        -- 当前效果：会出现在 :ls 或 buffer 切换列表中
+                        -- 当前效果：不会出现在 :ls 或 buffer 切换列表中
                         -- 可选取值：true（显示）、false（隐藏）
-                        buflisted = true,
+                        buflisted = false,
 
                         -- 切换 tab 时 Chat Buffer 是否保持打开，只有当pertab为false时有用
                         -- 当前效果：切换 tab 时 Chat Buffer 不会跟随
