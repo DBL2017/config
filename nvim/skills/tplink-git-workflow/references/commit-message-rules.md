@@ -1,8 +1,12 @@
 # Commit Message Rules
 
 Use exactly one section per language: English first, then Chinese after one
-blank line. Both titles and all labels must correspond to the same selected
-category. Do not add Conventional Commit prefixes such as `feat:` or `fix:`.
+blank line. Put a blank line between every title, label, and field value in
+each section. Both titles must start with the same bracketed module or device
+identifier, such as `[tplink-code-review]`; retain the square brackets in the
+English title as well as the Chinese title. All labels must correspond to the
+same selected category. Do not add Conventional Commit prefixes such as
+`feat:` or `fix:`.
 
 The labels below are literal: preserve spelling, capitalization, and square
 brackets. Do not include template explanations or labels from other
@@ -21,10 +25,13 @@ English body, with these labels and this order only:
 ```text
 [Issue Description]
 <Describe the problem>
+
 [Root Cause]
 <Explain the root cause>
+
 [Solution]
 <Describe the fix>
+
 [Test Scope]
 <List evidenced test cases>
 ```
@@ -33,12 +40,16 @@ Chinese title and body:
 
 ```text
 [Module] Fix Bug BUG_ID: 描述
+
 [问题描述]
 <描述问题现象>
+
 [问题原因]
 <说明问题根源>
+
 [解决方案]
 <描述修复方案>
+
 [自测内容]
 <列出暂存区明确提供的测试要点>
 ```
@@ -75,6 +86,7 @@ English body:
 ```text
 [Model Adaptation]
 <Describe the device-specific adaptation>
+
 [Test Scope]
 <List evidenced test cases>
 ```
@@ -83,8 +95,10 @@ Chinese title and body:
 
 ```text
 [Device Model] 描述
+
 [机型适配]
 <描述机型适配内容>
+
 [自测内容]
 <列出暂存区明确提供的测试要点>
 ```
@@ -117,6 +131,7 @@ English body:
 ```text
 [Requirement]
 <Describe the requirement, including Ref: TLXXXX when applicable>
+
 [Test Scope]
 <List evidenced test cases>
 ```
@@ -125,8 +140,10 @@ Chinese title and body:
 
 ```text
 [Module] 描述
+
 [需求]
 <描述需求；仅在暂存区提供时包含 Ref: TLXXXX>
+
 [自测内容]
 <列出暂存区明确提供的测试要点>
 ```

@@ -82,6 +82,10 @@ diff.
 Before committing, verify that:
 
 - English comes first, followed by one blank line and Chinese.
+- Both titles begin with the same bracketed module or device identifier
+  (for example, `[tplink-code-review]`); never omit the brackets from the
+  English title.
+- Separate every title/body item with a blank line in both language sections.
 - The two sections use the same category and corresponding title identifiers.
 - Each section has exactly the title and labels allowed for that category.
 - No unused template text, commentary, standalone change list, or other
