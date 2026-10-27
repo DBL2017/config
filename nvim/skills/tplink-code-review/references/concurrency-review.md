@@ -6,24 +6,18 @@ flag every global or require a lock around all accesses.
 
 ## 1. Map state to execution contexts
 
-For module reviews, persist each mutable state object or coherent field group
-in `review.json.state_groups`, using `review-record-format.md`; an internal
-table or conversation-only observation is not a substitute. For narrower
-reviews, apply the same reasoning within the selected evidence boundary.
-
-| State | Writers | Readers | Execution contexts | Synchronization/order | Status |
-|---|---|---|---|---|---|
-| Configuration fields, buffers, counts, pointers | Initialization, refresh, reset, teardown | Direct reads, getters, aliases, callbacks | Registration and scheduling sites | Common lock, atomic protocol, publication, confinement | Verified, finding, or unresolved |
+The module completion protocol owns persistence and dedicated state traces;
+the record schema owns fields. This reference owns concurrency reasoning.
+For narrow reviews, apply it only within the selected evidence boundary.
 
 Locate definitions and declarations, then trace actual accesses and their
 callers. Include helper files and accesses outside the module only when they
 touch the target's state or establish a relevant contract. Search results are
 candidates: distinguish similarly named locals, inactive code, and aliases.
 Resolve macros and wrappers before deciding what a lock protects.
-Reconcile each file's mutable-state observations with its `state_group_ids`.
-Use a dedicated synchronization trace for each group, separate from array
-capacity, parsing, or allocation traces. A finding in another category cannot
-close the group's synchronization question.
+Reuse already verified dispatch/helper evidence by stable ID after checking
+its identity and dependencies. Do not retrace it for each file unless a new
+caller or contract changes the conclusion.
 
 For each access, distinguish:
 
@@ -42,15 +36,14 @@ reentrant lifetime defect; demonstrate its actual ordering.
 
 Classify every discovered writer call path, including refresh/reset/teardown,
 not just startup callers. Search direct calls, aliases and callback tables;
-inspect enclosing functions and registration/dispatch sites. Retain scoped
-search coverage and excluded/inactive hits with reasons in
-`access_inventory.evidence`. A matching line is not a call-context proof.
+inspect enclosing functions and registration/dispatch sites. Record scoped
+search coverage and excluded/inactive hits with reasons; a matching line is
+not a call-context proof.
 Do not infer phase from file order, function names, or a different updater
 that does not write this cache. Unresolved indirect calls or variants remain
 pending/blocked rather than being silently classified as startup.
-For an initialization-only conclusion, a callback labeled startup needs
-`startup_only_evidence` proving it cannot run later; registration before
-worker creation does not establish invocation before worker creation.
+For an initialization-only conclusion, prove a startup callback cannot run
+later; registration before worker creation does not prove invocation before it.
 
 Before marking a group verified, perform and persist a counterexample check:
 
@@ -140,7 +133,7 @@ If a required caller, build variant, or synchronization wrapper cannot be
 resolved, state that concrete limitation in `评审范围`, not as a confirmed
 defect or a claim of complete review.
 
-Keep findings in the parent skill's format. For one shared-state root cause,
+Keep findings in the selected route's report format. For one shared-state root cause,
 include representative conflicting read/write locations and scheduling
 evidence in `原因`; group related fields only if they share the same access
 and synchronization defect. Recommend the smallest appropriate repair

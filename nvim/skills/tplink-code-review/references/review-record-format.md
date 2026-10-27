@@ -4,6 +4,10 @@ Store the following two files in a unique runtime session directory outside
 the reviewed repository. Use absolute paths when invoking bundled scripts.
 Do not copy example status/evidence as real review results.
 
+Prefer `record-tools.md` commands over manually writing this schema. This file
+owns field definitions and migrations, not stage gates or write policy (see
+`module-review-completion.md`). Incremental commands preserve version-3 records.
+
 ## review.json
 
 ```json
@@ -54,6 +58,16 @@ A trace has `id`, `status` (`pending`, `verified`, `finding`, `blocked`),
 Retain path, relevant objects, execution contexts and outstanding question
 as additional fields. Resolved traces need evidence. Blocked traces require
 `reason`. Issue/trace links must be reciprocal.
+
+Optional `supporting_files` maps repository-relative header/build/config paths
+to actual SHA-256 identities. Optional `evidence_catalog` maps stable IDs to
+`summary`, source-location `evidence` and optional `dependencies`. Any evidence
+list can reuse a catalog entry with `@E001`; references must resolve and catalog
+entries cannot reference other entries. Retain concrete locations in report
+fields. Use `dependencies` and trace/state IDs to identify reusable contracts.
+The record tool invalidates their dependent work when facts change; the validator
+checks references, not semantic dependency completeness. Neither optional field
+is required when reading existing version-3 records.
 
 Validation status is `executed`, `unavailable`, `unsafe`, or `not_applicable`
 with factual `details` at completion. Record commands/results as supporting
@@ -164,6 +178,9 @@ Append a new complete snapshot with `seq: 2`, etc. when updating that issue.
 Do not delete history. Reopen a confirmed/dismissed issue as pending before
 changing its disposition based on new evidence. Invalidate related checks,
 traces, and report mappings when evidence changes.
+The incremental tool supplies optional `evidence_snapshots` mapping referenced
+catalog IDs to their facts at event time, preserving historical evidence even
+when the current catalog is updated. Do not edit historical snapshots.
 
 For `confirmed`, supply nonempty `location`, `cause`, `recommendation`, `rule`,
 `severity` (`Critical`, `High`, `Medium`, `Low`), `axis` (`Standards`, `Spec`),

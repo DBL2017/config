@@ -198,10 +198,10 @@
     {
       "id": 17,
       "prompt": "模块评审刚发生上下文压缩。保存的台账显示纳入30个文件、初审完成17个，7条跨文件任务和7个疑点都待核实；我没有要求停止。请从会话记录恢复评审，不要只复核几个显眼问题就输出完整报告。若脚本校验不通过，按实际缺口继续。",
-      "expected_output": "回读 review.json 和 issues.jsonl、验证源码身份并运行 progress 校验，从脚本推导的首个待审文件恢复；初审和整合门禁未通过前不输出完整结论，也不虚构中断原因。",
+      "expected_output": "通过 resume 工具内部回读并校验 review.json 和 issues.jsonl，只将首个待审工作集加载到模型上下文；验证源码身份并通过内部 progress 校验后继续。初审和整合门禁未通过前不输出完整结论，也不虚构中断原因。",
       "files": [],
       "expectations": [
-        "Loads both session files after compaction and runs the progress validator",
+        "Uses resume to load and progress-validate both session files internally after compaction without dumping the full journal into model context",
         "Resumes remaining file coverage rather than generating a complete report from known suspects",
         "Does not invent an interruption or promote pending issues to bypass a gate"
       ]
@@ -238,6 +238,41 @@
         "Preserves unresolved indirect-call/build-context evidence as blocked rather than initialization-only or dismissed",
         "Does not substitute an unrelated array finding for synchronization closure",
         "Final/integration gate stays closed and partial output lists remaining state groups and concrete interruption"
+      ]
+    },
+    {
+      "id": 21,
+      "prompt": "请按 TP-LINK 规范检查暂存改动；这是路由开销用例，已核实 git diff --cached 为空，且没有指定文件、模块或 commit。只按失败协议作答，不加载模块台账、并发参考或脚本实现。",
+      "expected_output": "输出原有空 diff 两行错误；范围解析失败即结束，不读取不适用参考或创建模块记录。",
+      "files": [],
+      "expectations": [
+        "Returns the exact no-valid-Git-diff message",
+        "Does not load module completion, record schema, concurrency references or tool implementations after the empty-diff result",
+        "Does not create a module ledger or inspect unstaged code"
+      ]
+    },
+    {
+      "id": 22,
+      "prompt": "请评审 evals/fixtures/coverage-module 模块，只读源码、不执行程序。使用技能的增量记录工具创建台账，按实际证据完成逐文件和跨文件检查；共享调度或 helper 契约用稳定证据 ID 复用，不在每个文件重复输出相同源码和完整 JSON。不能为了减少 token 而跳过状态组或提前输出完成结论。",
+      "expected_output": "按需读取模块协议和工具用法，用 init/update 维护 v3 台账；保存稳定证据引用和四维检查，仍检查六个实现文件、确认独立边界及并发问题并通过原有门禁，最后由原有报告脚本输出。",
+      "files": ["evals/fixtures/coverage-module"],
+      "expectations": [
+        "Uses manage_review_record.py init/update rather than repeatedly rewriting the whole record or issue history",
+        "Records shared evidence once and reuses validated catalog or trace IDs without replacing source analysis with IDs",
+        "Keeps all six implementation-file checks and dedicated shared-state synchronization traces",
+        "Runs initial/integration gates and generate_review_report.py without modifying or executing fixture source"
+      ]
+    },
+    {
+      "id": 23,
+      "prompt": "这是续接工具用例。请在仓库外临时会话目录创建小型测试源码和实际 v3 台账，用工具追加某问题的 dismissed 和 pending 两次事件，以稳定 E001 记录调度证据。先调用 resume 和 get 查询当前工作集，不能把完整 journal 读入对话。然后修改测试源码模拟契约变化，确认 resume 禁止直接沿用旧证据，再显式 invalidate 依赖并检查未受影响文件的记录仍保留。不要访问生产模块，不宣称本用例是完整生产代码评审。",
+      "expected_output": "工具内部校验完整历史，仅返回分页工作集/最新问题；源码变化使 resume_allowed 为 false；显式失效重开依赖并保留事件历史及不相关覆盖，不绕过门禁。",
+      "files": [],
+      "expectations": [
+        "Uses real session-local files and scoped resume/get commands without dumping full issue history into model context",
+        "Preserves consecutive full issue-event snapshots including dismissed and pending states",
+        "Detects changed tracked source and requires explicit invalidation before reuse",
+        "Reopens linked checks/proofs/issues and preserves unaffected file coverage without claiming a completed production review"
       ]
     }
   ]

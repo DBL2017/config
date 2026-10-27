@@ -29,6 +29,58 @@ def evidence(value):
     return isinstance(value, list) and bool(value) and all(text(item) for item in value)
 
 
+def validate_event(event, previous=None):
+    require(isinstance(event, dict), "Issue event must be an object")
+    issue_id = event.get("id")
+    require(text(issue_id), "Issue event requires id")
+    require(event.get("seq") == (previous["seq"] + 1 if previous else 1),
+            f"{issue_id}: event sequence must be consecutive")
+    require(event.get("status") in STATUSES, f"{issue_id}: invalid status")
+    for key in ("origin", "summary", "disposition", "updated_at"):
+        require(text(event.get(key)), f"{issue_id}: missing {key}")
+    for key in ("evidence", "dependencies", "open_questions", "trace_ids"):
+        require(isinstance(event.get(key), list), f"{issue_id}: {key} must be a list")
+    require(event["evidence"], f"{issue_id}: evidence references required")
+    if event["status"] in ("pending", "blocked"):
+        require(text(event.get("next_check")), f"{issue_id}: next_check required")
+    if previous and previous["status"] in ("confirmed", "dismissed"):
+        require(event["status"] in (previous["status"], "pending", "merged"),
+                f"{issue_id}: reopen as pending before changing disposition")
+    if event["status"] == "confirmed":
+        for key in ("location", "cause", "recommendation", "rule"):
+            require(text(event.get(key)), f"{issue_id}: missing report field {key}")
+        require(event.get("severity") in SEVERITIES, f"{issue_id}: invalid severity")
+        require(event.get("axis") in ("Standards", "Spec"), f"{issue_id}: invalid axis")
+        require(not event["open_questions"], f"{issue_id}: confirmed with open questions")
+
+
+def evidence_references(value):
+    if isinstance(value, dict):
+        for key, child in value.items():
+            if key.endswith("evidence") and isinstance(child, list):
+                for item in child:
+                    if isinstance(item, str) and item.startswith("@"):
+                        yield item[1:]
+            yield from evidence_references(child)
+    elif isinstance(value, list):
+        for child in value:
+            yield from evidence_references(child)
+
+
+def validate_evidence_catalog(record, issues):
+    catalog = record.get("evidence_catalog", {})
+    require(isinstance(catalog, dict), "evidence_catalog must be an object")
+    for key, entry in catalog.items():
+        require(text(key) and not key.startswith("@") and isinstance(entry, dict),
+                "Invalid evidence catalog entry")
+        require(text(entry.get("summary")) and evidence(entry.get("evidence")),
+                f"{key}: summary and source evidence required")
+        require(not any(item.startswith("@") for item in entry["evidence"]),
+                f"{key}: catalog evidence must contain source locations, not references")
+    for key in evidence_references([record, list(issues.values())]):
+        require(key in catalog, f"Unknown evidence reference @{key}")
+
+
 def validate_state_groups(record, checks, traces, issues, gate):
     groups = record.get("state_groups")
     require(isinstance(groups, list), "state_groups must be a list")
@@ -175,9 +227,7 @@ def validate_state_groups(record, checks, traces, issues, gate):
             "remaining_state_groups": unresolved}
 
 
-def load_record(path):
-    path = Path(path).resolve()
-    record = json.loads(path.read_text(encoding="utf-8"))
+def validate_record_location(path, record):
     require(isinstance(record, dict), "review.json must be an object")
     source = record.get("source", {})
     require(isinstance(source, dict), "source must be an object")
@@ -190,6 +240,15 @@ def load_record(path):
     journal = path.with_name("issues.jsonl")
     require(journal.resolve().parent == path.parent,
             "issues.jsonl must not link outside the session record directory")
+
+
+def load_record(path, allow_transaction=False):
+    path = Path(path).resolve()
+    require(allow_transaction or not path.with_name("transaction.json").exists(),
+            "Unfinished record transaction; run manage_review_record.py recover")
+    record = json.loads(path.read_text(encoding="utf-8"))
+    validate_record_location(path, record)
+    journal = path.with_name("issues.jsonl")
     issues = {}
     require(journal.is_file(), "Create issues.jsonl, even if empty")
     for number, line in enumerate(journal.read_text(encoding="utf-8").splitlines(), 1):
@@ -200,32 +259,14 @@ def load_record(path):
         require(isinstance(event, dict), f"Event {number} must be an object")
         issue_id = event.get("id")
         require(text(issue_id), f"Event {number} requires id")
-        previous = issues.get(issue_id)
-        require(event.get("seq") == (previous["seq"] + 1 if previous else 1),
-                f"{issue_id}: event sequence must be consecutive")
-        require(event.get("status") in STATUSES, f"{issue_id}: invalid status")
-        for key in ("origin", "summary", "disposition", "updated_at"):
-            require(text(event.get(key)), f"{issue_id}: missing {key}")
-        for key in ("evidence", "dependencies", "open_questions", "trace_ids"):
-            require(isinstance(event.get(key), list), f"{issue_id}: {key} must be a list")
-        require(event["evidence"], f"{issue_id}: evidence references required")
-        if event["status"] in ("pending", "blocked"):
-            require(text(event.get("next_check")), f"{issue_id}: next_check required")
-        if previous and previous["status"] in ("confirmed", "dismissed"):
-            require(event["status"] in (previous["status"], "pending", "merged"),
-                    f"{issue_id}: reopen as pending before changing disposition")
-        if event["status"] == "confirmed":
-            for key in ("location", "cause", "recommendation", "rule"):
-                require(text(event.get(key)), f"{issue_id}: missing report field {key}")
-            require(event.get("severity") in SEVERITIES, f"{issue_id}: invalid severity")
-            require(event.get("axis") in ("Standards", "Spec"), f"{issue_id}: invalid axis")
-            require(not event["open_questions"], f"{issue_id}: confirmed with open questions")
+        validate_event(event, issues.get(issue_id))
         issues[issue_id] = event
     return path, record, issues
 
 
 def validate(record, issues, gate="progress"):
     require(record.get("schema_version") == 3, "Expected schema_version 3; migrate explicitly")
+    validate_evidence_catalog(record, issues)
     source = record.get("source", {})
     for key in ("module", "identity"):
         require(text(source.get(key)), f"source.{key} required")

@@ -98,6 +98,7 @@ of tooling alone need not block completion of a static review; an unresolved
 material build/behavior question does. Explain material limits in the parent
 skill's scope line, without implying that syntax/type success proves runtime
 correctness or that a conditional bug must happen on every run.
-Keep the parent skill's report layout: do not add a separate validation
-section or `验证说明` paragraph. Mention only material validation limitations
+Keep the selected route's report layout (non-module `report-format.md`, module
+generator): do not add a separate validation section or `验证说明` paragraph.
+Mention only material validation limitations
 in `评审范围`; keep detailed successful-check logs in session evidence.
