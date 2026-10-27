@@ -7,7 +7,7 @@ description: >-
   TP-LINK standards, or requests a TP-LINK-style security, correctness, or
   stability review. Review only the requested scope, report actionable
   defects in Simplified Chinese, and never modify the reviewed code.
-compatibility: Requires repository/file access and Git for local diffs; incremental module tools require POSIX and Python 3; Gerrit requires configured SSH access or an explicit URL.
+compatibility: Requires repository/file access and Git for local diffs; incremental module tools require POSIX and Python 3; Gerrit retrieval requires Python 3.8+, HTTPS access and GERRIT_AUTH_NAME/GERRIT_AUTH_TOKEN HTTP credentials.
 ---
 
 # TP-LINK Code Review
@@ -29,7 +29,7 @@ permitted review output there. Other reviews report in chat.
 | Module/subsystem without revision | Current implementation, local headers, build/configuration and relevant tests |
 | Repository review without target/revision | Staged diff only: `git diff --cached` |
 | Commit/hash/ref | Selected commit against its first parent |
-| Gerrit URL/change/Change-Id/patchset | Exact requested patchset, retrieved using `gerrit-code-review` |
+| Gerrit URL/change/Change-Id/patchset | Exact requested patchset, retrieved using `scripts/fetch_gerrit_patch.py`; read `references/gerrit-retrieval.md` first |
 
 Resolve ambiguous module names before reviewing. A module request is not a
 diff review and needs no staged changes. Do not substitute the worktree for
@@ -39,13 +39,42 @@ For change reviews, report only introduced defects or old defects whose
 reachability/behavior the change materially alters. File/module reviews cover
 the requested current implementation without implying change attribution.
 Follow neighboring callers only to establish a concrete target contract.
+For Gerrit, the bundled script is the retrieval implementation; use its verified
+manifest and REST diff rather than repeating manual fetch commands. The default
+downloads no Git object store or full source tree. Read `patch.diff` first;
+request only necessary same-revision/first-parent files with
+`scripts/fetch_gerrit_context.py`, following the retrieval reference. Do not treat
+diff context as sufficient when a finding needs a complete function or caller.
+Gerrit query, patch download and context retrieval use authenticated REST only;
+they require `GERRIT_AUTH_NAME` and `GERRIT_AUTH_TOKEN` and never use SSH, Git
+fetch, browser cookies, or local worktree content as a fallback.
+Do not delegate retrieval to `gerrit-code-review`: its separate retrieval and
+generic failure instructions do not apply to this skill's Gerrit route.
 
-If Gerrit retrieval fails, return exactly:
+If Gerrit retrieval fails, stop and report the script's actual diagnostic in
+Simplified Chinese using this structure (replace placeholders, do not print them):
 
 ```text
 结论：无法评审
-原因：无法获取指定 Gerrit change/patchset 的有效 diff，请检查连接、权限或 patchset。
+阶段：<diagnostic.stage 的中文说明>
+目标：<diagnostic.endpoint；未解析端点时写用户指定的目标>
+原因：<diagnostic.error 中的具体错误，保留关键原始错误文本>
 ```
+
+Include the exit code or HTTP status when returned, and the HTTP diagnostic path
+when available. Required-context failures must report their actual stage and
+error too; never substitute worktree/latest-branch content or claim completion.
+Never replace a concrete
+timeout, authentication, missing-patchset or SHA-mismatch error with
+a generic connection/permission hint. Include the attempt count, elapsed time,
+and `diagnostics` path when returned. Do not infer server-side root cause from
+an HTTP timeout.
+The script owns transient REST query retries; do not restart the whole script
+automatically after they are exhausted.
+Redact credentials, tokens and cookies;
+do not invent a root cause beyond the observed error. If the script cannot run,
+name the failed tool/path and its actual error. Do not review partial artifacts
+or fall back to the worktree.
 
 If no target/revision or valid staged diff exists, return exactly:
 

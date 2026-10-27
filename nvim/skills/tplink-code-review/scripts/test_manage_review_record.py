@@ -307,7 +307,12 @@ class ManageRecordTests(unittest.TestCase):
         content = (skill / "SKILL.md").read_text()
         self.assertLessEqual(len(content.splitlines()), 180)
         self.assertIn("未提供有效的 Git diff，请先暂存变更或指定一个 Git commit。", content)
-        self.assertIn("无法获取指定 Gerrit change/patchset 的有效 diff", content)
+        self.assertIn("diagnostic.stage", content)
+        self.assertIn("diagnostic.endpoint", content)
+        self.assertIn("diagnostic.error", content)
+        self.assertIn("Do not delegate retrieval to `gerrit-code-review`", content)
+        self.assertIn("scripts/fetch_gerrit_context.py", content)
+        self.assertIn("GERRIT_AUTH_NAME` and `GERRIT_AUTH_TOKEN", content)
         for name in ("record-tools.md", "report-format.md", "module-review-completion.md"):
             self.assertIn(name, content)
             self.assertTrue((skill / "references" / name).is_file())

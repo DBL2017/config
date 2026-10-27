@@ -36,12 +36,37 @@
     },
     {
       "id": 4,
-      "prompt": "请评审 Gerrit change I0123456789abcdef 的指定 patchset。Gerrit 返回权限错误且没有有效 diff。不要根据当前工作树猜测问题，请按技能的失败处理规则作答。",
-      "expected_output": "返回规定的 Gerrit diff 获取失败两行文本，不用当前工作树替代目标 patchset。",
+      "prompt": "请评审 Gerrit change I0123456789abcdef 的指定 patchset。获取脚本在 REST 查询阶段对 HTTPS endpoint=https://review.example.com/a/changes/?q=change%3AI0123456789abcdef 连续尝试了 3 次，耗时 30.2 秒，返回 http_status=503、timeout_type=http_timeout、diagnostics=/session/files/change/diagnostics/http-requests.jsonl，没有有效 manifest。不要根据当前工作树猜测问题，请按技能的失败处理规则作答。",
+      "expected_output": "返回无法评审，说明 Gerrit REST 查询阶段、HTTPS endpoint、3 次尝试和总耗时、实际 503/HTTP 超时信息及诊断路径；不误报 SSH 建连超时，不认定服务端逻辑错误，不再次自动执行整个脚本，不用当前工作树替代目标 patchset。",
       "files": [],
       "expectations": [
-        "Returns the exact Gerrit retrieval failure message",
+        "Reports the REST query stage, HTTPS endpoint, attempt count, elapsed time, HTTP failure and diagnostics path",
+        "Does not attribute an HTTP timeout to SSH or invent a server-side root cause",
+        "Does not expose credentials or restart the script after its retry policy is exhausted",
         "Does not fall back to a local repository diff"
+      ]
+    },
+    {
+      "id": 26,
+      "prompt": "请评审 Gerrit change 12345 的 patchset 1。默认获取脚本成功生成 schema_version=3、retrieval=rest 的 manifest，revision=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb、base=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa、repository=null，patch.diff 中修改了 net/client.c 的一小段函数；需要看完整函数和未改动头文件才能确认契约。当前工作树和最新 patchset 都已发生变化。请按需取得该版本上下文，不能为了方便下载整个仓库。",
+      "expected_output": "先读已验证的 patch.diff，再使用 fetch_gerrit_context.py 与同一 manifest 按需获取 net/client.c 及直接相关头文件，必要时指定 base；不使用 Git show null 仓库、不 fetch、不采用当前工作树或最新 patchset，不把 diff 局部上下文当成完整函数证据。",
+      "files": [],
+      "expectations": [
+        "Uses the REST manifest and reads the diff before requesting only necessary files",
+        "Retrieves context through fetch_gerrit_context.py pinned to the selected revision or first parent",
+        "Does not run Git fetch, use a null repository, or substitute latest/worktree content",
+        "Does not claim a contract defect without the necessary complete function/header context"
+      ]
+    },
+    {
+      "id": 27,
+      "prompt": "评审 Gerrit patchset 时 REST 查询已使用 /a/ 路径，但返回 stage=rest_query、http_status=401、endpoint=https://review.example.com/a/changes/?q=change%3A12345，error=Gerrit REST returned HTTP 401: Unauthorized; check GERRIT_AUTH_NAME/GERRIT_AUTH_TOKEN and Gerrit HTTP access，diagnostics=/session/files/change/diagnostics/http-requests.jsonl，没有生成 manifest。请处理该失败，不要自动改成 SSH、git fetch 或本地代码。",
+      "expected_output": "按实际 REST 阶段、端点、HTTP 401 及诊断路径报告无法评审；提示核对命名环境变量及 Gerrit HTTP 凭据/权限，不输出变量内容，不自动退回 SSH、Git fetch 或工作树，不编造根因。",
+      "files": [],
+      "expectations": [
+        "Reports the REST query stage, exact HTTP 401 error, endpoint and diagnostic path",
+        "Mentions GERRIT_AUTH_NAME and GERRIT_AUTH_TOKEN without exposing their values",
+        "Does not fall back to SSH, Git fetch, partial artifacts or local source"
       ]
     },
     {
