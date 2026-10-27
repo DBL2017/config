@@ -170,6 +170,75 @@ suspicions; names, comments, and checker warnings are leads, not proof.
    Reconcile all recorded suspects and confirmed findings with their
    dispositions and final-report entries; file coverage alone is not enough.
 
+### Manual verification and runtime blockers
+
+A failed agent request, policy block, or HTTP 4xx/5xx response establishes only
+that the tool call did not complete. It does not establish that the source
+path cannot be reviewed, nor does it justify attributing every unfinished item
+to one "protocol-identification partition." Record the event as a runtime
+blocker, then verify the affected items individually using the procedure
+below. If the source and local review record remain accessible, continue the
+analysis directly rather than waiting for the agent to recover or resubmitting
+the same task.
+
+For each pending or blocked trace, issue, and `state_group`, record auditable
+details:
+
+- `blocker_type`: `agent_transport`, `tool_access`, `source_context`, or
+  `reviewer_stop`; do not use a vague label such as "tool restriction."
+- The raw error text, time, request/agent ID, tool invoked, and affected record
+  IDs. If the original diagnostic is unavailable, state
+  `raw_diagnostic_unavailable`; do not guess the triggering rule, risk policy,
+  or conditions for clearing the block.
+- `next_check`: an actionable check that a reviewer or the current session can
+  perform. Avoid vague steps such as "continue tracing."
+- `closure_evidence`: the source locations, dispatch evidence, access
+  classifications, synchronization/lifetime proof, or counterevidence needed
+  to resolve the item.
+
+Perform manual verification in this order, recording source locations for
+each step in `evidence`:
+
+1. **Rebuild the object inventory.** List the functions, global/static
+   objects, aliases, fields read or written, and known files involved in the
+   trace. Use `rg` or editor references to find direct accesses and call sites;
+   record generated code and inactive conditional-build branches that are
+   excluded, with reasons.
+2. **Rebuild call paths and execution contexts.** Follow calls from entry
+   points, registration and startup sites, workers/threads, timers, event
+   callbacks, and shutdown paths. For every callback or worker, record both
+   registration and actual dispatch/execution evidence; do not infer a thread
+   from a function name.
+3. **Check normal, failure, and lifetime paths.** Inspect initialization,
+   refresh, error returns, cancellation, retry, shutdown, release, and
+   reentrancy. For each resource or object, record who acquires, uses, and
+   releases it, and the ordering around release.
+4. **Verify shared state separately.** For each `state_group`, list every
+   writer and reader, including write/write conflicts, and classify its
+   `startup`/`runtime` phase, context, and access kind. Then establish one
+   applicable proof: `initialization_only`, `single_context`, `common_lock`,
+   `snapshot`, `atomic`, or `ownership`. A lock name or an assumption that
+   code "usually runs on the main thread" is not proof. Cite synchronization,
+   publication, or ownership evidence for both sides, and complete the
+   `runtime_writers`, `async_dispatch`, and `synchronization_both_sides`
+   counterexample checks.
+5. **Record an item-level disposition.** If the trigger and invalid impact are
+   demonstrated, update the item to `confirmed`/`finding`. If source evidence
+   disproves the concern, update it to `dismissed`/`verified`. If evidence is
+   missing, keep it `pending`/`blocked`, state the specific gap in
+   `next_check`, and do not present incomplete verification as "no issues
+   found."
+
+The report's "remaining work" must list each unresolved trace/state-group ID,
+file/symbol, current blocker, `next_check`, and `closure_evidence`. If the
+only failure was agent communication and source access is intact, state that
+"the agent request failed, but source verification can continue directly";
+do not make "these traces cannot currently be completed" the sole conclusion.
+Treat an item as blocked from manual review only when the source, a relevant
+build variant, caller, or dispatch evidence is genuinely inaccessible. In that
+case, list the access methods attempted and the specific input needed to
+resolve the dependency.
+
 Keep coverage in session-local `review.json` and append full issue-state
 events to the adjacent `issues.jsonl`, not in the reviewed repository or
 only in conversation context. Use the version-3 schema, validation commands,
