@@ -1,6 +1,6 @@
 ---
 name: problem-analysis-documentation
-description: "Standardize end-to-end technical problem handling: clarify the problem statement, collect and protect source code and logs, reproduce and analyze the root cause, design and validate a solution, and produce an auditable engineering document. Use this skill whenever the user reports a bug, incident, customer issue, crash, regression, abnormal behavior, or asks to analyze provided code/logs and explain the cause and fix—even if they do not explicitly ask for a formal report."
+description: "Standardize evidence-based diagnosis and resolution of technical problems. Use this skill when the user reports or asks to investigate a bug, incident, crash, regression, or other unexpected behavior, including requests to explain its cause or fix. Do not use the full problem-analysis workflow for general code explanations, routine code reviews without a reported problem, or feature implementation unrelated to a defect."
 compatibility: Requires access to the relevant repository, source files, logs, test/build tools, and issue or document destination when available.
 ---
 
@@ -17,11 +17,22 @@ Use this workflow to turn incomplete technical evidence into a defensible diagno
 - Prefer the smallest root-cause fix that preserves intended behavior. Include compatibility, rollout, rollback, and failure-mode considerations.
 - A diagnosis is incomplete until it has a causal chain and a validation plan. A plausible symptom description alone is not a root cause.
 
+## Choose the response mode
+
+Match the work to the user's request, impact, and available evidence. The workflow below is a toolbox, not a requirement to produce a full incident report for every problem.
+
+- **Quick triage (default for simple investigations):** State the current conclusion or that the cause is not yet known, then give the most useful next check or action. Keep it brief; do not produce the full report template.
+- **Root-cause analysis:** When the user asks why, or the issue needs deeper investigation, provide the evidence-backed causal chain, confidence, unresolved alternatives, and recommended fix and validation.
+- **Implementation:** Edit files only when the user asks for a fix or implementation. A request to diagnose or explain alone is not permission to change code. After changes, report the checks actually run and their results.
+- **Formal report:** Use `references/report-template.md` when the user requests a report, or when the incident's impact or audit needs justify a durable record. Do not force every template field when evidence is unavailable; mark gaps rather than inventing details.
+
+Modes can be combined when the request calls for it (for example, root-cause analysis plus implementation). Ask only for information that blocks useful progress; otherwise proceed with clearly stated assumptions and the smallest relevant investigation.
+
 ## Workflow
 
 ### 1. Frame the problem
 
-Start with a concise problem record:
+For triage, capture only the details needed to identify the symptom and the next check. For deeper analysis or a formal report, build a problem record using the applicable fields:
 
 | Field | Content |
 |---|---|
@@ -34,11 +45,11 @@ Start with a concise problem record:
 | Reproduction | Minimal steps, inputs, frequency, and whether it is deterministic |
 | Evidence | Files, logs, traces, commits, configs, metrics, and test results |
 
-If essential information is missing, ask focused questions before making a strong claim. If useful progress is possible, proceed with an explicit **Assumptions and gaps** subsection rather than blocking.
+If essential information is missing, ask focused questions before making a strong claim. If useful progress is possible, proceed with explicit assumptions and gaps rather than blocking. Do not require every field for a quick triage.
 
 ### 2. Ingest code and logs safely
 
-Inventory every supplied artifact before interpreting it. For each item record its path/name, version or commit, time range, origin, and whether it may contain secrets or personal data.
+For deeper analysis and formal reports, inventory relevant supplied artifacts before interpreting them. Record their path/name, version or commit, time range, origin, and whether they may contain secrets or personal data. For quick triage, inspect only the evidence needed to answer the immediate question.
 
 For source:
 
@@ -107,7 +118,7 @@ Do not prescribe a code edit that has not been connected to the causal mechanism
 
 ### 6. Implement and verify
 
-When the user asks for implementation, make surgical changes using repository conventions. Before editing, inspect the relevant files and current diff. After editing:
+Only implement when the user asks for a fix or implementation. Make surgical changes using repository conventions. Before editing, inspect the relevant files and current diff. After editing:
 
 1. Run the narrowest relevant unit/integration/regression test.
 2. Run type-check, lint, build, or static analysis when the changed surface requires it.
@@ -115,11 +126,11 @@ When the user asks for implementation, make surgical changes using repository co
 4. Exercise relevant negative, boundary, concurrency, compatibility, and rollback cases.
 5. Report commands, results, and any unverified conditions.
 
-If a check cannot run, state the exact blocker and provide a reproducible command for the next engineer.
+If a check cannot run, state the exact blocker and provide a reproducible command for the next engineer. Distinguish checks that were run from checks that are merely recommended; never report an unrun check as passing.
 
 ### 7. Produce the final document
 
-Use the structure in `references/report-template.md` unless the repository or user specifies another format. The document must be useful to both implementers and reviewers:
+Only produce a formal document in **Formal report** mode. Use `references/report-template.md` unless the repository or user specifies another format. The document must be useful to both implementers and reviewers:
 
 - Executive summary: impact, status, root cause, and recommended action.
 - Problem statement and scope.
@@ -137,12 +148,11 @@ End with a compact **Action items** table containing owner, action, priority, an
 
 ## Output contract
 
-Unless the user asks for a different format, return:
+Follow the selected response mode rather than returning every deliverable by default:
 
-1. **Diagnosis summary** — one paragraph stating impact, root cause status, and confidence.
-2. **Evidence-based analysis** — timeline, causal chain, and exact references.
-3. **Solution** — recommended fix plus mitigation, tests, rollout, and rollback.
-4. **Validation status** — commands/results and explicit remaining gaps.
-5. **Standardized report** — the complete document using the referenced template.
+- **Quick triage:** Give the current conclusion (or state that the cause is unresolved) and the next useful check/action. Include a brief evidence or uncertainty note when needed.
+- **Root-cause analysis:** Summarize impact and confidence, then provide the evidence-backed causal chain, recommended fix, validation plan, and remaining gaps. Include a timeline or alternatives when they help explain the case.
+- **Implementation:** Summarize the change, files affected, checks actually run and their results, and any remaining gaps. Include rollout or rollback guidance when relevant.
+- **Formal report:** Provide the complete report using the referenced template, with evidence, analysis, solution, validation, rollout/rollback, and action items.
 
-For an unresolved case, still provide a ranked hypothesis table and the next evidence needed. Never fill unknown fields with invented values.
+For an unresolved case, give only the hypotheses and next evidence appropriate to the selected mode; rank hypotheses for deeper analysis or formal reports. Never fill unknown fields with invented values.
