@@ -715,7 +715,7 @@ return -- lazy.nvim
                             -- copilot不需要设置环境变量api_key，而是copilot_cli直接读取环境变量COPILOT_GITHUB_TOKEN
                             defaults = {
                                 timeout = 30000, -- 30 seconds
-                                model = platform.is_office and "gpt-5.6-luna" or nil, -- Add default model here
+                                model = platform.is_office and "GPT-6 Luna" or nil, -- Add default model here
                                 mcpServers = "inherit_from_config",
                             },
                         })
