@@ -92,23 +92,90 @@ for a specific TP-LINK rule.
 - Significant version changes should be tested and documented. Distinguish
   evidence visible in the requested diff from validation that was not run.
 
-## Enterprise-rule tags and source mapping
+## Rule catalog and citation
 
-Use these rule tags in the finding's `规则` field when applicable:
+The IDs below are stable identifiers for individual requirements in TP-LINK
+《软件编程规范书》V1.1. Do not reuse an ID for a different requirement; if a
+requirement is retired, reserve its ID. Cite the ID and source clause together.
+The short descriptions are locator aids; the source document remains
+authoritative. Recommendations retain their advisory status and must not be
+reported as mandatory requirements.
 
-| Tag | Coverage | Source sections |
+| Stable ID | Source clause | Requirement |
 |---|---|---|
-| `tplink_style` | Formatting and readability conventions | 1, 4 |
-| `tplink_commenting` | Comment accuracy, intent, and required rationale | 2 |
-| `tplink_naming` | Identifier and linkage conventions | 3 |
-| `tplink_interface_contract` | Parameters, return values, types, module interfaces | 5–6, 9.6 |
-| `tplink_function_design` | Function size, responsibility, fan-out, reentrancy | 6 |
-| `tplink_testability` | Debug controls and unit-test expectations | 7 |
-| `tplink_security_baseline` | Memory, integer, string, and input safety | 5, 9.2–9.7 |
-| `tplink_module_boundary` | Cross-module configuration and interface stability | 9.6 |
-| `tplink_build_quality_gate` | Compiler flags and warning handling | 11.1 |
-| `tplink_review_process` | Review, test, and release-record expectations | 11.2–11.3 |
+| `TPL-C-STYLE-001` | 1.1 | Use four-space indentation; do not mix tabs and spaces. |
+| `TPL-C-STYLE-002` | 1.2 | Keep each line within 80 characters and use the prescribed continuation style. |
+| `TPL-C-STYLE-003` | 1.3 | Put control statements on their own lines and brace every body. |
+| `TPL-C-STYLE-004` | 1.4 | Align `switch`, braces, and `case` labels consistently. |
+| `TPL-C-COMMENT-001` | 2.1 | Keep comments consistent with code, explain why, and align them with the code. |
+| `TPL-C-COMMENT-002` | 2.2 | Comment intentional fall-through, complex expressions, bit operations, platform-specific workarounds, and empty loops/functions. |
+| `TPL-C-NAME-001` | 3.1 | Avoid single-character names except conventional loop counters. |
+| `TPL-C-NAME-002` | 3.1 | Use descriptive names consistent with project conventions. |
+| `TPL-C-NAME-003` | 3.1 | Prefix global variables with `g_`. |
+| `TPL-C-NAME-004` | 3.1 | Do not give a local variable the same name as a global variable. |
+| `TPL-C-NAME-005` | 3.2 | Use lowercase snake_case for functions/variables, uppercase snake_case for macros/constants, uppercase or CamelCase for types, and uppercase `_STRU` structure tags. |
+| `TPL-C-NAME-006` | 3.3 | Prefer action-oriented function names and consistent opposites for paired operations. (Recommendation) |
+| `TPL-C-READ-001` | 4.1 | Use parentheses to make expression evaluation order explicit. |
+| `TPL-C-READ-002` | 4.2 | Keep related code together and avoid obscure techniques without justification. (Recommendation) |
+| `TPL-C-VAR-001` | 5.1 | Do not read uninitialized values; validate values before assigning global state. |
+| `TPL-C-TYPE-001` | 5.2 | Check range, signedness, width, promotion, byte order, and conversion behavior. |
+| `TPL-C-TYPE-002` | 5.3 | Mark read-only pointer inputs `const`; prefer `const` or enums for non-changing local/file-scope values. |
+| `TPL-C-SCOPE-001` | 5.4 | Use the smallest practical scope and initialize variables at declaration where practical. |
+| `TPL-C-SCOPE-002` | 5.4 | Give file-private functions and globals internal linkage. |
+| `TPL-C-SCOPE-003` | 5.4 | Never return a pointer to an expired local object. |
+| `TPL-C-FUNC-001` | 6.1 | Use accurate function names. |
+| `TPL-C-FUNC-002` | 6.1 | Handle error return codes from called functions. |
+| `TPL-C-FUNC-SIZE-001` | 6.1 | Keep functions within the recommended 200 non-comment, non-blank lines. (Recommendation) |
+| `TPL-C-INTERFACE-001` | 6.2 | Validate parameters and non-parameter inputs; pass actual arguments when modifying parameters. |
+| `TPL-C-INTERFACE-002` | 6.3 | Make return semantics clear, use returned values, and return a compatible type. |
+| `TPL-C-CONCURRENCY-001` | 6.4 | Avoid mutable static locals in reentrant code; protect shared globals. |
+| `TPL-C-FUNC-003` | 6.5 | Prefer focused functions, limited fan-out, low recursion, and shared helpers for repeated work. (Recommendation) |
+| `TPL-C-TEST-001` | 7.1 | Use consistent debug controls and logs with module and line; disable debug output in production without changing behavior. |
+| `TPL-C-TEST-002` | 7.2 | Provide independent unit tests for new logic, install/remove them through the debug switch, and meet the stated statement-coverage baseline. |
+| `TPL-C-PERF-001` | 8.1 | Do not trade correctness, stability, readability, or testability for optimization. |
+| `TPL-C-PERF-002` | 8.2 | Minimize loop-body work, move invariants/independent conditions out, put the longest loop innermost, and reduce nesting where appropriate. (Recommendation) |
+| `TPL-C-PERF-003` | 8.3 | Prefer multiplication over floating-point division when appropriate. (Recommendation) |
+| `TPL-C-QUALITY-001` | 9.1 | Prioritize correctness, stability/security, testability, readability, global efficiency, then local efficiency. |
+| `TPL-C-MEMORY-001` | 9.2 | Check allocations; release acquired memory/resources on every exit path; prevent invalid memory use, out-of-bounds access, and use of uninitialized values. |
+| `TPL-C-INTEGER-001` | 9.3 | Prevent integer overflow/underflow and validate boundary values. |
+| `TPL-C-OPERATOR-001` | 9.4 | Check for accidental substitution of commonly confused operators. |
+| `TPL-C-FLOW-001` | 9.5 | Include a `default` branch in every `switch`. |
+| `TPL-C-FLOW-002` | 9.5 | Prefer an appropriate `else` branch for `if` statements. (Recommendation) |
+| `TPL-C-FLOW-003` | 9.5 | Have worker threads exit cooperatively rather than forcibly terminating them. |
+| `TPL-C-MODULE-001` | 9.6 | Do not change another module's configuration, constants, or interfaces without authorization/justification. |
+| `TPL-C-STRING-001` | 9.7 | Bound string operations; avoid unbounded `strcpy`/`strcat`/`sprintf`; guarantee termination (including after `strncpy`); check `snprintf` truncation; never use `gets`. |
+| `TPL-C-HEADER-001` | 9.8 | Use include guards; keep headers to declarations and necessary includes; follow the prescribed include order. |
+| `TPL-C-MACRO-001` | 10.1 | Parenthesize macro parameters and the complete macro expression. |
+| `TPL-C-MACRO-002` | 10.2 | Wrap multi-statement macros in `do { ... } while (0)`. |
+| `TPL-C-MACRO-003` | 10.3 | Do not pass side-effecting expressions to macros that evaluate parameters more than once. |
+| `TPL-C-BUILD-001` | 11.1 | Keep build options consistent and fix warnings or document justified suppressions. |
+| `TPL-C-REVIEW-001` | 11.2–11.3 | Review code and test/document significant version upgrades. |
 
-These rules describe organizational practices, not C language requirements.
-Do not claim that a style rule is mandated by ISO/IEC 9899. When citing a
-chapter, use the chapter numbering above.
+Use the tags below only as broad categories, never as the complete citation:
+
+| Tag | Stable IDs |
+|---|---|
+| `tplink_style` | `TPL-C-STYLE-*`, `TPL-C-READ-*`, `TPL-C-HEADER-*` |
+| `tplink_commenting` | `TPL-C-COMMENT-*` |
+| `tplink_naming` | `TPL-C-NAME-*`, `TPL-C-SCOPE-002` |
+| `tplink_interface_contract` | `TPL-C-INTERFACE-*`, `TPL-C-TYPE-*`, `TPL-C-FUNC-002`, `TPL-C-MODULE-001` |
+| `tplink_function_design` | `TPL-C-FUNC-001`, `TPL-C-FUNC-SIZE-001`, `TPL-C-FUNC-003`, `TPL-C-CONCURRENCY-001` |
+| `tplink_testability` | `TPL-C-TEST-*` |
+| `tplink_security_baseline` | `TPL-C-VAR-*`, `TPL-C-TYPE-*`, `TPL-C-MEMORY-*`, `TPL-C-INTEGER-*`, `TPL-C-STRING-*`, `TPL-C-MACRO-*` |
+| `tplink_module_boundary` | `TPL-C-MODULE-001` |
+| `tplink_build_quality_gate` | `TPL-C-BUILD-001` |
+| `tplink_review_process` | `TPL-C-REVIEW-001` |
+
+For every reported finding, distinguish:
+
+- **Rule tags**: zero or more applicable category labels from the table above.
+- **Rule basis**: one or more exact citations, each naming a stable ID and
+  clause, plus a short explanation of its application.
+- **Project contract**: when behavior depends on a local interface/business
+  contract rather than a TP-LINK clause, cite the relevant source/caller
+  locations and explain the contract. Do not imply this is a TP-LINK rule.
+
+Do not force a broad or adjacent clause onto a finding. If no TP-LINK clause
+directly applies, say so and cite the project contract or other actual source.
+These organizational rules are not C language requirements; do not attribute
+them to ISO/IEC 9899.

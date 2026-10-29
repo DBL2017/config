@@ -67,8 +67,20 @@ def validate_event(event, previous=None):
         require(event["status"] in (previous["status"], "pending", "merged"),
                 f"{issue_id}: reopen as pending before changing disposition")
     if event["status"] == "confirmed":
-        for key in ("location", "cause", "recommendation", "rule"):
+        for key in ("location", "cause", "recommendation"):
             require(text(event.get(key)), f"{issue_id}: missing report field {key}")
+        if "rule_tags" in event or "rule_basis" in event:
+            require(isinstance(event.get("rule_tags"), list),
+                    f"{issue_id}: rule_tags must be a list")
+            require(all(text(tag) for tag in event["rule_tags"]),
+                    f"{issue_id}: rule_tags must contain nonempty strings")
+            require(isinstance(event.get("rule_basis"), list)
+                    and event["rule_basis"]
+                    and all(text(basis) for basis in event["rule_basis"]),
+                    f"{issue_id}: rule_basis must contain nonempty strings")
+        else:
+            require(text(event.get("rule")),
+                    f"{issue_id}: missing report field rule_basis")
         require(event.get("severity") in SEVERITIES, f"{issue_id}: invalid severity")
         require(event.get("axis") in ("Standards", "Spec"), f"{issue_id}: invalid axis")
         require(not event["open_questions"], f"{issue_id}: confirmed with open questions")

@@ -93,6 +93,9 @@ All links and the progress gate validate before writing.
 Issue events also snapshot referenced catalog facts in `evidence_snapshots`;
 later catalog changes cannot silently change the meaning of historical evidence.
 
+For new confirmed findings, provide `rule_tags` and `rule_basis` as specified
+in `review-record-format.md`; do not use the legacy `rule` field for new entries.
+
 Other fields: `state_groups` (see schema section Shared-state evidence),
 `validation`, `limitations`, and `inventory_reconciled` (explicit boolean after
 build reconciliation). Updating always clears the stale report mapping; generate

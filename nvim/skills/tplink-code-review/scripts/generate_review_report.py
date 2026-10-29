@@ -44,8 +44,13 @@ def render(record, issues, partial=False):
         for issue in group:
             mapping[issue["id"]] = f"finding-{len(mapping) + 1}"
             lines += ["", f"- [{issue['severity']}] {issue['location']}：{issue['summary']}",
-                      "原因：" + issue["cause"], "建议：" + issue["recommendation"],
-                      "规则：" + issue["rule"]]
+                      "原因：" + issue["cause"], "建议：" + issue["recommendation"]]
+            if "rule_basis" in issue:
+                tags = "、".join(f"`{tag}`" for tag in issue["rule_tags"]) or "无"
+                lines += ["规则标签：" + tags, "规则依据："]
+                lines.extend("- " + basis for basis in issue["rule_basis"])
+            else:
+                lines.append("规则：" + issue["rule"])
     record["report_map"] = mapping
     if not partial:
         validate(record, issues, "final")

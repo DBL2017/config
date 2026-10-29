@@ -189,12 +189,21 @@ The incremental tool supplies optional `evidence_snapshots` mapping referenced
 catalog IDs to their facts at event time, preserving historical evidence even
 when the current catalog is updated. Do not edit historical snapshots.
 
-For `confirmed`, supply nonempty `location`, `cause`, `recommendation`, `rule`,
+For `confirmed`, supply nonempty `location`, `cause`, `recommendation`,
 `severity` (`Critical`, `High`, `Medium`, `Low`), `axis` (`Standards`, `Spec`),
-and clear `open_questions`. Use `Spec` only with an available specification.
-Dismissals need evidence-backed dispositions. A `merged` event requires a
-valid `merged_into` ID without cycles; preserve distinct impacts on the
-surviving issue. Pending/blocked issues require `next_check`.
+and clear `open_questions`, plus the rule citation fields described below.
+Use `Spec` only with an available specification. Dismissals need
+evidence-backed dispositions. A `merged` event requires a valid `merged_into`
+ID without cycles; preserve distinct impacts on the surviving issue.
+Pending/blocked issues require `next_check`.
+
+For new confirmed findings, use `rule_tags` (an array of broad classification
+tags, possibly empty) and `rule_basis` (a nonempty array of precise citations).
+Each TP-LINK citation must name a stable rule ID, clause, and its application.
+Project contracts must identify source/caller locations and must not be
+presented as TP-LINK clauses. These fields are additive in schema version 3.
+The legacy `rule` string remains readable for existing records; new findings
+must use `rule_tags` and `rule_basis` instead.
 
 ## Commands and migration
 

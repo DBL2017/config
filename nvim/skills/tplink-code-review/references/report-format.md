@@ -18,8 +18,17 @@ axis. Sort each independently and do not duplicate root causes.
 - [Severity] 文件:行号：问题标题
 原因：说明风险及触发条件。
 建议：给出最小、具体、可验证的修复方向。
-规则：注明对应的评审类别或 TP-LINK 规范章节（如适用）。
+规则标签：列出适用的分类标签；无适用标签时写“无”。
+规则依据：
+- <稳定规则 ID>（§章节）— <该条款如何直接适用>
+- 项目契约（<文件:行号>）— <契约内容及其如何被违反>
 ```
+
+`规则标签` is only a broad classification, not a citation. For a TP-LINK
+rule, cite its stable ID and exact clause from
+`references/tplink-c-review-rules.md`. Cite project behavior separately using
+source/caller evidence. Do not force a TP-LINK citation when no clause directly
+supports the finding; state that no direct TP-LINK clause applies.
 
 Use the changed line best identifying a diff cause, or current-source line
 for file reviews. Without reliable line numbers, identify the function or

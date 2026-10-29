@@ -8,7 +8,9 @@ import tempfile
 import unittest
 
 from generate_review_report import render
-from validate_review_record import CHECKS, RecordError, load_record, validate
+from validate_review_record import (
+    CHECKS, RecordError, load_record, validate, validate_event,
+)
 
 
 def record_for(count=1, completed=1):
@@ -46,7 +48,11 @@ def issue(status="confirmed"):
         "status": status, "disposition": "source evidence", "merged_into": None,
         "location": "src/file0.c:3", "severity": "High", "axis": "Standards",
         "cause": "失败路径未释放资源。", "recommendation": "补齐清理。",
-        "rule": "资源生命周期",
+        "rule_tags": ["tplink_security_baseline"],
+        "rule_basis": [
+            "TPL-C-MEMORY-001（§9.2）— 错误路径未释放已申请的资源。",
+            "项目契约（src/file0.c:3）— 当前分配对象需在失败路径释放。",
+        ],
     }
 
 
@@ -223,8 +229,32 @@ class ReviewRecordTests(unittest.TestCase):
             validate(record, issues, "final")
         report = render(record, issues)
         self.assertEqual(report.count("- [High]"), 1)
+        self.assertIn("规则标签：`tplink_security_baseline`", report)
+        self.assertIn("TPL-C-MEMORY-001（§9.2）", report)
+        self.assertIn("项目契约（src/file0.c:3）", report)
+        self.assertNotIn("规则：资源生命周期", report)
         self.assertEqual(record["report_map"], {"R001": "finding-1"})
         validate(record, issues, "final")
+
+    def test_confirmed_finding_rejects_incomplete_rule_basis(self):
+        record = record_for()
+        finding = issue()
+        finding["rule_basis"] = []
+        with self.assertRaisesRegex(RecordError, "rule_basis"):
+            validate_event(finding)
+        finding = issue()
+        finding["rule_tags"] = "tplink_security_baseline"
+        with self.assertRaisesRegex(RecordError, "rule_tags"):
+            validate_event(finding)
+
+    def test_legacy_rule_is_readable(self):
+        record = record_for()
+        finding = issue()
+        finding["rule"] = "资源生命周期"
+        finding.pop("rule_tags")
+        finding.pop("rule_basis")
+        report = render(record, {"R001": finding})
+        self.assertIn("规则：资源生命周期", report)
 
     def test_progress_derives_remaining_after_resume(self):
         result = validate(record_for(30, 17), {})

@@ -136,6 +136,10 @@ Before reporting each suspicion:
 - Deduplicate by root cause. Recommend the smallest concrete repair, not a patch.
   Names, smells, generic test absence and guessed costs are leads, not defects.
   Architectural/performance/reuse findings need a concrete contract or cost.
+- For each finding, keep category tags separate from its rule basis. Cite the
+  stable TP-LINK rule ID and exact clause when directly applicable; cite
+  project contracts with source/caller locations separately. Never force a
+  broad clause onto behavior it does not specify.
 - Use the lowest supported severity: Critical for highly likely catastrophic
   failure; High for common-path security/corruption/deadlock or serious failure;
   Medium for meaningful boundary/error-path failures; Low for limited,
