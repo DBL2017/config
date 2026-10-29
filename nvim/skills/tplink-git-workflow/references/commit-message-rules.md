@@ -33,7 +33,7 @@ English body, with these labels and this order only:
 <Describe the fix>
 
 [Test Scope]
-<List evidenced test cases>
+<List evidenced test cases, or leave empty when unevidenced>
 ```
 
 Chinese title and body:
@@ -56,17 +56,17 @@ Chinese title and body:
 
 The module name and Bug ID must match across titles. Keep the module name
 unchanged in Chinese; never replace it with `[模块名]`. If the staged diff
-does not provide a Bug ID, replace `BUG_ID` with `Not specified in staged
-changes` in the English title and `暂存区未提供` in the Chinese title. Do
-not guess an ID.
-Keep both titles within 65 characters. If the module name and required
-missing-information marker cannot fit, ask the user for the missing
-information rather than dropping the marker or exceeding the limit.
+does not provide a Bug ID, omit the `Fix Bug BUG_ID:` part of the title and
+keep the module identifier and description. Do not guess an ID and do not
+write a missing-information marker.
+Keep both titles within 65 characters; if the module name and description
+cannot fit, shorten the description rather than exceeding the limit.
 
-Bug issue-description lines must not exceed 70 characters. If the staged
-diff does not establish the issue description, root cause, solution, or test
-scope, use `Not specified in staged changes` in English and `暂存区未提供`
-in Chinese for that field. Do not state an inferred root cause as fact.
+Bug issue-description lines must not exceed 70 characters. Keep every body
+label even when the staged diff does not establish its content; in that case
+output the label with an empty value (no text on the following line). Never
+write `Not specified in staged changes`, `暂存区未提供`, or any other
+placeholder. Do not state an inferred root cause as fact.
 
 Allowed labels only:
 
@@ -85,7 +85,7 @@ English body:
 
 ```text
 [Model Adaptation]
-<Describe the device-specific adaptation>
+<Describe the device-specific adaptation, or leave empty when unevidenced>
 
 [Test Scope]
 <List evidenced test cases>
@@ -105,13 +105,11 @@ Chinese title and body:
 
 Keep the device model identical in both titles; do not use `[机型名]` as a
 placeholder. If the staged diff does not identify the device model, do not
-invent one; use `Not specified in staged changes` in the English title and
-`暂存区未提供` in the Chinese title. For missing adaptation or test details,
-use `Not specified in staged changes` in English and `暂存区未提供` in
-Chinese.
-Keep both titles within 65 characters. If the required model and
-missing-information marker cannot fit, ask the user for the model instead of
-exceeding the limit.
+invent one; leave the bracketed model identifier empty and keep the
+description.
+For missing adaptation or test details, keep the label and leave its content
+empty.
+Keep both titles within 65 characters.
 
 Allowed labels only:
 
@@ -130,7 +128,8 @@ English body:
 
 ```text
 [Requirement]
-<Describe the requirement, including Ref: TLXXXX when applicable>
+<Describe the requirement, including Ref: TLXXXX when applicable, or leave
+empty when unevidenced>
 
 [Test Scope]
 <List evidenced test cases>
@@ -150,8 +149,8 @@ Chinese title and body:
 
 Keep the module name identical in both titles; do not use `[模块名]` as a
 placeholder. Include a `Ref: TLXXXX` reference only when it appears in the
-staged diff. If requirement details or test scope are not evidenced, use
-`Not specified in staged changes` in English and `暂存区未提供` in Chinese.
+staged diff. If requirement details or test scope are not evidenced, keep the
+label and leave its content empty.
 
 Allowed labels only:
 
@@ -169,3 +168,5 @@ Allowed labels only:
   behavior unless that fact is explicitly present in the staged diff.
 - Missing information is not filled with generic statements such as
   “verified the changes” or “tested the implementation.”
+- Unevidenced fields keep their label with empty content; no placeholder text
+  appears anywhere in the message.

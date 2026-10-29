@@ -74,9 +74,10 @@ committing.
 
 Use only facts supported by the staged diff. Do not invent module or device
 names, Bug IDs, requirement references, root causes, test results, or test
-scope. When a field is not evidenced by the diff, keep that field empty rather
-than writing a missing-information placeholder such as `Not specified in
-staged changes` or `暂存区未提供`. In particular, do not claim code was
+scope. When a field is not evidenced by the diff, keep only that field's label
+and leave its content empty on the following line, rather than writing a
+missing-information placeholder such as `Not specified in staged changes` or
+`暂存区未提供`. In particular, do not claim code was
 compiled or tested merely because it appears in the diff.
 
 Before committing, verify that:
@@ -92,8 +93,9 @@ Before committing, verify that:
   `[Test Scope]` and `[自测内容]`.
 - Keep corresponding English and Chinese numbered items in the same order and
   preserve a one-to-one mapping between them.
-- Keep labels for fields without evidenced content, but leave their content
-  empty; do not emit `Not specified in staged changes` or `暂存区未提供`.
+- Keep labels for fields without evidenced content, with the label line
+  followed by an empty content line; do not emit `Not specified in staged
+  changes` or `暂存区未提供`.
 - The two sections use the same category and corresponding title identifiers.
 - Each section has exactly the title and labels allowed for that category.
 - No unused template text, commentary, standalone change list, or other
