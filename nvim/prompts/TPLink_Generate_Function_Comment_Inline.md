@@ -1,5 +1,5 @@
 ---
-name: Claude Generate Function Comment Inline
+name: TPLink Generate Function Comment Inline
 interaction: inline
 description: 为函数生成嵌入式Linux风格注释
 opts:

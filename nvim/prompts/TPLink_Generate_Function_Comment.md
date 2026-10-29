@@ -1,5 +1,5 @@
 ---
-name: Claude Generate Function Comment
+name: TPLink Generate Function Comment
 interaction: chat
 description: 为选中的 C/C++ 函数生成嵌入式 Linux 风格注释
 opts:
