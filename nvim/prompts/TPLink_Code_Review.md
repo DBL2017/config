@@ -26,7 +26,7 @@ opts:
     model: GPT-6 Luna
   modes:
     - n
-intro_message: 使用 Copilot 进行 TP-LINK 代码评审
+intro_message: TP-LINK 代码评审
 ---
 
 ## system

@@ -4,12 +4,19 @@
 import argparse
 import json
 from pathlib import Path
+import re
 import sys
 
 CHECKS = ("functional_paths", "call_interface", "resource_lifetime",
           "shared_state_context")
 SEVERITIES = ("Critical", "High", "Medium", "Low")
 STATUSES = ("pending", "confirmed", "dismissed", "blocked", "merged")
+PHASES = ("initial", "integrating", "integration")
+RULES_PATH = (Path(__file__).resolve().parent.parent
+              / "references" / "tplink-c-review-rules.md")
+TPL_ID_RE = re.compile(r"`(TPL-C-[A-Z]+-\d{3})`")
+CLAUSE_RE = re.compile(r"§[0-9]+(\.[0-9]+)*")
+PROJECT_RE = re.compile(r"项目契约（[^）]+:[0-9]+(?:-[0-9]+)?）")
 
 
 class RecordError(ValueError):
@@ -49,6 +56,24 @@ def evidence(value):
     return isinstance(value, list) and bool(value) and all(text(item) for item in value)
 
 
+def rule_id_index():
+    if not RULES_PATH.is_file():
+        return None
+    return set(re.findall(r"`(TPL-C-[A-Z]+-\d{3})`", RULES_PATH.read_text(encoding="utf-8")))
+
+
+def validate_rule_basis(basis):
+    known = rule_id_index()
+    for entry in basis:
+        require(CLAUSE_RE.search(entry) or PROJECT_RE.search(entry),
+                f"rule_basis entry lacks §clause or 项目契约 citation: {entry}")
+        for tpl in TPL_ID_RE.findall(entry):
+            require(not PROJECT_RE.search(entry),
+                    f"TP-LINK ID and 项目契约 mixed in one entry: {entry}")
+            if known is not None:
+                require(tpl in known, f"unknown TP-LINK rule id {tpl}")
+
+
 def validate_event(event, previous=None):
     require(isinstance(event, dict), "Issue event must be an object")
     issue_id = event.get("id")
@@ -78,6 +103,7 @@ def validate_event(event, previous=None):
                     and event["rule_basis"]
                     and all(text(basis) for basis in event["rule_basis"]),
                     f"{issue_id}: rule_basis must contain nonempty strings")
+            validate_rule_basis(event["rule_basis"])
         else:
             require(text(event.get("rule")),
                     f"{issue_id}: missing report field rule_basis")
@@ -269,6 +295,14 @@ def validate_record_location(path, record):
     repository = Path(source["repository"]).resolve()
     require(path != repository and repository not in path.parents,
             "Record must be outside the reviewed repository")
+    require(text(source.get("module")), "source.module is required")
+    module = source["module"]
+    require(not Path(module).is_absolute(), "source.module must be relative")
+    module_path = (repository / module).resolve()
+    require(repository == module_path or repository in module_path.parents,
+            "source.module escapes source.repository")
+    source_kind = source.get("source_kind", "worktree")
+    require(source_kind in ("worktree", "gerrit"), "invalid source.source_kind")
     journal = path.with_name("issues.jsonl")
     require(journal.resolve().parent == path.parent,
             "issues.jsonl must not link outside the session record directory")
@@ -276,8 +310,15 @@ def validate_record_location(path, record):
 
 def load_record(path, allow_transaction=False):
     path = Path(path).resolve()
-    require(allow_transaction or not path.with_name("transaction.json").exists(),
-            "Unfinished record transaction; run manage_review_record.py recover")
+    transaction = path.with_name("transaction.json")
+    if not allow_transaction and transaction.is_file():
+        try:
+            json.loads(transaction.read_text(encoding="utf-8"))
+            raise RecordError(
+                "Unfinished record transaction; run manage_review_record.py recover")
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            # Corrupt transaction: preserve, allow the read path.
+            transaction.replace(transaction.with_name("transaction.corrupt"))
     record = json.loads(path.read_text(encoding="utf-8"))
     validate_record_location(path, record)
     journal = path.with_name("issues.jsonl")
@@ -294,6 +335,29 @@ def load_record(path, allow_transaction=False):
         validate_event(event, issues.get(issue_id))
         issues[issue_id] = event
     return path, record, issues
+
+
+def derive_phase(record, issues):
+    inventory = record.get("inventory", {})
+    inv_ok = inventory.get("reconciled") is True
+    checks = record.get("file_checks", {})
+    checks_complete = bool(checks) and all(
+        all(item.get(key, {}).get("status") in ("inspected", "not_applicable")
+            for key in CHECKS)
+        for item in checks.values()
+    )
+    traces_resolved = all(t["status"] in ("verified", "finding")
+                          for t in record.get("traces", []))
+    issues_resolved = all(i["status"] not in ("pending", "blocked")
+                          for i in issues.values())
+    validation = record.get("validation", {})
+    validation_ok = validation.get("status") in (
+        "executed", "unavailable", "unsafe", "not_applicable")
+    if inv_ok and checks_complete:
+        if traces_resolved and issues_resolved and validation_ok:
+            return "integration"
+        return "integrating"
+    return "initial"
 
 
 def validate(record, issues, gate="progress"):
@@ -326,8 +390,9 @@ def validate(record, issues, gate="progress"):
     remaining = []
     for path in included:
         item = checks[path]
-        require(isinstance(item, dict) and text(item.get("identity")),
-                f"{path}: content identity required")
+        identity = item.get("identity")
+        require(identity is None or text(identity),
+                f"{path}: content identity must be text or null")
         complete = True
         for key in CHECKS:
             check = item.get(key, {})
@@ -382,9 +447,15 @@ def validate(record, issues, gate="progress"):
     progress = record.get("progress")
     require(isinstance(progress, dict), "progress required")
     require(text(progress.get("next_step")), "progress.next_step required")
+    phase = progress.get("phase", "initial")
+    require(phase in PHASES, f"progress.phase must be one of {PHASES}")
     # Never trust manually maintained coverage totals or remaining-file lists.
     for field in ("remaining_files", "completed_files", "completed_count"):
         require(field not in progress, f"Remove derived progress.{field}")
+    interruption = progress.get("interruption")
+    if interruption is not None:
+        require(text(interruption),
+                "progress.interruption must be nonempty text when present")
     report_map = record.get("report_map")
     require(isinstance(report_map, dict), "report_map must be an object")
     confirmed = {key for key, issue in issues.items() if issue["status"] == "confirmed"}
@@ -412,7 +483,9 @@ def validate(record, issues, gate="progress"):
     if gate == "final":
         require(set(report_map) == confirmed, "Confirmed issue missing report mapping")
     return {"total": len(included), "completed": len(included) - len(remaining),
-            "remaining_files": remaining, "confirmed": len(confirmed), **state_summary}
+            "remaining_files": remaining, "confirmed": len(confirmed),
+            "derived_phase": derive_phase(record, issues),
+            **state_summary}
 
 
 def main():

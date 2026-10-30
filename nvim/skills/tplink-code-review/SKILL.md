@@ -136,6 +136,14 @@ Before reporting each suspicion:
 - Deduplicate by root cause. Recommend the smallest concrete repair, not a patch.
   Names, smells, generic test absence and guessed costs are leads, not defects.
   Architectural/performance/reuse findings need a concrete contract or cost.
+- Before concluding there are no findings, make a separate standards pass over
+  changed lines: check added/modified identifiers against applicable naming
+  rules, and changed control statements and macros against their specific rules.
+  Report only verified, attributable violations. A generic smell remains a
+  lead, but a confirmed mismatch with an explicit TP-LINK rule is actionable
+  (usually Low) even without runtime impact. If a documented repository
+  exception or conflicting local convention applies, cite it and explain the
+  precedence; do not silently omit a confirmed mismatch.
 - For each finding, keep category tags separate from its rule basis. Cite the
   stable TP-LINK rule ID and exact clause when directly applicable; cite
   project contracts with source/caller locations separately. Never force a

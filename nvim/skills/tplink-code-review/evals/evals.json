@@ -323,6 +323,30 @@
         "Preserves nonzero failure status and does not promote or remove pending checks to pass",
         "Leaves generate_review_report.py as the full final-report path without a finding quota"
       ]
+    },
+    {
+      "id": 28,
+      "prompt": "请按 TP-LINK C 规范评审这个指定 patchset 的新增代码，不需要访问仓库。patch 新增：`static inline int PortMappingBelongsToClient(...) { if (lookup(...) < 0) return -1; if (inet_pton(...) != 1) return -1; return 0; }`。相邻的 `DeletePortMappingRange` 是未修改的旧代码，文件没有关于命名例外的文档。请只评审本次新增内容，并按技能格式报告。",
+      "expected_output": "报告新增函数名不符合 TPL-C-NAME-005（§3.2），以及新增 if 未加大括号不符合 TPL-C-STYLE-003（§1.3）；两个 if 可合并为同一类规范问题但须覆盖两个位置。将其作为低级规范问题，不声称存在运行时缺陷或测试结果；不报告未修改的 DeletePortMappingRange。",
+      "files": [],
+      "expectations": [
+        "Reports the added PascalCase function identifier against TPL-C-NAME-005 and §3.2",
+        "Reports both changed unbraced if statements against TPL-C-STYLE-003 and §1.3",
+        "Limits findings to introduced code and does not flag the unchanged neighboring function",
+        "Treats confirmed style violations as actionable low-severity findings without inventing functional impact or test results"
+      ]
+    },
+    {
+      "id": 29,
+      "prompt": "请按 TP-LINK C 规范评审这个小型 diff，不需要访问仓库。文件中未修改的旧函数名为 `DeletePortMappingRange`；本次只新增 `static int port_mapping_belongs_to_client(void) { if (ready) { return 1; } return 0; }`。请只报告本次变更引入的问题。",
+      "expected_output": "不因未修改的旧函数名报告命名问题；新增函数名符合小写 snake_case，if 有大括号，因此不报告命名或控制语句风格问题。没有其他证据时使用准确的无发现输出。",
+      "files": [],
+      "expectations": [
+        "Does not report an unchanged legacy CamelCase function as a defect introduced by the diff",
+        "Recognizes the added function name as compliant with TPL-C-NAME-005",
+        "Recognizes the changed if statement as compliant with TPL-C-STYLE-003",
+        "Uses the prescribed clean-review output when no other finding is evidenced"
+      ]
     }
   ]
 }

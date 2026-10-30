@@ -56,6 +56,14 @@ def source_changes(record):
     repository = Path(record["source"]["repository"])
     changed = {}
     for name, old in identities(record).items():
+        if old is None:
+            # Init-time unreadable path; only record a change once readable.
+            try:
+                current = digest(source_file(repository, name).read_bytes())
+            except OSError:
+                continue
+            changed[name] = {"identity": current, "note": "source readable"}
+            continue
         try:
             current = digest(source_file(repository, name).read_bytes())
         except OSError as error:
@@ -76,6 +84,13 @@ def initialize(path, manifest):
     require(repository.is_dir(), "Repository is not a directory")
     source["repository"] = str(repository)
     require(repository not in path.parents, "Record must be outside reviewed repository")
+    require(text(source.get("module")), "source.module is required")
+    module = source["module"]
+    require(not Path(module).is_absolute(), "source.module must be relative")
+    module_path = (repository / module).resolve()
+    require(repository == module_path or repository in module_path.parents,
+            "source.module escapes source.repository")
+    require(module_path.is_dir(), "source.module is not an existing directory")
     files = deepcopy(manifest["files"])
     require(isinstance(files, list) and files, "Manifest files must be nonempty")
     checks = {}
@@ -83,10 +98,15 @@ def initialize(path, manifest):
         require(isinstance(item, dict), "Inventory item must be an object")
         if item["status"] == "in_scope":
             name = item["path"]
-            checks[name] = {
-                "identity": digest(source_file(repository, name).read_bytes()),
-                **{key: {"status": "pending", "evidence": []} for key in CHECKS},
-            }
+            try:
+                identity = digest(source_file(repository, name).read_bytes())
+                initial = {key: {"status": "pending", "evidence": []} for key in CHECKS}
+            except OSError as error:
+                identity = None
+                reason = f"source unreadable at init: {error}"
+                initial = {key: {"status": "blocked", "evidence": [], "reason": reason}
+                           for key in CHECKS}
+            checks[name] = {"identity": identity, **initial}
             checks[name]["shared_state_context"]["state_group_ids"] = []
     record = {
         "schema_version": 3, "source": source,
@@ -98,11 +118,14 @@ def initialize(path, manifest):
         "progress": {"phase": "initial", "next_step": "Reconcile build inventory",
                      "blockers": []},
         "report_map": {}, "limitations": [], "evidence_catalog": {},
-        "supporting_files": {
-            name: digest(source_file(repository, name).read_bytes())
-            for name in manifest.get("supporting_files", [])
-        },
+        "supporting_files": {},
     }
+    for name in manifest.get("supporting_files", []):
+        try:
+            record["supporting_files"][name] = digest(
+                source_file(repository, name).read_bytes())
+        except OSError:
+            record["supporting_files"][name] = None
     validate(record, {})
     require(not path.parent.exists(), "Use a new review directory; initialization never overwrites")
     path.parent.mkdir(parents=True)
@@ -167,8 +190,13 @@ def issue_event(delta, issues, catalog):
     return event
 
 
-def invalidate(record, issues, keys, reason):
+def invalidate(record, issues, keys, reason, sections=None):
     require(text(reason), "Invalidation requires a concrete reason")
+    all_sections = ("file_checks", "traces", "state_groups", "issues")
+    if sections is None:
+        sections = all_sections
+    require(set(sections) <= set(all_sections),
+            "invalidate_sections contains unknown names")
     affected = set(keys)
     objects = {
         **record["file_checks"],
@@ -188,23 +216,48 @@ def invalidate(record, issues, keys, reason):
             break
         affected.update(extra)
     events = []
-    for name, checks in record["file_checks"].items():
-        if name in affected:
-            for key in CHECKS:
-                checks[key]["status"] = "pending"
-    for item in record["traces"] + record["state_groups"]:
-        if item["id"] in affected:
-            item.update(status="pending", next_check=reason)
-            if "access_inventory" in item:
-                item["access_inventory"]["status"] = "pending"
-    for issue_id in sorted(set(issues) & affected):
-        if issues[issue_id]["status"] != "merged":
-            events.append(issue_event({
-                "id": issue_id, "status": "pending", "disposition": reason,
-                "next_check": reason,
-            }, issues, record.get("evidence_catalog", {})))
-    record["report_map"] = {}
-    record["progress"]["phase"] = "initial"
+    if "file_checks" in sections:
+        for name, checks in record["file_checks"].items():
+            if name in affected:
+                for key in CHECKS:
+                    checks[key]["status"] = "pending"
+                    checks[key].pop("reason", None)
+                    checks[key].setdefault("invalidated_by", []).append(
+                        {"reason": reason, "keys": sorted(keys)})
+    touched_traces = [item for item in record["traces"] if item["id"] in affected
+                      and "traces" in sections]
+    for item in touched_traces:
+        item["status"] = "pending"
+        item.setdefault("invalidated_by", []).append(reason)
+        if "next_check" in item:
+            item.setdefault("next_check_history", []).append(item["next_check"])
+    touched_states = [item for item in record["state_groups"]
+                      if item["id"] in affected and "state_groups" in sections]
+    for item in touched_states:
+        item["status"] = "pending"
+        item.setdefault("invalidated_by", []).append(reason)
+        if "access_inventory" in item:
+            item["access_inventory"]["status"] = "pending"
+        if "next_check" in item:
+            item.setdefault("next_check_history", []).append(item["next_check"])
+    if "issues" in sections:
+        for issue_id in sorted(set(issues) & affected):
+            if issues[issue_id]["status"] != "merged":
+                events.append(issue_event({
+                    "id": issue_id, "status": "pending", "disposition": reason,
+                    "next_check": reason,
+                }, issues, record.get("evidence_catalog", {})))
+    confirmed_removed = {key for key in affected
+                         if key in issues and issues[key]["status"] == "confirmed"}
+    if confirmed_removed:
+        record["report_map"] = {i: v for i, v in record["report_map"].items()
+                                if i not in confirmed_removed}
+    else:
+        record["report_map"] = {}
+    record["progress"]["last_invalidate"] = {
+        "reason": reason, "keys": sorted(keys),
+        "sections": list(sections),
+    }
     record["progress"]["next_step"] = reason
     return events
 
@@ -213,7 +266,7 @@ def apply_update(record, issues, payload):
     require(isinstance(payload, dict), "Payload must be an object")
     allowed = {"file_checks", "traces", "state_groups", "issues", "evidence_catalog",
                "progress", "validation", "limitations", "inventory_reconciled",
-               "invalidate", "reason"}
+               "invalidate", "invalidate_sections", "reason"}
     require(not payload.keys() - allowed, "Unknown update fields")
     for section in ("file_checks", "evidence_catalog", "progress", "validation"):
         require(isinstance(payload.get(section, {}), dict), f"{section} must be an object")
@@ -226,15 +279,27 @@ def apply_update(record, issues, payload):
     invalidated = payload.get("invalidate", [])
     require(isinstance(invalidated, list) and all(text(key) for key in invalidated),
             "invalidate must be a list of IDs or source paths")
-    require(not set(changed) - set(invalidated),
-            "Source changed; explicitly invalidate: " + ", ".join(sorted(changed)))
+    sections = payload.get("invalidate_sections")
+    require(sections is None or (isinstance(sections, list) and
+                                 all(text(item) for item in sections)),
+            "invalidate_sections must be a list of section names")
+    unconfirmed_changes = set(changed) - set(invalidated)
+    # Auto-invalidate tracked source drift; the caller still sees them via
+    # source_changes in the returned result for visibility.
+    if unconfirmed_changes:
+        invalidated = list(invalidated) + sorted(unconfirmed_changes)
+        payload["invalidate_sections"] = sections
+        if not text(payload.get("reason")):
+            payload["reason"] = ("tracked source content changed; "
+                                 "automatic invalidation")
     catalog = payload.get("evidence_catalog", {})
     require(isinstance(catalog, dict), "evidence_catalog must be an object")
     changed_evidence = [key for key, value in catalog.items()
                         if key in record.get("evidence_catalog", {}) and
                         value != record["evidence_catalog"][key]]
     keys = list(set(invalidated + changed_evidence))
-    events = invalidate(record, issues, keys, payload.get("reason")) if keys else []
+    events = invalidate(record, issues, keys, payload.get("reason"),
+                        sections=sections) if keys else []
     for name, value in changed.items():
         require("identity" in value, f"Cannot re-identify inaccessible source: {name}")
         if name in record["file_checks"]:
@@ -265,8 +330,8 @@ def apply_update(record, issues, payload):
             merge(record[section], payload[section])
     if "limitations" in payload:
         record["limitations"] = deepcopy(payload["limitations"])
-    # A previous report is stale after any update, even if IDs did not change.
-    record["report_map"] = {}
+    # Report mappings for unaffected confirmed issues persist; invalidate() has
+    # already pruned entries tied to confirmed issues in the affected closure.
     ids = (list(record["file_checks"]) + list(record.get("evidence_catalog", {})) +
            list(issues) + [item["id"] for item in record["traces"] + record["state_groups"]])
     require(len(ids) == len(set(ids)), "Record IDs must be unique across sections")
@@ -282,13 +347,29 @@ def commit_update(path, record, events):
         "base_size": journal.stat().st_size,
         "record": record, "events": events,
     }
-    atomic_write(path.with_name("transaction.json"), encoded(transaction))
+    encoded_transaction = encoded(transaction)
+    atomic_write(path.with_name("transaction.json"), encoded_transaction)
+    directory = path.parent
+    with directory.open("r+" if directory != Path("/") else "r") as handle:
+        os.fsync(handle.fileno())
     return recover(path)
 
 
 def recover(path):
     transaction_path = path.with_name("transaction.json")
-    transaction = json.loads(transaction_path.read_text(encoding="utf-8"))
+    if not transaction_path.is_file():
+        _, record, issues = load_record(path)
+        return compact_summary(validate(record, issues))
+    try:
+        transaction = json.loads(transaction_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, UnicodeDecodeError) as error:
+        preserved = transaction_path.with_name("transaction.corrupt")
+        transaction_path.replace(preserved)
+        _, record, issues = load_record(path)
+        summary = compact_summary(validate(record, issues))
+        summary["transaction_corrupt"] = str(error)
+        summary["preserved_at"] = str(preserved)
+        return summary
     journal = path.with_name("issues.jsonl")
     current = journal.read_bytes()
     size = transaction["base_size"]
@@ -378,6 +459,10 @@ def query(path, record, issues, kind, key):
         name: record["evidence_catalog"][name] for name in sorted(refs)}}
 
 
+LOCK_MODES = {"update": fcntl.LOCK_EX, "recover": fcntl.LOCK_EX,
+              "resume": fcntl.LOCK_SH, "get": fcntl.LOCK_SH}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("command", choices=("init", "update", "resume", "get", "recover"))
@@ -397,9 +482,9 @@ def main():
             result = initialize(path, payload)
         else:
             validate_record_location(path, json.loads(path.read_text(encoding="utf-8")))
-            # All cooperating writers use this lock; report generation must be serial.
+            # Readers share; writers/recovery take an exclusive lock.
             with path.with_name("record.lock").open("a") as lock:
-                fcntl.flock(lock, fcntl.LOCK_EX)
+                fcntl.flock(lock, LOCK_MODES[args.command])
                 pending = path.with_name("transaction.json").exists()
                 require(args.command == "recover" or not pending,
                         "Unfinished write; run recover before reading or updating")

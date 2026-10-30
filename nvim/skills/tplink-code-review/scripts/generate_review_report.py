@@ -2,7 +2,8 @@
 """Render confirmed module findings only after validating the session record."""
 
 import argparse
-from datetime import datetime
+from datetime import datetime, timezone
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -88,6 +89,8 @@ def report_destination(record):
     require(isinstance(directory, str) and Path(directory).is_absolute(),
             "report_directory must be an absolute working-directory path")
     destination = Path(directory) / filename
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    require(not destination.parent.is_symlink(), "Report directory must not be a symlink")
     require(not destination.is_symlink(), "Report must not be a symlink")
     record["report_file"] = filename
     record["report_directory"] = str(destination.parent)
@@ -103,6 +106,9 @@ def atomic_write(path, content):
             handle.write(content)
             handle.flush()
             os.fsync(handle.fileno())
+        # Refuse to replace a target that became a symlink between check and write.
+        if path.is_symlink():
+            raise ValueError("Report destination became a symlink before write")
         os.replace(temporary, path)
     finally:
         if temporary is not None and temporary.exists():
@@ -116,21 +122,35 @@ def main():
     args = parser.parse_args()
     try:
         path, record, issues = load_record(args.record)
-        report = render(record, issues, args.partial)
+        body = render(record, issues, args.partial)
+        footer = (f"续接记录：{path}；下一项检查：{record['progress']['next_step']}\n"
+                  if args.partial else f"会话记录：{path}\n")
+        report = body + footer
+        content_sha = hashlib.sha256(report.encode("utf-8")).hexdigest()
+        prior = record.get("report", {})
         destination = report_destination(record)
+        already = (destination.is_file()
+                   and prior.get("content_sha") == content_sha
+                   and prior.get("state") == ("partial" if args.partial else "complete")
+                   and destination.read_text(encoding="utf-8") == report)
+        record["report"] = {
+            "content_sha": content_sha,
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "state": "partial" if args.partial else "complete",
+        }
         atomic_write(path, json.dumps(record, ensure_ascii=False, indent=2) + "\n")
         _, saved, saved_issues = load_record(path)
         validate(saved, saved_issues, "progress" if args.partial else "final")
-        report += f"续接记录：{path}；下一项检查：{record['progress']['next_step']}\n" \
-            if args.partial else f"会话记录：{path}\n"
-        atomic_write(destination, report)
-        require(destination.read_text(encoding="utf-8") == report,
-                "Saved report read-back mismatch")
+        if not already:
+            atomic_write(destination, report)
+            require(destination.read_text(encoding="utf-8") == report,
+                    "Saved report read-back mismatch")
     except (OSError, ValueError, TypeError, KeyError) as error:
         print(f"Report generation refused: {error}", file=sys.stderr)
         return 1
     print(report.splitlines()[0])
     print(f"报告文件：{destination}")
+    print(f"报告状态：{'unchanged' if already else 'written'}")
     return 0
 
 
