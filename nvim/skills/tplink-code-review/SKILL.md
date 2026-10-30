@@ -121,7 +121,8 @@ user-supplied requirements, linked issues and directly relevant documentation
 when accessible. Standards and Spec are separate reasoning axes, not separate
 agents; do not invent requirements or scan unrelated revisions for a spec.
 Use both report axes only when an actual spec is available, without duplicating
-one root cause.
+one root cause. A Spec finding is a confirmed requirement violation; verifying
+that a requirement is met adds no finding.
 
 Before reporting each suspicion:
 
