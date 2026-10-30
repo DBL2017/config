@@ -2,6 +2,15 @@
 name: TPLink Git Workflow
 interaction: chat
 description: 对已暂存的内容生成 Commit Message，并完成代码提交
+tools:
+  - run_command
+  - read_file
+  - edit_file
+  - delete_file
+  - create_file
+  - grep_search
+  - file_search
+  - get_changed_files
 skills:
   - tplink-git-workflow
 opts:

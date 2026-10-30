@@ -2,6 +2,15 @@
 name: TPLink Code Review
 interaction: chat
 description: 按 TP-LINK 嵌入式 Linux 编码规范评审选中的代码或变更
+tools:
+  - run_command
+  - read_file
+  - edit_file
+  - delete_file
+  - create_file
+  - grep_search
+  - file_search
+  - get_changed_files
 skills:
   - tplink-code-review
 opts:

@@ -24,7 +24,6 @@ return -- lazy.nvim
         "CodeCompanion", -- 打开主菜单
         "CodeCompanionChat", -- 打开聊天窗口
         "CodeCompanionActions", -- 打开操作面板
-        "CodeCompanionHistory", -- 打开历史记录
     },
     -- 锁定插件版本范围，避免升级引入破坏性变更
     version = "^19.22.0",
@@ -146,7 +145,7 @@ return -- lazy.nvim
                         show_default_actions = true, -- Show the default actions in the action palette?
                         show_default_prompt_library = true, -- Show the default prompt library in the action palette?
                         show_preset_prompts = false, -- 不显示预设的prompt
-                        title = "CodeCompanion actions", -- The title of the action palette
+                        title = "CC Actions", -- The title of the action palette
                     },
                 },
                 -- Inline display configuration options:
@@ -267,7 +266,7 @@ return -- lazy.nvim
                         -- 可选取值：字符串，或函数返回字符串
                         -- 如果是函数，第一个参数始终是当前适配器
                         llm = function(adapter)
-                            return "CodeCompanion (" .. adapter.formatted_name .. ")"
+                            return "CC (" .. adapter.formatted_name .. ")"
                         end,
 
                         -- 用户消息的标题名称
@@ -414,6 +413,19 @@ return -- lazy.nvim
                                     vim.fs.joinpath(vim.fn.expand("~"), "windows_share/mobaxterm"),
                                     vim.fs.joinpath(vim.fn.expand("~"), "ai"),
                                 },
+                            },
+                        },
+                        ["resume"] = {
+                            opts = {
+                                -- 指定 /resume命令的 provider
+                                -- 当前效果：使用 telescope 作为 provider
+                                -- 可选取值：
+                                --   "default"   → 内置默认 provider
+                                --   "telescope" → 使用 telescope 插件
+                                --   "fzf_lua"   → 使用 fzf-lua 插件
+                                --   "mini_pick" → 使用 mini_pick 插件
+                                --   "snacks"    → 使用 snacks.nvim 插件
+                                provider = "telescope",
                             },
                         },
                     },
@@ -698,7 +710,7 @@ return -- lazy.nvim
             },
             opts = {
                 log_level = "WARN", -- or "TRACE"
-                language = "English",
+                language = "Chinese",
             },
             adapters = {
                 acp = {
