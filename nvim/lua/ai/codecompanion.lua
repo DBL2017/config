@@ -17,8 +17,6 @@ return -- lazy.nvim
     dependencies = {
         "nvim-lua/plenary.nvim",
         "nvim-treesitter/nvim-treesitter",
-        -- lualine: 用于状态栏显示（history 扩展可能用到）
-        "nvim-lualine/lualine.nvim",
     },
     cmd = {
         "CodeCompanion", -- 打开主菜单
@@ -26,7 +24,9 @@ return -- lazy.nvim
         "CodeCompanionActions", -- 打开操作面板
     },
     -- 锁定插件版本范围，避免升级引入破坏性变更
-    version = "^19.22.0",
+    -- 注意: lazy.nvim 对 "^" 约束会升级到同 major 的最新版本，
+    -- 当前已解析到 v20.0.1，故此处与已安装版本对齐
+    version = "^20.0.1",
     config = function()
         require("codecompanion").setup({
             -- 提示词库（prompt library）配置
@@ -66,6 +66,14 @@ return -- lazy.nvim
                         autoload_groups_in_prompt_library = false,
                         enabled = false,
                     },
+                    inline = {
+                        -- v20: 每个 inline 请求都会带上 rules，默认是 "default" 分组
+                        -- （含 AGENTS.md / CLAUDE.md），会挤占 inline 的上下文上限。
+                        -- 这里显式置空，只在 chat 中按需加载 rules。
+                        autoload = {},
+                    },
+                    -- 不显示内置的预设 rules 分组（default / CodeCompanion）
+                    show_presets = false,
                 },
             },
             skills = {
@@ -130,8 +138,14 @@ return -- lazy.nvim
                 opts = {
                     chat = {
                         enabled = true,
-                        -- Skills and groups can be autoloaded into the chat buffer on startup.
+                        -- v20: Skills and groups can be autoloaded into the chat buffer on startup,
+                        -- 取值为 group 名或 skill 名数组
                         -- autoload = platform.is_office and { "tplink-baseline", "tplink-security" } or {},
+                    },
+                    inline = {
+                        -- v20: inline 请求会把指定 group/skill 的完整说明直接送给 LLM，
+                        -- 开销远大于 chat 的渐进式披露，默认置空
+                        autoload = {},
                     },
                 },
             },
@@ -142,16 +156,11 @@ return -- lazy.nvim
                     prompt = "Prompt ", -- Prompt used for interactive LLM calls
                     provider = "telescope", -- Can be "default", "telescope", "fzf_lua", "mini_pick" or "snacks". If not specified, the plugin will autodetect installed providers.
                     opts = {
-                        show_default_actions = true, -- Show the default actions in the action palette?
-                        show_default_prompt_library = true, -- Show the default prompt library in the action palette?
-                        show_preset_prompts = false, -- 不显示预设的prompt
+                        show_preset_actions = true, -- 显示内置动作（Chat / Open chats ...）
+                        show_preset_prompts = false, -- 不显示内置的预设 prompt
+                        show_preset_rules = false, -- 不显示预设的 rules 分组
                         title = "CC Actions", -- The title of the action palette
                     },
-                },
-                -- Inline display configuration options:
-                --   layout: (string) The layout for the inline display. Available options: "vertical", "horizontal", "buffer".
-                inline = {
-                    layout = "vertical", -- vertical|horizontal|buffer
                 },
                 chat = {
                     -- 自动滚动
@@ -162,11 +171,6 @@ return -- lazy.nvim
 
                     -- 上下文折叠
                     icons = {
-                        -- 折叠上下文时显示的图标
-                        -- 当前效果：使用 "📎️" 作为折叠标识
-                        -- 可选取值：任意字符串或图标
-                        chat_context = "📎️",
-
                         -- 折叠 reasoning 时显示的图标
                         -- 当前效果：使用 " " 作为折叠标识
                         -- 可选取值：任意字符串或图标
@@ -244,15 +248,14 @@ return -- lazy.nvim
                             -- 保持缩进换行
                             breakindent = true,
 
-                            -- 在单词边界换行
+                            -- 不在单词边界换行（设为 true 才按单词边界折行）
                             linebreak = false,
 
                             -- 长段落自动换行，避免横向滚动
                             wrap = true,
 
-                            -- 不高亮当前行，避免干扰
+                            -- 高亮当前行（设为 false 可避免干扰）
                             cursorline = true,
-
                             -- 不显示标记列
                             signcolumn = "no",
                             -- nvim-tree 开关时保持 Chat 窗口的初始宽度
@@ -306,6 +309,11 @@ return -- lazy.nvim
                     -- 当前效果：true → 显示 token 数
                     -- 可选取值：true（显示）、false（隐藏）
                     show_token_count = true,
+
+                    -- 流式响应写入 chat buffer 的间隔（毫秒）
+                    -- 当前效果：50 → 写入频率降低，长回复时渲染更省、界面抖动更少
+                    -- 可选取值：越小越顺滑（默认 25），越大越省（如 50/100）
+                    stream_interval = 50,
 
                     -- 是否显示工具执行时的加载提示
                     -- 当前效果：true → 显示工具执行中的提示信息
@@ -370,26 +378,6 @@ return -- lazy.nvim
                     --     -- 可选取值：根据适配器支持的模型名称而定
                     --     -- model = "claude-haiku-4-5-20251001",
                     -- },
-                    editor_context = {
-                        ["buffer"] = {
-                            description = "Share the current buffer with the LLM(diff)",
-                            opts = {
-                                -- 默认参数设置为 "diff"
-                                -- 当前效果：使用 @buffer 添加上下文时，发送当前 buffer 的差异部分
-                                -- 可选取值："diff"（只共享修改部分）、"all"（共享整个 buffer）
-                                default_params = "diff",
-                            },
-                        },
-                        ["buffer-all"] = {
-                            description = "Share the current buffer with the LLM(all)",
-                            opts = {
-                                -- 默认参数设置为 "all"
-                                -- 当前效果：使用 @buffer-all 添加上下文时，发送当前 buffer 的全部内容
-                                -- 可选取值："diff"（只共享修改部分）、"all"（共享整个 buffer）
-                                default_params = "all",
-                            },
-                        },
-                    },
                     keymaps = {
                         close = {
                             modes = { n = "<C-q>", i = "<C-q>" },
@@ -599,12 +587,12 @@ return -- lazy.nvim
                             -- 当前效果：auto → 除受保护规则/需要审批的命令外，工具自动运行
                             -- 可选取值："ask"（每次询问）、"auto"（自动放行）、"yolo"（全部放行）
                             approval_mode = "auto",
-                            -- 工具出错（status=error）时是否自动回传给 LLM
-                            auto_submit_errors = true,
-                            -- 工具成功时是否自动回传给 LLM
-                            auto_submit_success = true,
+                            -- 工具输出被截断的 token 上限（超出后按模型上限再收紧）
+                            max_output_tokens = 30000,
                             -- 工具运行需要审批时是否发送通知
                             notify_on_approval = true,
+                            -- v20: auto_submit_errors / auto_submit_success 已移除，
+                            --      工具输出作为 agent loop 的一部分总是回传给 LLM
                         },
                     },
                     -- 聊天会话持久化（v19+ 内置的 sessions 系统，取代 history 扩展）
@@ -634,25 +622,11 @@ return -- lazy.nvim
                     -- 作用: 配置内联模式下使用的 AI 适配器后端
                     -- 当前: 使用 Siliconflow Deepseek 在线版作为内联模式适配器
                     -- 可选: "copilot" | "openai" | "claude" | "gemini" |
-                    -- 备注: 此适配器针对中文代码优化，支持长上下文理解
+                    -- 备注: v20 起 inline 通过 edit_file 工具直接修改 buffer，
+                    --       适配器模型必须支持 tool calling，否则请求会被拒绝
                     adapter = platform.is_office and "tplink_qwen_internal" or "siliconflow_deepseek_online",
-                    keymaps = {
-                        accept_change = {
-                            -- 作用: 接受 AI 内联建议的代码更改
-                            -- 当前: 普通模式下按 `ga` 触发接受操作
-                            -- 可选: 任意合法的 Neovim 按键映射字符串，如 "<CR>" | "<leader>a" 等
-                            modes = { n = "ga" },
-                            description = "Accept the suggested change",
-                        },
-                        reject_change = {
-                            -- 作用: 拒绝 AI 内联建议的代码更改
-                            -- 当前: 普通模式下按 `gr` 触发拒绝操作，并设置 nowait 立即响应
-                            -- 可选: 任意合法的 Neovim 按键映射字符串，如 "<Esc>" | "<leader>r" 等
-                            modes = { n = "gr" },
-                            opts = { nowait = true },
-                            description = "Reject the suggested change",
-                        },
-                    },
+                    -- v20: 审阅 inline diff 的快捷键与 chat buffer 共用，
+                    --      统一放在 interactions.shared.keymaps 下（见文件末尾）
                 },
                 agent = {
                     adapter = "copilot_acp",
@@ -679,7 +653,8 @@ return -- lazy.nvim
                     -- CLI 选项
                     opts = {
                         auto_insert = false,
-                        reload = true,
+                        -- v20: 磁盘改动的自动 reload 归 interactions.opts.watcher 管，
+                        -- 旧的 reload 字段已移除
                     },
 
                     -- 快捷键配置
@@ -695,17 +670,94 @@ return -- lazy.nvim
                             description = "[Nav] Previous interaction",
                         },
                     },
-                    -- 打开 CLI buffer 时调用 keymap 设置
-                    on_open = function()
-                        set_terminal_keymaps()
-                    end,
                 },
                 code_review = {
                     enabled = false,
                 },
+                shared = {
+                    -- 编辑器上下文（#buffer / #buffers / #viewport 等）的全局选项
+                    editor_context = {
+                        -- v20+: chat/inline/cli 的上下文统一在 interactions.shared.editor_context 下配置
+                        -- 自定义/覆盖内置项必须带 path，否则插件会当作 user callback 处理
+                        ["buffer"] = {
+                            path = "interactions.shared.editor_context.buffer",
+                            description = "Share the current buffer with the LLM(diff)",
+                            opts = {
+                                contains_code = true,
+                                -- 默认参数设置为 "diff"
+                                -- 当前效果：使用 #buffer 添加上下文时，发送当前 buffer 的差异部分
+                                -- 可选取值："diff"（只共享修改部分）、"all"（共享整个 buffer）
+                                default_params = "diff",
+                                has_params = true,
+                            },
+                        },
+                        ["buffer-all"] = {
+                            path = "interactions.shared.editor_context.buffer",
+                            description = "Share the current buffer with the LLM(all)",
+                            opts = {
+                                contains_code = true,
+                                -- 默认参数设置为 "all"
+                                -- 当前效果：使用 #buffer-all 添加上下文时，发送当前 buffer 的全部内容
+                                -- 可选取值："diff"（只共享修改部分）、"all"（共享整个 buffer）
+                                default_params = "all",
+                                has_params = true,
+                            },
+                        },
+                        opts = {
+                            -- 这些 buffer 不会被当作上下文共享给 LLM
+                            -- 默认已排除 nofile/quickfix/prompt/popup 与
+                            -- codecompanion/help/terminal
+                            excluded = {
+                                buftypes = {
+                                    "nofile",
+                                    "quickfix",
+                                    "prompt",
+                                    "popup",
+                                },
+                                fts = {
+                                    "codecompanion",
+                                    "help",
+                                    "terminal",
+                                },
+                            },
+                        },
+                    },
+                    -- v20: diff 审阅快捷键由 chat 与 inline 共用，全部在 interactions.shared.keymaps
+                    keymaps = {
+                        always_accept = { modes = { n = "g1" } },
+                        accept_change = {
+                            modes = { n = "g2" },
+                            opts = { nowait = true, noremap = true },
+                            description = "Accept all changes",
+                        },
+                        reject_change = {
+                            modes = { n = "g3" },
+                            opts = { nowait = true, noremap = true },
+                            description = "Reject all changes",
+                        },
+                        accept_hunk = {
+                            modes = { n = "ga" },
+                            opts = { nowait = true },
+                            description = "Accept the hunk under the cursor (inline only)",
+                        },
+                        reject_hunk = {
+                            modes = { n = "gr" },
+                            opts = { nowait = true },
+                            description = "Reject the hunk under the cursor (inline only)",
+                        },
+                        undo_hunk = {
+                            modes = { n = "u" },
+                            description = "Undo the last hunk decision (inline only)",
+                        },
+                    },
+                },
                 opts = {
                     -- 兼容Windows环境，解决中文日期格式导致LLM报错
                     date_format = "%Y-%m-%d", -- The date format to use in system prompts
+                    watcher = {
+                        enabled = true, -- Agent（CLI/ACP）在磁盘修改文件时自动 reload 你打开的 buffer
+                        debounce = 500, -- 去抖时间（毫秒），避免连续写入时频繁重载
+                    },
                 },
             },
             opts = {
@@ -715,7 +767,6 @@ return -- lazy.nvim
             adapters = {
                 acp = {
                     opts = {
-                        show_defaults = false,
                         -- 不显示预设的适配器
                         show_presets = false,
                     },
@@ -727,20 +778,27 @@ return -- lazy.nvim
                             -- copilot不需要设置环境变量api_key，而是copilot_cli直接读取环境变量COPILOT_GITHUB_TOKEN
                             defaults = {
                                 timeout = 30000, -- 30 seconds
-                                model = platform.is_office and "GPT-6 Luna" or nil, -- Add default model here
                                 mcpServers = "inherit_from_config",
+                                -- v20: ACP 的会话级选项统一放这里，顶层 model/mode 是旧格式（v21 移除）
+                                -- 键 = agent 公布的 category，值匹配 value 或 display name（忽略大小写）
+                                -- 可用 `gd` 打开 debug 窗口、或 `/acp_session_options` 查看实际取值；
+                                -- 匹配不到只会 warn，会话保持 agent 默认值
+                                session_config_options = {
+                                    model = platform.is_office and "GPT-6 Luna" or nil,
+                                },
                             },
                         })
                     end,
                 },
                 http = {
                     opts = {
-                        show_defaults = false,
                         allow_insecure = true, -- 允许使用非 HTTPS 接口
                         -- 不显示预设的适配器
                         show_presets = false,
                         -- 显示模型选择
                         show_model_choices = true,
+                        -- 模型列表通过 .models() 走网络拉取，缓存可避免每次切换适配器都请求
+                        cache_models_for = 1800, -- 缓存秒数
                     },
                     -- 非办公环境默认聊天适配器：硅基流动（SiliconFlow）上的 DeepSeek 在线版
                     siliconflow_deepseek_online = function()
@@ -895,7 +953,9 @@ return -- lazy.nvim
                     end,
                     -- 月之暗面（Moonshot/Kimi）OpenAI 兼容接口在线适配器
                     kimi_openai_online = function()
-                        return require("codecompanion.adapters").extend("openai", {
+                        -- v20: extend("openai") 已切到 OpenAI Responses API，
+                        -- moonshot 只提供 /v1/chat/completions，必须用 openai_legacy
+                        return require("codecompanion.adapters").extend("openai_legacy", {
                             name = "kimi_openai_online",
                             url = "https://api.moonshot.cn/v1/chat/completions",
                             env = {
@@ -927,7 +987,8 @@ return -- lazy.nvim
 
                     -- 阿里云百炼（DashScope）OpenAI 兼容接口适配器
                     dashscope_online = function()
-                        return require("codecompanion.adapters").extend("openai", {
+                        -- v20: 同上，DashScope compatible-mode 是 Chat Completions，用 openai_legacy
+                        return require("codecompanion.adapters").extend("openai_legacy", {
                             name = "qwen3_coder_plus_2025_online",
                             url = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
                             env = {
@@ -942,15 +1003,6 @@ return -- lazy.nvim
                                         ["qwen3-coder-plus-2025-07-22"] = { opts = { can_reason = true } },
                                     },
                                 },
-                                num_ctx = {
-                                    default = 16384,
-                                },
-                                think = {
-                                    default = false,
-                                },
-                                keep_alive = {
-                                    default = "5m",
-                                },
                             },
                             opts = {
                                 vision = true,
@@ -964,7 +1016,8 @@ return -- lazy.nvim
                     end,
                     -- 七牛云 API 的 Claude 在线适配器（OpenAI 兼容模式）
                     claude_opus_online = function()
-                        return require("codecompanion.adapters").extend("openai", {
+                        -- v20: 七牛云只提供 /v1/chat/completions，必须用 openai_legacy
+                        return require("codecompanion.adapters").extend("openai_legacy", {
                             name = "claude_opus_online",
                             url = "https://api.qnaigc.com/v1/chat/completions", -- 七牛云兼容模式地址
                             env = {
@@ -974,9 +1027,7 @@ return -- lazy.nvim
                             schema = {
                                 model = {
                                     default = "claude-4.6-sonnet", -- 默认模型
-                                    -- default = "anthropic/claude-opus-4.6",
                                     choices = {
-                                        -- ["anthropic/claude-opus-4.6"] = { opts = { can_reason = true } },
                                         ["claude-4.6-opus"] = { opts = { can_reason = true } },
                                         ["claude-4.6-sonnet"] = { opts = { can_reason = true } },
                                     },
@@ -1010,7 +1061,7 @@ return -- lazy.nvim
                                 username = type(creds.tplink.username) == "function" and creds.tplink.username()
                                     or creds.tplink.username,
                                 password = type(creds.tplink.password) == "function" and creds.tplink.password()
-                                    or creds.tplink.password(),
+                                    or creds.tplink.password,
                             },
                             opts = {
                                 vision = true,
@@ -1159,6 +1210,8 @@ return -- lazy.nvim
                 },
                 opts = {
                     acp_enabled = true,
+                    -- 远程 MCP（mcp-remote / uvx）握手与响应偏慢，默认 30s 容易静默超时
+                    timeout = 60000, -- MCP 服务器响应超时（毫秒）
                     -- 默认启用的 MCP 服务器
                     default_servers = platform.is_office and { "sequential-thinking", "filesystem" }
                         or { "sequential-thinking", "filesystem" },

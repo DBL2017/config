@@ -3,6 +3,7 @@
 *~
 .DS_Store
 *.swpx
+*__pycache__
 nvim/dependencies/fzf-0.74.5-windows_amd64/
 nvim/dependencies/ripgrep-15.2.0-x86_64-pc-windows-msvc/
 nvim/dependencies/tree-sitter-cli-windows-x64/
