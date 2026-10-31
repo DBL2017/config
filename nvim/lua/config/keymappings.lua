@@ -438,7 +438,7 @@ vim.keymap.set(
     { "n", "v", "i" },
     "<F2>",
     "<cmd>NvimTreeToggle<CR>",
-    { noremap = true, silent = ture, desc = "打开文件树" }
+    { noremap = true, silent = true, desc = "打开文件树" }
 )
 
 -- CodeCompanion
@@ -961,31 +961,31 @@ vim.keymap.set(
     "n",
     "<LocalLeader>abc",
     "<cmd>LspAttachBuffer<CR>",
-    { noremap = true, silent = true, buffer = bufnr, desc = "附加当前缓冲区" }
+    { noremap = true, silent = true, desc = "附加当前缓冲区" }
 )
 vim.keymap.set(
     "n",
     "<LocalLeader>aba",
     "<cmd>LspAttachAll<CR>",
-    { noremap = true, silent = true, buffer = bufnr, desc = "附加所有缓冲区" }
+    { noremap = true, silent = true, desc = "附加所有缓冲区" }
 )
 vim.keymap.set(
     "n",
     "<LocalLeader>dbc",
     "<cmd>LspDetachBuffer<CR>",
-    { noremap = true, silent = true, buffer = bufnr, desc = "分离当前缓冲区" }
+    { noremap = true, silent = true, desc = "分离当前缓冲区" }
 )
 vim.keymap.set(
     "n",
     "<LocalLeader>dba",
     "<cmd>LspDetachAll<CR>",
-    { noremap = true, silent = true, buffer = bufnr, desc = "分离所有缓冲区" }
+    { noremap = true, silent = true, desc = "分离所有缓冲区" }
 )
 vim.keymap.set(
     "n",
     "<LocalLeader>dbo",
     "<cmd>LspDetachOthers<CR>",
-    { noremap = true, silent = true, buffer = bufnr, desc = "分离其他缓冲区" }
+    { noremap = true, silent = true, desc = "分离其他缓冲区" }
 )
 
 -- nvim-treesitter-textobject

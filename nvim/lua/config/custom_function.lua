@@ -209,12 +209,13 @@ local function open_selected_file()
 end
 
 -- diagnosic jump
+-- severity 过滤需使用 { min = ..., max = ... } 形式，传数组会被当作无过滤
 local function diagnostics_goto_prev()
     vim.diagnostic.jump({
         count = -1,
         float = true,
         wrap = false,
-        severity = { vim.diagnostic.severity.ERROR, vim.diagnostic.severity.WARN },
+        severity = { min = vim.diagnostic.severity.WARN },
     })
 end
 local function diagnostics_goto_next()
@@ -222,7 +223,7 @@ local function diagnostics_goto_next()
         count = 1,
         float = true,
         wrap = false,
-        severity = { vim.diagnostic.severity.ERROR, vim.diagnostic.severity.WARN },
+        severity = { min = vim.diagnostic.severity.WARN },
     })
 end
 

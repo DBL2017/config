@@ -375,9 +375,10 @@ function M.attach_all()
     end
 
     -- 生成报告
+    local total = results.success + results.failed + results.skipped
     local message = string.format(
         "Attached LSP to %d buffer(s): %d success, %d failed, %d skipped",
-        results.success,
+        total,
         results.success,
         results.failed,
         results.skipped

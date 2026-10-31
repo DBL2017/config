@@ -23,7 +23,7 @@ function M.setup(opts)
     end, {})
 
     vim.api.nvim_create_user_command("LspDetachOthers", function()
-        lsp.detach_all()
+        lsp.detach_others()
     end, {})
     -- 自动命令：在 BufRead 或 BufNewFile 时自动附加 LSP
     if config.options.auto_attach then
