@@ -1158,6 +1158,7 @@ return -- lazy.nvim
                             "-y",
                             "@modelcontextprotocol/server-filesystem",
                             vim.fn.expand("~"), -- 跨平台获取用户目录
+                            vim.fn.getcwd(), -- 当前工作目录（启动 Neovim 时的目录）
                         },
                         -- 最新版本的mcp已经启用roots
                         -- 旧版通过 roots 限制可访问目录（当前版本已内置，无需设置）
