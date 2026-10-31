@@ -59,7 +59,20 @@ return {
             },
 
             on_attach = function(bufnr)
-                set_gitsign_keymap(bufnr)
+                -- 键位统一定义在 config/keymappings.lua 的 _G.set_gitsign_keymap。
+                -- 直接 require 会重复执行 keymappings 的全局副作用，这里只做存在性检查：
+                -- 若尚未加载则补一次 require，避免 "attempt to call a nil value
+                -- (global 'set_gitsign_keymap')"（本插件在 BufReadPre 触发，
+                -- 时序上可能早于 init.lua 里的 require("config.keymappings")）
+                if not _G.set_gitsign_keymap then
+                    pcall(require, "config.keymappings")
+                end
+                local set_keymap = _G.set_gitsign_keymap
+                if set_keymap then
+                    set_keymap(bufnr)
+                else
+                    vim.notify("config.keymappings 未加载，gitsigns 键位未绑定", vim.log.levels.WARN)
+                end
             end,
         })
     end,

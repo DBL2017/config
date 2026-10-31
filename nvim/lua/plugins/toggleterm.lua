@@ -28,7 +28,21 @@ return {
                 border = "curved",
             },
             on_open = function(term)
-                set_terminal_keymaps()
+                -- 键位统一定义在 config/keymappings.lua 的 _G.set_terminal_keymaps。
+                -- 直接 require 会重复执行 keymappings 的全局副作用，这里只做存在性检查：
+                -- 若尚未加载则补一次 require，避免 "attempt to call a nil value
+                -- (global 'set_terminal_keymaps')"
+                if not _G.set_terminal_keymaps then
+                    pcall(require, "config.keymappings")
+                end
+                local set_keymaps = _G.set_terminal_keymaps
+                if set_keymaps then
+                    -- 传入 term.bufnr：原先的 buffer = 0 在浮动终端的 on_open 触发点
+                    -- 不保证当前 buffer 就是终端本体
+                    set_keymaps(term.bufnr)
+                else
+                    vim.notify("config.keymappings 未加载，terminal 键位未绑定", vim.log.levels.WARN)
+                end
             end,
         })
 

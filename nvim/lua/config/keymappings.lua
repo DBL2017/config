@@ -354,7 +354,11 @@ vim.keymap.set(
 vim.keymap.set(
     "n",
     "<space>q",
-    vim.diagnostic.setloclist,
+    -- 不能直接传 vim.diagnostic.setloclist：keymap 回调会收到 { id, lhs, mode, ... }
+    -- 这个表，它会被当成 opts 使用，污染 loclist 参数
+    function()
+        vim.diagnostic.setloclist()
+    end,
     { noremap = true, silent = true, desc = "将诊断加入位置列表" }
 )
 
@@ -774,22 +778,28 @@ vim.keymap.set(
 
 -- Toggleterm
 -- 设置toggleterm的快捷键，使其能够在打开终端的情况下切换到其他窗口
-function _G.set_terminal_keymaps()
-    vim.keymap.set("t", "<esc>", [[<C-\><C-n>]], { noremap = true, silent = true, buffer = 0 })
-    vim.keymap.set("t", "jk", [[<C-\><C-n>]], { noremap = true, silent = true, buffer = 0 })
+-- 定义在本文件（快捷键集中管理的项目约定），由 toggleterm 的 on_open 显式 require 调用；
+-- 参数化 bufnr 是因为浮动终端的 on_open 触发点不保证当前 buffer 就是终端本体，
+-- 原先的 buffer = 0 会在调用时刻解析到错误的 buffer
+function _G.set_terminal_keymaps(bufnr)
+    bufnr = bufnr or 0
+    local opts = { noremap = true, silent = true, buffer = bufnr }
+
+    vim.keymap.set("t", "<esc>", [[<C-\><C-n>]], opts)
+    vim.keymap.set("t", "jk", [[<C-\><C-n>]], opts)
     -- 有些终端模拟器上，<Backspace>按键会发送0x08，与<C-h>一致，下面的映射就可能导致<BS>失效，需要修改终端模拟对<BS>的配置
-    vim.keymap.set("t", "<C-h>", [[<cmd>wincmd h<CR>]], { noremap = true, silent = true, buffer = 0 })
-    vim.keymap.set("t", "<C-j>", [[<cmd>wincmd j<CR>]], { noremap = true, silent = true, buffer = 0 })
-    vim.keymap.set("t", "<C-k>", [[<cmd>wincmd k<CR>]], { noremap = true, silent = true, buffer = 0 })
-    vim.keymap.set("t", "<C-l>", [[<cmd>wincmd l<CR>]], { noremap = true, silent = true, buffer = 0 })
-    vim.keymap.set("t", "<C-w>", [[<C-\><C-n><C-w>]], { noremap = true, silent = true, buffer = 0 })
+    vim.keymap.set("t", "<C-h>", [[<cmd>wincmd h<CR>]], opts)
+    vim.keymap.set("t", "<C-j>", [[<cmd>wincmd j<CR>]], opts)
+    vim.keymap.set("t", "<C-k>", [[<cmd>wincmd k<CR>]], opts)
+    vim.keymap.set("t", "<C-l>", [[<cmd>wincmd l<CR>]], opts)
+    vim.keymap.set("t", "<C-w>", [[<C-\><C-n><C-w>]], opts)
     vim.keymap.set("t", "<C-q>", function()
-        local job_id = vim.b.terminal_job_id
+        local job_id = vim.b[bufnr].terminal_job_id
         if job_id then
             vim.fn.jobstop(job_id)
         end
-        vim.api.nvim_buf_delete(0, { force = true })
-    end, { noremap = true, silent = true, buffer = 0 })
+        vim.api.nvim_buf_delete(bufnr, { force = true })
+    end, opts)
 end
 
 -- Trouble
@@ -883,44 +893,38 @@ vim.keymap.set("n", "<F12>", function()
 end, { noremap = true, silent = true, desc = "切换大纲" })
 
 -- gitsigns
-_G.set_gitsign_keymap = function(bufnr)
-    -- local bufnr = args.buf
-    vim.keymap.set("n", "]c", function()
-        -- diff模式时返回]c，用来触发默认动作
+-- 定义在本文件（快捷键集中管理的项目约定），由 gitsigns 的 on_attach 显式 require 调用。
+-- 相对原实现的两处修正：
+--   1) expr 映射的求值窗口内用 defer_fn 执行 vim.cmd("normal! zz") 有触发 E5108/E1235 的风险，
+--      居中改由 nav_hunk 的 center 参数完成
+--   2) 每次按键都 require("gitsigns")，改为闭包内持有一次引用
+-- 注意 [c 与 ]c 的 target 是刻意不对称的（见下方 nav_hunk 调用）：
+--   ]c 向下遍历 "all"  — 包含已 staged 的 hunk，便于逐个检视变更
+--   [c 向上遍历 "unstaged" — 只在未暂存的改动间往复，便于修改时定位
+function _G.set_gitsign_keymap(bufnr)
+    local gs = package.loaded.gitsigns or require("gitsigns")
+
+    -- diff 模式下直接返回方向键触发原生动作，否则调度 nav_hunk 并吞掉本次按键
+    local function nav_hunk(direction, lhs, target)
         if vim.wo.diff then
-            return "]c"
+            return lhs
         end
         vim.schedule(function()
-            require("gitsigns").nav_hunk("next", { preview = true, target = "all" })
+            gs.nav_hunk(direction, { preview = true, target = target, center = true })
         end)
-        -- 延迟一小段时间后执行居中
-        --  -- 使用 feedkeys 模拟按键
-        vim.defer_fn(function()
-            vim.cmd("normal! zz")
-        end, 10) -- 10ms延迟
         return "<Ignore>"
+    end
+
+    vim.keymap.set("n", "]c", function()
+        return nav_hunk("next", "]c", "all")
     end, { noremap = true, silent = true, expr = true, buffer = bufnr, desc = "跳到下一个差异" })
     vim.keymap.set("n", "[c", function()
-        -- diff模式时返回]c，用来触发默认动作
-        if vim.wo.diff then
-            return "[c"
-        end
-        vim.schedule(function()
-            require("gitsigns").nav_hunk("prev", {
-                preview = true,
-                target = "unstaged",
-            })
-        end)
-        -- 延迟一小段时间后执行居中
-        vim.defer_fn(function()
-            vim.cmd("normal! zz")
-        end, 10) -- 10ms延迟
-        return "<Ignore>"
+        return nav_hunk("prev", "[c", "unstaged")
     end, { noremap = true, silent = true, expr = true, buffer = bufnr, desc = "跳到上一个差异" })
 
     -- hunk stage
     vim.keymap.set("n", "<LocalLeader>hs", function()
-        require("gitsigns").stage_hunk()
+        gs.stage_hunk()
     end, { noremap = true, silent = true, buffer = bufnr, desc = "暂存补丁块" })
     -- hunk unstage
     -- 注意：undo_stage_hunk() 已废弃，且仅能撤销"当前会话内"通过 stage_hunk()
@@ -929,27 +933,27 @@ _G.set_gitsign_keymap = function(bufnr)
     -- 新版 gitsigns 中 stage_hunk() 对已暂存的 hunk 会自动切换为取消暂存，
     -- 且按光标位置定位，因此改用 stage_hunk() 实现取消暂存。
     vim.keymap.set("n", "<LocalLeader>hu", function()
-        require("gitsigns").stage_hunk()
+        gs.stage_hunk()
     end, { noremap = true, silent = true, buffer = bufnr, desc = "取消暂存补丁块" })
     -- hunk reset
     vim.keymap.set("n", "<LocalLeader>hr", function()
-        require("gitsigns").reset_hunk()
+        gs.reset_hunk()
     end, { noremap = true, silent = true, buffer = bufnr, desc = "重置补丁块" })
     -- buffer stage
     vim.keymap.set("n", "<LocalLeader>bs", function()
-        require("gitsigns").stage_buffer()
+        gs.stage_buffer()
     end, { noremap = true, silent = true, buffer = bufnr, desc = "暂存缓冲区" })
-    -- buffer stage
+    -- buffer reset
     vim.keymap.set("n", "<LocalLeader>br", function()
-        require("gitsigns").reset_buffer()
+        gs.reset_buffer()
     end, { noremap = true, silent = true, buffer = bufnr, desc = "重置缓冲区" })
     -- buffer blame
     vim.keymap.set("n", "<LocalLeader>gb", function()
-        require("gitsigns").blame()
+        gs.blame()
     end, { noremap = true, silent = true, buffer = bufnr, desc = "查看缓冲区 Blame" })
     -- buffer line blame
     vim.keymap.set("n", "<LocalLeader>bl", function()
-        require("gitsigns").blame_line()
+        gs.blame_line()
     end, { noremap = true, silent = true, buffer = bufnr, desc = "查看当前行的 Blame" })
 end
 

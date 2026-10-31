@@ -1,18 +1,22 @@
 local usage_frequency = require("config.usage_frequency")
 
+-- 统一剪贴板写入
+-- basic.lua 已配置 vim.o.clipboard = "unnamedplus"，setreg("+") 即写系统剪贴板。
+-- 旧实现额外调用 system("xclip"/"pbcopy") 属冗余且有害：
+--   * Linux: xclip 子进程重复写一次，无 X11 的 tmux/SSH 会话下静默失败
+--   * macOS: system("pbcopy", str) 把字符串当作文件名参数传给 pbcopy，
+--            pbcopy 从空 stdin 读取，等价于清空系统剪贴板
+local function copy_to_clipboard(text)
+    vim.fn.setreg("+", text)
+end
+
 local function copy_current_filepath()
     local file_path = vim.api.nvim_buf_get_name(0)
     local dir_path = vim.fn.fnamemodify(file_path, ":h")
     -- local dir_name = vim.fn.fnamemodify(dir_path, ":t")
     vim.notify("Copied " .. dir_path)
 
-    -- 写入系统剪贴板
-    vim.fn.setreg("+", dir_path)
-    if vim.fn.has("mac") == 1 then
-        vim.fn.system("pbcopy", dir_path)
-    else
-        vim.fn.system("xclip -sel clipboard", dir_path) -- Linux/WSL
-    end
+    copy_to_clipboard(dir_path)
 end
 
 -- 获取当前行的commit
@@ -69,7 +73,7 @@ local function get_line_commit(opts)
     end
 
     if opts.copy ~= false then
-        vim.fn.setreg("+", sha)
+        copy_to_clipboard(sha)
     end
     -- vim.notify("Copied SHA: " .. sha, vim.log.levels.INFO)
     return sha
@@ -170,12 +174,7 @@ local function copy_with_metadata(path_type)
     end
     -- 写入系统剪贴板
     local joined = table.concat(lines, "\n")
-    vim.fn.setreg("+", joined)
-    if vim.fn.has("mac") == 1 then
-        vim.fn.system("pbcopy", joined)
-    else
-        vim.fn.system("xclip -sel clipboard", joined) -- Linux/WSL
-    end
+    copy_to_clipboard(joined)
     -- 如果是可视模式，退出
     if vim.fn.mode() == "v" or vim.fn.mode() == "V" then
         vim.api.nvim_input("<Esc>") -- 发送退出信号
@@ -295,9 +294,12 @@ local function align_column()
     local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
     local max_len = 0
     -- 获取最长行
+    -- 注意：+1 必须在循环外累加。写在循环内会让每轮都 +1，
+    -- n 行文件最终多出约 n 个尾随空格（同时触发 conform 的 trim_whitespace 与 git 空白 diff）
     for _, line in ipairs(lines) do
-        max_len = math.max(max_len, #line) + 1
+        max_len = math.max(max_len, #line)
     end
+    max_len = max_len + 1
 
     -- 对不足长的行进行填充空格
     for i, line in ipairs(lines) do

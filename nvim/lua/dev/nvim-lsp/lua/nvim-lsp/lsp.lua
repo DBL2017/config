@@ -227,7 +227,7 @@ function M.attach_buffer(bufnr, silent)
     local server_name = M.get_lsp_for_filetype(filetype)
     if not server_name then
         if not silent then
-            vim.notify(string.format("No LSP server configured for filetype: " .. filetype), vim.log.levels.WARN)
+            vim.notify("No LSP server configured for filetype: " .. filetype, vim.log.levels.WARN)
         end
         return false
     end
@@ -235,7 +235,7 @@ function M.attach_buffer(bufnr, silent)
     local server_config = M.lsp_servers[server_name]
     if not server_config then
         if not silent then
-            vim.notify(string.format("LSP server not configured: " .. server_name), vim.log.levels.WARN)
+            vim.notify("LSP server not configured: " .. server_name, vim.log.levels.WARN)
         end
         return false
     end
@@ -243,7 +243,7 @@ function M.attach_buffer(bufnr, silent)
     -- 检查是否已安装
     if vim.fn.executable(server_config.config.name or server_name) == 0 then
         if not silent then
-            vim.notify(string.format(server_name .. " is not installed"), vim.log.levels.WARN)
+            vim.notify(server_name .. " is not installed", vim.log.levels.WARN)
         end
         return false
     end
