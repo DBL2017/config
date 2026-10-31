@@ -11,19 +11,17 @@ function M.load(filename, default_value)
         return default_value
     end
 
-    local read_ok, data_file = pcall(vim.fn.readfile, data_path)
-    if not read_ok then
-        vim.notify("无法读取使用频率数据: " .. filename, vim.log.levels.ERROR)
-        return default_value
-    end
+    -- readfile 失败时返回空表并设置 v:errmsg,不抛 Lua 错误,
+    -- 因此 pcall(readfile) 的防护是空转的;前面的 filereadable 检查已足够
+    local data = vim.fn.readfile(data_path)
 
-    local decode_ok, data = pcall(vim.json.decode, table.concat(data_file, "\n"))
+    local decode_ok, data_table = pcall(vim.json.decode, table.concat(data, "\n"))
     if not decode_ok then
         vim.notify("无法解析使用频率数据: " .. filename, vim.log.levels.ERROR)
         return default_value
     end
 
-    return data
+    return data_table
 end
 
 function M.save(filename, data)
