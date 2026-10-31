@@ -1,10 +1,13 @@
 {
-    "workspace": {
-       "checkThirdParty": false
-    },
-    "diagnostics": {
-        "globals": [
-            "vim"
-        ]
-    }
+	"workspace": {
+		"checkThirdParty": false
+	},
+	"diagnostics": {
+		"globals": [
+			"vim",
+			"set_gitsign_keymap",
+			"set_terminal_keymaps",
+			"custom_foldtext"
+		]
+	}
 }

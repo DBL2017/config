@@ -405,7 +405,9 @@ function M.detach_buffer(bufnr)
             local current = vim.lsp.get_client_by_id(client.id)
 
             if current and current.attached_buffers and vim.tbl_isempty(current.attached_buffers) then
-                vim.lsp.stop_client(client.id, true)
+                -- 不传 force：先发 shutdown/exit 优雅退出，超时后 Neovim 自行强杀。
+                -- clangd 的 --background-index 需要这段时间把索引落盘。
+                vim.lsp.stop_client(client.id)
             end
         end)
     end

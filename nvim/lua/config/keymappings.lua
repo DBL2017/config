@@ -151,28 +151,26 @@ vim.keymap.set("n", "<LocalLeader>td", custom_function.insert_todo_keyword, {
 
 -- tab快捷键
 -- Move to previous/next
+vim.keymap.set("n", "<A-Up>", "<cmd>tabprevious<CR>", { noremap = true, silent = true, desc = "上一个标签页" })
+vim.keymap.set("n", "<A-Down>", "<cmd>tabnext<CR>", { noremap = true, silent = true, desc = "下一个标签页" })
 vim.keymap.set(
-    { "i", "n" },
+    "i",
     "<A-Up>",
-    "<cmd>tabprevious<CR>",
+    "<C-o><cmd>tabprevious<CR>",
     { noremap = true, silent = true, desc = "上一个标签页" }
 )
-vim.keymap.set(
-    { "i", "n" },
-    "<A-Down>",
-    "<cmd>tabnext<CR>",
-    { noremap = true, silent = true, desc = "下一个标签页" }
-)
+vim.keymap.set("i", "<A-Down>", "<C-o><cmd>tabnext<CR>", { noremap = true, silent = true, desc = "下一个标签页" })
+
 -- tab
 -- 使用LocalLeader的原因防止误操作
 vim.keymap.set(
-    { "i", "n" },
+    "n",
     "<LocalLeader>tn",
     "<cmd>$tabnew<CR>",
     { noremap = true, silent = true, desc = "在末尾新建标签页" }
 )
 vim.keymap.set(
-    { "i", "n" },
+    "n",
     "<LocalLeader>to",
     "<cmd>tabonly<CR>",
     { noremap = true, silent = true, desc = "仅保留当前标签页" }
@@ -186,7 +184,7 @@ vim.keymap.set(
 )
 
 -- 当前终端中Alt-t和Esc-t映射的是相同的编码，导致Esc-t也会产生相同效果
-vim.keymap.set({ "i", "n" }, "<LocalLeader>t", function()
+vim.keymap.set("n", "<LocalLeader>t", function()
     local input = vim.fn.input("请输入要跳转的 Tab Number: ")
 
     -- 空输入
@@ -218,27 +216,17 @@ end, {
 })
 
 -- buffer 快捷键
-vim.keymap.set({ "i", "n" }, "<A-.>", "<cmd>bnext<CR>", { noremap = true, silent = true, desc = "下一个缓冲区" })
+vim.keymap.set({ "n" }, "<A-.>", "<cmd>bnext<CR>", { noremap = true, silent = true, desc = "下一个缓冲区" })
+vim.keymap.set({ "n" }, "<A-,>", "<cmd>bprevious<CR>", { noremap = true, silent = true, desc = "上一个缓冲区" })
+vim.keymap.set({ "n" }, "<A-Right>", "<cmd>bnext<CR>", { noremap = true, silent = true, desc = "下一个缓冲区" })
 vim.keymap.set(
-    { "i", "n" },
-    "<A-,>",
-    "<cmd>bprevious<CR>",
-    { noremap = true, silent = true, desc = "上一个缓冲区" }
-)
-vim.keymap.set(
-    { "i", "n" },
-    "<A-Right>",
-    "<cmd>bnext<CR>",
-    { noremap = true, silent = true, desc = "下一个缓冲区" }
-)
-vim.keymap.set(
-    { "i", "n" },
+    { "n" },
     "<A-Left>",
     "<cmd>bprevious<CR>",
     { noremap = true, silent = true, desc = "上一个缓冲区" }
 )
 -- 解决偶发一次删除多个buffer的现象
-vim.keymap.set({ "i", "n" }, "<A-d>", function()
+vim.keymap.set({ "n" }, "<A-d>", function()
     local current = vim.api.nvim_get_current_buf()
     local force = false
 
@@ -266,7 +254,7 @@ end, {
     silent = true,
 })
 
-vim.keymap.set({ "i", "n" }, "<LocalLeader>b", function()
+vim.keymap.set({ "n" }, "<LocalLeader>b", function()
     local input = vim.fn.input("请输入要跳转的 Buffer Number: ")
 
     -- 空输入

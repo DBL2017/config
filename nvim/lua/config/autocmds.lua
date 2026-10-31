@@ -186,7 +186,7 @@ vim.api.nvim_create_autocmd({
 -- E948: Job still running
 -- E676: No matching autocommands for buftype= buffer
 -- Press ENTER or type command to continue
-vim.api.nvim_create_autocmd("QuitPre", {
+vim.api.nvim_create_autocmd("VimLeavePre", {
     group = group,
     callback = function()
         local ok, terms = pcall(require, "toggleterm.terminal")
