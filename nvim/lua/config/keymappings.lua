@@ -404,8 +404,15 @@ vim.keymap.set({ "n", "v" }, "<space>f", function(args)
         end
 
         -- 取结束行长度作为“行末列”
+        -- #end_line 是字节偏移，而 conform.format 的 range 列最终会被
+        -- vim.lsp.util.make_given_range_params(..., client.offset_encoding) 按
+        -- “编码索引”解释，直接塞字节数在中文注释行尾必然列偏移。
+        -- vim.str_utfindex/str_byteindex 负责换算。注意 0.12 的真实签名是
+        -- (s, encoding, index)，编码串在第二参；写成 ("utf-16", s) 会把行内容
+        -- 当 encoding 校验，直接 E5108: encoding: expected ?。
+        -- 编码取扩展点的“最大公约数”utf-16，理由见下方 notes。
         local end_line = vim.api.nvim_buf_get_lines(0, erow - 1, erow, true)[1] or ""
-        local end_col = #end_line
+        local end_col = vim.str_byteindex(end_line, "utf-16", vim.str_utfindex(end_line, "utf-16"))
 
         local range = {
             start = { srow - 1, 0 },
@@ -413,6 +420,23 @@ vim.keymap.set({ "n", "v" }, "<space>f", function(args)
         }
 
         -- print("格式化范围:", vim.inspect(range))
+
+        -- notes（刻意保留的技术债，改动 range 计算前先读）：
+        -- 1) 编码耦合：客户端 range 的列会被 conform 传给
+        --    vim.lsp.util.make_given_range_params(..., client.offset_encoding)，
+        --    即“按每个 LSP 声明的编码解释同一批列号”。这里固定按 utf-16 编码，
+        --    只有当 LSP 用 utf-16 上报/消费字符偏移时才严格正确（clangd 是 utf-16，
+        --    本项目 C/C++ 主路径，BOM 行偏移能对齐正是这个原因）。
+        --    若某 LSP 用 utf-8（rust-analyzer）且选区含非 ASCII，仍有偏移。
+        --    扩展点：{ "textDocument/rangeFormatting", { bufnr = 0 } }，在
+        --    LspRequest/LspServerSupportRequest 里取 offset_encoding。
+        -- 2) 未修复：块可视(Ctrl-V，mode 为 "\6")落进 else 分支，格式化整个文件；
+        --    且 v/V 分支的 end_col 取整行行末而非可视列（start 是行首 0 列，不受编码影响）。
+        -- 3) 未修复：async = true 时未在回调改 buffer 前退出可视；vim.lsp.util.apply_text_edits
+        --    只把光标 clamp 到合法范围、不跟随编辑平移，插入点会停在选区末。
+        -- 4) 自定义格式化器的 offset_encoding 恒为 utf-8（nvim 官方 formatter 是 utf-16，
+        --    由自身负责编码），格式化含非 ASCII 文本的行时列偏移基本不可避免：
+        --    range_args 与 range offset_encoding 在 conform 里没有联动钩子。
 
         conform.format({
             lsp_fallback = false,
