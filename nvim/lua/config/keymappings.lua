@@ -714,6 +714,22 @@ end, {
     silent = true,
     desc = "列出光标下单词的 LSP 传出调用，跳转到引用处",
 })
+vim.keymap.set("n", "tld", function()
+    local ok, telescope = pcall(require, "telescope.builtin")
+    if not ok then
+        vim.notify("telescope not installed or enabled", vim.log.levels.WARN)
+        return
+    end
+    telescope.diagnostics({
+        severity_limit = vim.diagnostic.severity.WARN,
+        no_unlisted = true,
+        sort_by = "severity",
+    })
+end, {
+    noremap = true,
+    silent = true,
+    desc = "列出所有 buffer 的诊断（警告及以上，按严重级别排序）",
+})
 
 vim.keymap.set("n", "tff", function()
     local ok, _ = pcall(require, "telescope._extensions.frecency")
@@ -813,45 +829,6 @@ function _G.set_terminal_keymaps(bufnr)
         vim.api.nvim_buf_delete(bufnr, { force = true })
     end, opts)
 end
-
--- Trouble
--- diagnostic键映射
-vim.keymap.set(
-    "n",
-    "<LocalLeader>xx",
-    "<cmd>Trouble diagnostics toggle filter.buf=0<cr>",
-    { noremap = true, silent = true, desc = "切换 Trouble 诊断" }
-)
-vim.keymap.set(
-    "n",
-    "<LocalLeader>xw",
-    "<cmd>Trouble workspace_diagnostics toggle<cr>",
-    { noremap = true, silent = true, desc = "切换工作区诊断" }
-)
-vim.keymap.set(
-    "n",
-    "<LocalLeader>xd",
-    "<cmd>Trouble document_diagnostics toggle<cr>",
-    { noremap = true, silent = true, desc = "切换文档诊断" }
-)
-vim.keymap.set(
-    "n",
-    "<LocalLeader>xl",
-    "<cmd>Trouble loclist toggle<cr>",
-    { noremap = true, silent = true, desc = "切换位置列表诊断" }
-)
-vim.keymap.set(
-    "n",
-    "<LocalLeader>xq",
-    "<cmd>Trouble quickfix toggle<cr>",
-    { noremap = true, silent = true, desc = "切换 quickfix 诊断" }
-)
-vim.keymap.set(
-    "n",
-    "gR",
-    "<cmd>Trouble lsp_references toggle<cr>",
-    { noremap = true, silent = true, desc = "切换 Trouble 中的 LSP 引用" }
-)
 
 -- lspsaga
 vim.keymap.set("n", "K", "<cmd>Lspsaga hover_doc<CR>", { noremap = true, silent = true, desc = "Lspsaga 查看文档" })
