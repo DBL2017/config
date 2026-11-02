@@ -422,11 +422,6 @@ return {
                     timeout_ms = 3000,
                     score_offset = 100, -- Gives minuet higher priority among suggestions
                 },
-                tmux = {
-                    module = "blink-cmp-tmux",
-                    name = "TMX",
-                    score_offset = 100,
-                },
                 git = {
                     enabled = false,
                     module = "blink-cmp-git",
