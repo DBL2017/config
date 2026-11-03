@@ -1,6 +1,6 @@
 return -- Lua
 {
-    "olimorris/persisted.nvim",
+    "DBL2017/persisted.nvim",
     lazy = false,
     opts = {
         use_git_branch = true,
