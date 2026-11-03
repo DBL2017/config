@@ -1,18 +1,27 @@
 ---
-name: Kimi Generate Digest
+name: Generate Digest
 interaction: chat
-description: 使用Kimi对当前Buffer或已选中内容生成摘要
+description: 当前Buffer或已选中内容生成摘要
+tools:
+  - run_command
+  - read_file
+  - edit_file
+  - delete_file
+  - create_file
+  - grep_search
+  - file_search
+  - get_changed_files
 opts:
-  alias: kimi_generate_digest_view
-  auto_submit: true
+  alias: generate_digest
+  auto_submit: false
   user_prompt: false
   stop_context_insertion: true
   is_slash_cmd: true
   ignore_system_prompt: true
   adapter:
-    name: kimi_openai_online
+    name: siliconflow_deepseek_online
   modes:
-    - v
+    - n
 intro_message: Welcome to generate digest!
 ---
 
@@ -30,7 +39,7 @@ intro_message: Welcome to generate digest!
    - 产品名称
    - 协议、标准或专有名词
 3. 用一句话概括内容核心。
-4. 摘要不超过120字。
+4. 摘要不超过200字。
 
 规则：
 
@@ -54,8 +63,6 @@ intro_message: Welcome to generate digest!
 
 ## user
 
-请对下面内容生成摘要:
+请对下面内容生成摘要
 
-```${context.filetype}
-${context.code}
-```
+#{buffer}
