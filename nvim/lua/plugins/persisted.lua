@@ -4,6 +4,13 @@ return -- Lua
     lazy = false,
     opts = {
         use_git_branch = true,
+        telescope = {
+            mappings = { -- Mappings for managing sessions in Telescope
+                copy_session = "<A-c>",
+                change_branch = "<A-b>",
+                delete_session = "<A-d>",
+            },
+        },
     },
     config = function(_, opts)
         local persisted = require("persisted")
