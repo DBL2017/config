@@ -1047,24 +1047,27 @@ end, { noremap = true, silent = true, desc = "选择整个条件语句" })
 
 -- 判断 bullets 是否可用
 local function has_bullets()
-    return vim.fn.exists("*bullets#init") == 1
+    -- bullets.vim 暴露的是命令，不是 bullets#init 函数。
+    return vim.fn.exists(":BulletDemote") == 2
 end
 
+-- <Plug> 映射必须允许递归展开。
 -- insert 模式 Tab → bullets 缩进
 vim.keymap.set("i", "<Tab>", function()
     if has_bullets() and (vim.bo.filetype == "markdown" or vim.bo.filetype == "text") then
         return "<Plug>(bullets-demote)"
     end
     return "\t"
-end, { noremap = true, silent = true, expr = true })
+end, { remap = true, silent = true, expr = true })
 
 -- insert 模式 Shift-Tab → 反缩进
 vim.keymap.set("i", "<S-Tab>", function()
     if has_bullets() and (vim.bo.filetype == "markdown" or vim.bo.filetype == "text") then
         return "<Plug>(bullets-promote)"
     end
-    return "<S-Tab>"
-end, { noremap = true, silent = true, expr = true })
+    -- 不返回 <S-Tab>，否则 remap=true 会再次触发当前映射。
+    return ""
+end, { remap = true, silent = true, expr = true })
 
 -- zen-mode
 vim.keymap.set("n", "<LocalLeader>z", function()

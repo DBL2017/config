@@ -88,11 +88,20 @@ return {
             -- fallback命令将运行下一个非闪烁键盘映射(回车键的默认换行等操作需要)
             ["<CR>"] = { "accept", "fallback" }, -- 更改成'select_and_accept'会选择第一项插入
             ["<C-q>"] = { "cancel" },
-            ["<S-Tab>"] = { "select_prev", "snippet_backward", "fallback" },
+            ["<S-Tab>"] = {
+                function()
+                    if vim.bo.filetype == "markdown" or vim.bo.filetype == "text" then
+                        return false -- 让 bullets 接管
+                    end
+                end,
+                "select_prev",
+                "snippet_backward",
+                "fallback",
+            },
             -- ["<Tab>"] = { "select_next", "snippet_forward", "fallback" }, -- 同时存在补全列表和snippet时，补全列表选择优先级更高
             ["<Tab>"] = {
                 function()
-                    if vim.bo.filetype == "markdown" then
+                    if vim.bo.filetype == "markdown" or vim.bo.filetype == "text" then
                         return false -- 👉 让 bullets 接管
                     end
                 end,
