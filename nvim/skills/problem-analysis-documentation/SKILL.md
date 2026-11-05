@@ -162,6 +162,11 @@ Keep the report concise without sacrificing traceability:
   from confidence (`高` / `中` / `低`).
 - Record contributing factors, changed files, validation evidence, and
   unresolved gaps when applicable.
+- When a recommended or implemented solution changes source code, include the
+  corresponding unified diff in the solution section. Clearly label it as
+  proposed or applied, use real file paths and code from the available
+  evidence, and do not fabricate omitted context. If the exact source/base
+  version is unavailable, state that the diff cannot be produced reliably.
 - Separate checks actually run from user-reported results and recommended but
   unrun checks. State unknown or inapplicable information explicitly rather
   than leaving audit-relevant fields blank or inventing values.
