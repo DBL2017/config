@@ -13,7 +13,10 @@ Use this workflow to turn incomplete technical evidence into a defensible diagno
 - Preserve the user's environment and existing work. Read before editing; do not overwrite unrelated changes.
 - Treat source code, logs, traces, configs, and reproduction steps as evidence. Quote exact paths, line ranges, timestamps, identifiers, and relevant excerpts.
 - Never invent missing evidence. Mark unknowns, assumptions, and confidence explicitly, then state the smallest next check that would resolve each uncertainty.
-- Protect secrets and personal data in outputs. Redact tokens, passwords, private keys, session identifiers, customer data, and internal URLs unless the user explicitly needs a safe reference.
+- Do not include credentials, private keys, access tokens, session identifiers,
+  customer data, or confidential internal links in outputs. Omit sensitive
+  values; when needed for context, mark them as `[已省略]` and preserve the
+  surrounding non-sensitive evidence.
 - Prefer the smallest root-cause fix that preserves intended behavior. Include compatibility, rollout, rollback, and failure-mode considerations.
 - A diagnosis is incomplete until it has a causal chain and a validation plan. A plausible symptom description alone is not a root cause.
 
@@ -49,7 +52,12 @@ If essential information is missing, ask focused questions before making a stron
 
 ### 2. Ingest code and logs safely
 
-For deeper analysis and formal reports, inventory relevant supplied artifacts before interpreting them. Record their path/name, version or commit, time range, origin, and whether they may contain secrets or personal data. For quick triage, inspect only the evidence needed to answer the immediate question.
+For deeper analysis and formal reports, inventory relevant supplied artifacts before interpreting them. Record their path/name, version or commit, time range, and origin. For quick triage, inspect only the evidence needed to answer the immediate question.
+
+In a formal report, present the supplied raw evidence or relevant safe excerpts
+before the evidence items derived from analysis. Keep the two layers distinct:
+raw evidence records what was provided; derived evidence records observations
+and conclusions with references back to the raw source and exact location.
 
 For source:
 
@@ -61,7 +69,9 @@ For logs:
 
 1. Normalize timestamps and correlate request/session/thread/process identifiers.
 2. Build a chronological event sequence; distinguish the first failure from later cascading errors.
-3. Preserve exact error text and stack frames, while redacting sensitive values.
+3. Preserve exact error text and stack frames, but omit credentials, personal
+   data, and other sensitive values from report excerpts. Mark omissions as
+   `[已省略]`.
 4. Compare failing and successful examples when available.
 
 Do not treat log severity, the last stack frame, or the first suspicious line as proof of causality. Use them to select code paths for verification.
@@ -130,21 +140,38 @@ If a check cannot run, state the exact blocker and provide a reproducible comman
 
 ### 7. Produce the final document
 
-Only produce a formal document in **Formal report** mode. Use `references/report-template.md` unless the repository or user specifies another format. The document must be useful to both implementers and reviewers:
+Only produce a formal document in **Formal report** mode. Use
+`references/report-template.md` unless the repository or user specifies another
+format. Design it for two reading speeds: put the problem, impact, status,
+root-cause chain, recommended action, and verification state up front; retain
+source evidence and operational details in the later sections for audit.
 
-- Executive summary: impact, status, root cause, and recommended action.
-- Problem statement and scope.
-- Evidence inventory and redaction notes.
-- Reproduction and timeline.
-- Technical analysis with source/log references.
-- Root cause and contributing factors, with confidence.
-- Options and recommended solution.
-- Implementation/files changed (if applicable).
-- Validation evidence and remaining gaps.
-- Rollout, monitoring, rollback, and prevention.
-- Appendix: safe excerpts, commands, assumptions, and glossary.
+Keep the report concise without sacrificing traceability:
 
-End with a compact **Action items** table containing owner, action, priority, and acceptance evidence. Keep the report factual and avoid blame-oriented language.
+- Use evidence IDs and cite them from conclusions; include source/version/time
+  information. Keep sensitive values out of report excerpts and mark any
+  omissions as `[已省略]`.
+- In the evidence section, list supplied original artifacts/excerpts first,
+  then list analysis-derived findings. Link each finding to its source ID and
+  exact location; omit sensitive values without altering the meaning of
+  excerpts.
+- Prefer short headings and bullets. Use tables only when comparing options or
+  when a table materially improves scanning; do not force tabular output for
+  evidence, validation, or action items.
+- Distinguish root-cause status (`已确认` / `高概率` / `待验证` / `未定位`)
+  from confidence (`高` / `中` / `低`).
+- Record contributing factors, changed files, validation evidence, and
+  unresolved gaps when applicable.
+- Separate checks actually run from user-reported results and recommended but
+  unrun checks. State unknown or inapplicable information explicitly rather
+  than leaving audit-relevant fields blank or inventing values.
+- Include a timeline, option comparison, rollout/monitoring/rollback details,
+  or appendix when they add value; otherwise omit or mark them not applicable.
+
+End with compact **行动项**, recording owner, action, priority, due date,
+status, and acceptance evidence. Bullets are preferred unless a table makes
+the items easier to scan. Keep the report factual and avoid blame-oriented
+language.
 
 ## Output contract
 
@@ -153,6 +180,8 @@ Follow the selected response mode rather than returning every deliverable by def
 - **Quick triage:** Give the current conclusion (or state that the cause is unresolved) and the next useful check/action. Include a brief evidence or uncertainty note when needed.
 - **Root-cause analysis:** Summarize impact and confidence, then provide the evidence-backed causal chain, recommended fix, validation plan, and remaining gaps. Include a timeline or alternatives when they help explain the case.
 - **Implementation:** Summarize the change, files affected, checks actually run and their results, and any remaining gaps. Include rollout or rollback guidance when relevant.
-- **Formal report:** Provide the complete report using the referenced template, with evidence, analysis, solution, validation, rollout/rollback, and action items.
+- **Formal report:** Provide the complete report using the referenced template,
+  with a quick-review summary followed by auditable evidence, analysis,
+  solution, validation and gaps, operational guidance, and action items.
 
 For an unresolved case, give only the hypotheses and next evidence appropriate to the selected mode; rank hypotheses for deeper analysis or formal reports. Never fill unknown fields with invented values.
