@@ -368,6 +368,7 @@ return {
 
                 codecompanion = {
                     name = "CC",
+                    max_items = 3, -- Maximum number of items to display in the menu
                     module = "codecompanion.providers.completion.blink",
                     score_offset = 200,
                 },

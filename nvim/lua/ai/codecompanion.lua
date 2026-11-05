@@ -399,7 +399,7 @@ return -- lazy.nvim
                                 provider = "telescope",
                                 dirs = {
                                     vim.fn.getcwd(),
-                                    vim.fs.joinpath(vim.fn.expand("~"), "windows_share/mobaxterm"),
+                                    vim.fs.joinpath(vim.fn.expand("~"), "E/mobaxterm"),
                                     vim.fs.joinpath(vim.fn.expand("~"), "ai"),
                                 },
                             },
