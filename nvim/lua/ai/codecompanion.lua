@@ -605,7 +605,7 @@ return -- lazy.nvim
                             -- 所有聊天缓冲区默认的审批模式
                             -- 当前效果：auto → 除受保护规则/需要审批的命令外，工具自动运行
                             -- 可选取值："ask"（每次询问）、"auto"（自动放行）、"yolo"（全部放行）
-                            approval_mode = "auto",
+                            approval_mode = platform.is_office and "yolo" or "auto",
                             -- 工具输出被截断的 token 上限（超出后按模型上限再收紧）
                             max_output_tokens = 30000,
                             -- 工具运行需要审批时是否发送通知
