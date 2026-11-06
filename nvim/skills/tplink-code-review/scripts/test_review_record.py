@@ -1,5 +1,6 @@
 """Deterministic regression tests; never execute reviewed fixture code."""
 
+from copy import deepcopy
 import json
 from pathlib import Path
 import subprocess
@@ -8,9 +9,31 @@ import tempfile
 import unittest
 
 from generate_review_report import render
+from discover_risk_sites import discover, sha
 from validate_review_record import (
-    CHECKS, RecordError, load_record, validate, validate_event,
+    CHECKS, RISK_CHECKS, RecordError, load_record, validate, validate_event,
 )
+
+
+def no_risk_inventory(path):
+    return {category: {
+        "status": "complete", "trace_ids": [], "evidence": [path + ":1"],
+        "no_sites_reason": "Synthetic test source has no operations in this category",
+    } for category in RISK_CHECKS}
+
+
+def materialize_source(record, root):
+    root = Path(root)
+    root.mkdir(exist_ok=True)
+    record["source"]["repository"] = str(root)
+    for path, check in record["file_checks"].items():
+        target = root / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        content = b"int example(void) { return 0; }\n"
+        target.write_bytes(content)
+        check["identity"] = sha(content)
+        check["functional_paths"]["candidate_scan"] = discover(content, path)
+    return record
 
 
 def record_for(count=1, completed=1):
@@ -27,6 +50,12 @@ def record_for(count=1, completed=1):
             **{key: {"status": "inspected" if i < completed else "pending",
                      "evidence": [f"{path}:1-10"] if i < completed else []}
                for key in CHECKS},
+            "functional_paths": {
+                "status": "inspected" if i < completed else "pending",
+                "evidence": [f"{path}:1-10"] if i < completed else [],
+                "candidate_scan": {"version": 1, "source_identity": "test hash",
+                                   "language": "c_cpp", "candidates": []},
+                "risk_inventory": no_risk_inventory(path)},
             "shared_state_context": {
                 "status": "inspected" if i < completed else "pending",
                 "evidence": [f"{path}:1-10"] if i < completed else [],
@@ -48,6 +77,8 @@ def issue(status="confirmed"):
         "status": status, "disposition": "source evidence", "merged_into": None,
         "location": "src/file0.c:3", "severity": "High", "axis": "Standards",
         "cause": "失败路径未释放资源。", "recommendation": "补齐清理。",
+        "claim": {"level": "runtime", "trigger": "Synthetic allocation error",
+                  "evidence": ["src/file0.c:3"]},
         "rule_tags": ["tplink_security_baseline"],
         "rule_basis": [
             "TPL-C-MEMORY-001（§9.2）— 错误路径未释放已申请的资源。",
@@ -86,7 +117,182 @@ def state_record(ordering="initialization_only"):
     return record, group
 
 
+def risk_record(category="string_boundary", status="verified"):
+    record = record_for()
+    path = "src/file0.c"
+    inventory = record["file_checks"][path]["functional_paths"]["risk_inventory"]
+    inventory[category] = {
+        "status": "complete", "trace_ids": ["T001"], "evidence": [path + ":1-10"],
+    }
+    site = {
+        "id": "T001", "kind": "risk_site", "file": path, "category": category,
+        "location": path + ":3", "function": "parse_input", "operation": "test_call",
+        "status": status, "issue_ids": [], "evidence": [path + ":1-10"],
+        "disposition": "safe", "next_check": "Inspect producer and destination",
+        "checks": {key: "Concrete synthetic contract" for key in RISK_CHECKS[category]},
+        "manual_anchor": {
+            "id": "3:1:test_call", "callee": "test_call", "function": "parse_input",
+            "line": 3, "end_line": 3, "column": 1,
+            "source_identity": "test hash", "expression_sha256": "synthetic",
+        },
+        "discovery_evidence": [path + ":3 manual wrapper search"],
+        "scenarios": {
+            name: {"status": "safe", "reason": "Synthetic proof", "evidence": [path + ":3"]}
+            for name in {
+                "string_boundary": ("bounds", "termination", "result_handling"),
+                "scan_conversion": ("bounds", "conversion_count", "failure_handling"),
+                "structured_input": ("presence", "types", "failure_handling"),
+                "allocation_io": ("size", "operation_failure", "cleanup", "caller_failure"),
+            }[category]
+        },
+        "facts": {
+            "buffers": [{"capacity": 16, "max_bytes": 15, "suffix_bytes": 0,
+                         "nul_bytes": 1, "bound_basis": "target_guard", "evidence": [path + ":3"]}],
+            "format_string": "%15s", "format_evidence": [path + ":3"],
+            "conversions": [{"index": 1, "conversion": "s", "width": 15, "nul_bytes": 1,
+                             "capacity": 16, "evidence": [path + ":3"]}],
+            "fields": [{"name": "result", "presence_evidence": [path + ":3"],
+                        "type_evidence": [path + ":3"]}],
+            "size": {"applicable": False, "reason": "No size operation",
+                     "evidence": [path + ":3"]},
+        },
+    }
+    record["traces"] = [site]
+    return record, site
+
+
 class ReviewRecordTests(unittest.TestCase):
+    def test_risk_discovery_required_even_with_four_checks_inspected(self):
+        record = record_for()
+        check = record["file_checks"]["src/file0.c"]["functional_paths"]
+        check.pop("risk_inventory")
+        summary = validate(record, {})
+        self.assertEqual(summary["completed"], 0)
+        self.assertEqual(summary["remaining_risk_files"], ["src/file0.c"])
+        self.assertEqual(summary["derived_phase"], "initial")
+        with self.assertRaisesRegex(RecordError, "Initial pass incomplete"):
+            validate(record, {}, "initial")
+        with self.assertRaisesRegex(RecordError, "Initial pass incomplete"):
+            render(record, {})
+        check["risk_inventory"] = no_risk_inventory("src/file0.c")
+        check["risk_inventory"]["structured_input"].pop("no_sites_reason")
+        with self.assertRaisesRegex(RecordError, "no_sites_reason"):
+            validate(record, {})
+
+    def test_risk_inventory_cannot_substitute_shared_state_trace(self):
+        record, _ = state_record()
+        entry = record["file_checks"]["src/file0.c"]["functional_paths"]["risk_inventory"]
+        entry["string_boundary"]["trace_ids"] = ["T001"]
+        with self.assertRaisesRegex(RecordError, "dedicated risk_site"):
+            validate(record, {})
+        record, site = risk_record()
+        entry = record["file_checks"]["src/file0.c"]["functional_paths"]["risk_inventory"]
+        entry["string_boundary"]["trace_ids"] = []
+        entry["string_boundary"]["no_sites_reason"] = "Claimed empty inventory"
+        with self.assertRaisesRegex(RecordError, "reverse inventory link"):
+            validate(record, {})
+        entry["string_boundary"]["trace_ids"] = ["T001"]
+        site["file"] = "supporting.c"
+        with self.assertRaisesRegex(RecordError, "dedicated risk_site"):
+            validate(record, {})
+
+    def test_pending_risk_sites_cross_initial_gate_but_block_completion(self):
+        record, site = risk_record(status="pending")
+        self.assertEqual(validate(record, {}, "initial")["risk_total"], 1)
+        self.assertEqual(validate(record, {})["remaining_risk_sites"], ["T001"])
+        with self.assertRaisesRegex(RecordError, "Unresolved traces"):
+            render(record, {})
+        record["progress"]["interruption"] = "Producer contract unavailable"
+        site.update(status="blocked", reason="Missing producer source")
+        partial = render(record, {}, partial=True)
+        self.assertIn("风险调用点闭环 0/1", partial)
+        self.assertIn("T001", partial)
+
+    def test_risk_proofs_are_category_specific_and_exclusions_are_evidenced(self):
+        for category, fields in RISK_CHECKS.items():
+            with self.subTest(category=category):
+                record, site = risk_record(category)
+                self.assertEqual(validate(record, {}, "integration")["risk_completed"], 1)
+                for field in fields:
+                    value = site["checks"].pop(field)
+                    with self.assertRaisesRegex(RecordError, "needs checks"):
+                        validate(record, {})
+                    site["checks"][field] = value
+                site.update(disposition="excluded", checks={})
+                with self.assertRaisesRegex(RecordError, "exclusion"):
+                    validate(record, {})
+                site.update(exclusion_reason="Inactive LEGACY branch",
+                            exclusion_evidence=["Makefile:1 excludes LEGACY"])
+                for scenario in site["scenarios"].values():
+                    scenario["status"] = "excluded"
+                self.assertEqual(validate(record, {}, "integration")["risk_completed"], 1)
+
+    def test_risk_findings_require_confirmed_issues_and_cannot_be_marked_safe(self):
+        record, site = risk_record(status="finding")
+        site["disposition"] = "confirmed_defect"
+        with self.assertRaisesRegex(RecordError, "corresponding finding"):
+            validate(record, {})
+        finding = issue()
+        finding["trace_ids"] = ["T001"]
+        site["issue_ids"] = ["R001"]
+        site["scenarios"]["bounds"].update(status="finding", issue_ids=["R001"])
+        report = render(record, {"R001": finding})
+        self.assertIn("风险调用点闭环 1/1", report)
+        self.assertEqual(record["report_map"], {"R001": "finding-1"})
+        site.update(status="verified", disposition="safe")
+        with self.assertRaisesRegex(RecordError, "safe site"):
+            validate(record, {"R001": finding})
+
+    def test_multiple_risk_sites_share_one_confirmed_root_cause(self):
+        record, first = risk_record(status="finding")
+        first.update(disposition="confirmed_defect", issue_ids=["R001"])
+        first["scenarios"]["bounds"].update(status="finding", issue_ids=["R001"])
+        second = deepcopy(first)
+        second.update(id="T002", location="src/file0.c:5")
+        second["manual_anchor"].update(id="5:1:test_call", line=5, end_line=5)
+        record["traces"].append(second)
+        inventory = record["file_checks"]["src/file0.c"]["functional_paths"]["risk_inventory"]
+        inventory["string_boundary"]["trace_ids"].append("T002")
+        finding = issue()
+        finding["trace_ids"] = ["T001", "T002"]
+        summary = validate(record, {"R001": finding}, "integration")
+        self.assertEqual(summary["risk_completed"], 2)
+        self.assertEqual(summary["confirmed"], 1)
+
+    def test_no_risk_applicability_requires_evidenced_decision(self):
+        record = record_for()
+        inventory = record["file_checks"]["src/file0.c"]["functional_paths"]["risk_inventory"]
+        for category in inventory:
+            inventory[category] = {
+                "status": "not_applicable", "trace_ids": [],
+                "reason": "Only declarations", "evidence": ["src/file0.c:1-10"],
+            }
+        self.assertEqual(validate(record, {}, "initial")["risk_inventory_completed"], 1)
+        inventory["string_boundary"].pop("reason")
+        with self.assertRaisesRegex(RecordError, "not_applicable needs a reason"):
+            validate(record, {})
+
+    def test_risk_site_location_requires_exact_target_and_valid_line_range(self):
+        record, site = risk_record()
+        for location in ("support.c:3", "src/file0.c:0", "src/file0.c:3-1",
+                         "src/file0.c:checked", "src/file0.c:3 trailing text"):
+            with self.subTest(location=location):
+                site["location"] = location
+                with self.assertRaisesRegex(RecordError, "risk location"):
+                    validate(record, {})
+        site["location"] = "src/file0.c:3-5"
+        site["manual_anchor"]["end_line"] = 5
+        self.assertEqual(validate(record, {}, "integration")["risk_completed"], 1)
+
+    def test_file_scope_cannot_expand_through_record_edits(self):
+        record = record_for(count=2, completed=2)
+        record["source"].update(review_kind="file", module="src/file0.c")
+        with self.assertRaisesRegex(RecordError, "only the selected"):
+            validate(record, {})
+        record["source"]["review_kind"] = "selection"
+        with self.assertRaisesRegex(RecordError, "invalid source.review_kind"):
+            validate(record, {})
+
     def test_state_safe_ordering_patterns(self):
         for kind in ("initialization_only", "single_context", "common_lock", "snapshot",
                      "atomic", "ownership"):
@@ -329,7 +535,8 @@ class ReviewRecordTests(unittest.TestCase):
             working.mkdir()
             path = Path(directory) / "review.json"
             journal = path.with_name("issues.jsonl")
-            path.write_text(json.dumps(record_for()), encoding="utf-8")
+            path.write_text(json.dumps(materialize_source(
+                record_for(), Path(directory) / "repo")), encoding="utf-8")
             first = issue("dismissed")
             second = {**first, "seq": 2, "status": "pending", "disposition": "New evidence"}
             journal.write_text(json.dumps(first) + "\n" + json.dumps(second) + "\n",
@@ -393,7 +600,7 @@ class ReviewRecordTests(unittest.TestCase):
             failed = subprocess.run(command, capture_output=True, text=True, cwd=directory)
             self.assertEqual(failed.returncode, 1)
             self.assertEqual(report_path.read_text(encoding="utf-8"), previous)
-            completed = record_for()
+            completed = materialize_source(record_for(), Path(directory) / "repo")
             completed["report_file"] = record["report_file"]
             completed["report_directory"] = record["report_directory"]
             path.write_text(json.dumps(completed), encoding="utf-8")

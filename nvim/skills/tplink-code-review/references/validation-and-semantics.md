@@ -84,8 +84,8 @@ runtime pattern errors. Avoid executing production chunks to test a pattern.
 In session evidence record the command, exact source identity, configuration,
 exit status, relevant diagnostics, scope/variants checked, and skipped checks
 with concrete reasons. Record manual checks as manual, not as executed tools.
-For modules, add this to the existing ledger instead of creating a parallel
-coverage system.
+For full-source reviews (full file or module), add this to the existing ledger
+instead of creating a parallel coverage system.
 
 A warning is not automatically a defect. Confirm its reachable conditions
 and relevant contract; for change reviews establish attribution to the diff.
@@ -98,7 +98,8 @@ of tooling alone need not block completion of a static review; an unresolved
 material build/behavior question does. Explain material limits in the parent
 skill's scope line, without implying that syntax/type success proves runtime
 correctness or that a conditional bug must happen on every run.
-Keep the selected route's report layout (non-module `report-format.md`, module
-generator): do not add a separate validation section or `验证说明` paragraph.
+Keep the selected route's report layout (`report-format.md` for snippets/changes,
+generator for full files/modules): do not add a separate validation section or
+`验证说明` paragraph.
 Mention only material validation limitations
 in `评审范围`; keep detailed successful-check logs in session evidence.

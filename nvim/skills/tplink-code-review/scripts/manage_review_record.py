@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Incremental, recoverable module-record writes and bounded recovery queries."""
+"""Incremental full-source record writes and bounded recovery queries."""
 
 import argparse
 from copy import deepcopy
@@ -9,11 +9,14 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import sys
 import tempfile
 
+from discover_risk_sites import discover, sha
 from validate_review_record import (
-    CHECKS, compact_summary, evidence_references, load_record, require, text, validate, validate_event,
+    CHECKS, RISK_CHECKS, compact_summary, evidence_references, load_record, require, text,
+    validate, validate_event,
     validate_record_location,
 )
 
@@ -90,7 +93,12 @@ def initialize(path, manifest):
     module_path = (repository / module).resolve()
     require(repository == module_path or repository in module_path.parents,
             "source.module escapes source.repository")
-    require(module_path.is_dir(), "source.module is not an existing directory")
+    review_kind = source.setdefault("review_kind", "module")
+    require(review_kind in ("file", "module"), "invalid source.review_kind")
+    if review_kind == "file":
+        require(module_path.is_file(), "source.module is not an existing file")
+    else:
+        require(module_path.is_dir(), "source.module is not an existing directory")
     files = deepcopy(manifest["files"])
     require(isinstance(files, list) and files, "Manifest files must be nonempty")
     checks = {}
@@ -108,6 +116,12 @@ def initialize(path, manifest):
                            for key in CHECKS}
             checks[name] = {"identity": identity, **initial}
             checks[name]["shared_state_context"]["state_group_ids"] = []
+            checks[name]["functional_paths"]["risk_inventory"] = {
+                category: {"status": "pending", "trace_ids": []} for category in RISK_CHECKS
+            }
+            if identity is not None:
+                checks[name]["functional_paths"]["candidate_scan"] = discover(
+                    source_file(repository, name).read_bytes(), name)
     record = {
         "schema_version": 3, "source": source,
         "inventory": {"reconciled": False, "discovered": len(files),
@@ -119,7 +133,31 @@ def initialize(path, manifest):
                      "blockers": []},
         "report_map": {}, "limitations": [], "evidence_catalog": {},
         "supporting_files": {},
+        "prior_findings": [],
     }
+    prior_snapshots = []
+    for number, filename in enumerate(manifest.get("prior_reports", []), 1):
+        original = Path(filename)
+        require(original.is_absolute(), "prior_reports paths must be absolute")
+        content = original.read_bytes()
+        snapshot = path.parent / f"prior-report-{number}.md"
+        prior_snapshots.append((snapshot, content))
+        matches = list(re.finditer(
+            r"^- \[(Critical|High|Medium|Low)\] (.+?)：(.+)$",
+            content.decode("utf-8"), re.M))
+        require(matches, f"{original}: no supported findings; import requires explicit findings")
+        require(len(matches) == len(re.findall(r"^- \[(?:Critical|High|Medium|Low)\]",
+                                               content.decode("utf-8"), re.M)),
+                f"{original}: unsupported finding format; normalize explicitly")
+        for match in matches:
+            record["prior_findings"].append({
+                "id": f"P{len(record['prior_findings']) + 1:03}",
+                "report_path": str(original), "snapshot": str(snapshot),
+                "report_identity": sha(content), "severity": match[1],
+                "location": match[2], "summary": match[3],
+                "status": "pending", "issue_ids": [],
+                "next_check": "Reverify original finding against selected source and scope",
+            })
     for name in manifest.get("supporting_files", []):
         try:
             record["supporting_files"][name] = digest(
@@ -129,6 +167,8 @@ def initialize(path, manifest):
     validate(record, {})
     require(not path.parent.exists(), "Use a new review directory; initialization never overwrites")
     path.parent.mkdir(parents=True)
+    for snapshot, content in prior_snapshots:
+        snapshot.write_bytes(content)
     path.with_name("issues.jsonl").touch(exist_ok=False)
     atomic_write(path, encoded(record))
     _, saved, issues = load_record(path)
@@ -203,6 +243,7 @@ def invalidate(record, issues, keys, reason, sections=None):
         **{item["id"]: item for item in record["traces"] + record["state_groups"]},
         **issues,
         **record.get("evidence_catalog", {}),
+        **{item["id"]: item for item in record.get("prior_findings", [])},
     }
     known = set(objects) | set(record.get("supporting_files", {}))
     require(not affected - known, "Unknown invalidation IDs: " + ", ".join(sorted(affected - known)))
@@ -224,6 +265,8 @@ def invalidate(record, issues, keys, reason, sections=None):
                     checks[key].pop("reason", None)
                     checks[key].setdefault("invalidated_by", []).append(
                         {"reason": reason, "keys": sorted(keys)})
+                for entry in checks["functional_paths"].get("risk_inventory", {}).values():
+                    entry["status"] = "pending"
     touched_traces = [item for item in record["traces"] if item["id"] in affected
                       and "traces" in sections]
     for item in touched_traces:
@@ -231,6 +274,8 @@ def invalidate(record, issues, keys, reason, sections=None):
         item.setdefault("invalidated_by", []).append(reason)
         if "next_check" in item:
             item.setdefault("next_check_history", []).append(item["next_check"])
+        if item.get("kind") == "risk_site":
+            item["next_check"] = reason
     touched_states = [item for item in record["state_groups"]
                       if item["id"] in affected and "state_groups" in sections]
     for item in touched_states:
@@ -240,6 +285,7 @@ def invalidate(record, issues, keys, reason, sections=None):
             item["access_inventory"]["status"] = "pending"
         if "next_check" in item:
             item.setdefault("next_check_history", []).append(item["next_check"])
+        item["next_check"] = reason
     if "issues" in sections:
         for issue_id in sorted(set(issues) & affected):
             if issues[issue_id]["status"] != "merged":
@@ -259,6 +305,9 @@ def invalidate(record, issues, keys, reason, sections=None):
         "sections": list(sections),
     }
     record["progress"]["next_step"] = reason
+    for item in record.get("prior_findings", []):
+        if item["id"] in affected:
+            item.update(status="pending", next_check=reason)
     return events
 
 
@@ -266,15 +315,18 @@ def apply_update(record, issues, payload):
     require(isinstance(payload, dict), "Payload must be an object")
     allowed = {"file_checks", "traces", "state_groups", "issues", "evidence_catalog",
                "progress", "validation", "limitations", "inventory_reconciled",
-               "invalidate", "invalidate_sections", "reason"}
+               "invalidate", "invalidate_sections", "reason", "prior_findings"}
     require(not payload.keys() - allowed, "Unknown update fields")
     for section in ("file_checks", "evidence_catalog", "progress", "validation"):
         require(isinstance(payload.get(section, {}), dict), f"{section} must be an object")
-    for section in ("traces", "state_groups", "issues", "limitations"):
+    for section in ("traces", "state_groups", "issues", "limitations", "prior_findings"):
         require(isinstance(payload.get(section, []), list), f"{section} must be a list")
     require(all(text(item) for item in payload.get("limitations", [])),
             "limitations must contain text")
     record, issues = deepcopy(record), deepcopy(issues)
+    legacy_files = [name for name, checks in record["file_checks"].items()
+                    if "candidate_scan" not in checks["functional_paths"]
+                    and checks["identity"] is not None]
     changed = source_changes(record)
     invalidated = payload.get("invalidate", [])
     require(isinstance(invalidated, list) and all(text(key) for key in invalidated),
@@ -300,6 +352,9 @@ def apply_update(record, issues, payload):
     keys = list(set(invalidated + changed_evidence))
     events = invalidate(record, issues, keys, payload.get("reason"),
                         sections=sections) if keys else []
+    if legacy_files:
+        events.extend(invalidate(record, issues, legacy_files,
+                                 "Protocol upgrade: rediscover exact calls and reverify scenarios"))
     for name, value in changed.items():
         require("identity" in value, f"Cannot re-identify inaccessible source: {name}")
         if name in record["file_checks"]:
@@ -310,7 +365,14 @@ def apply_update(record, issues, payload):
         require(name in record["file_checks"], f"Unknown file: {name}")
         require(isinstance(delta, dict), "File check update must be an object")
         require(not delta.keys() - set(CHECKS), "Only check fields may be updated")
+        require("candidate_scan" not in delta.get("functional_paths", {}),
+                "candidate_scan is tool-maintained")
         merge(record["file_checks"][name], delta)
+    for name, checks in record["file_checks"].items():
+        if checks["identity"] is not None and (
+                name in changed or "candidate_scan" not in checks["functional_paths"]):
+            checks["functional_paths"]["candidate_scan"] = discover(
+                source_file(Path(record["source"]["repository"]), name).read_bytes(), name)
     merge(record.setdefault("evidence_catalog", {}), catalog)
     for section in ("traces", "state_groups"):
         for delta in payload.get(section, []):
@@ -322,6 +384,15 @@ def apply_update(record, issues, payload):
             merge(item, delta)
     for delta in payload.get("issues", []):
         events.append(issue_event(delta, issues, record.get("evidence_catalog", {})))
+    for delta in payload.get("prior_findings", []):
+        require(isinstance(delta, dict) and text(delta.get("id")), "Prior ID required")
+        require(not delta.keys() - {"id", "status", "reason", "evidence", "issue_ids",
+                                    "next_check", "severity_change_reason"},
+                "Original prior finding fields are immutable")
+        item = next((item for item in record.get("prior_findings", [])
+                     if item["id"] == delta["id"]), None)
+        require(item is not None, "Unknown prior finding")
+        merge(item, delta)
     if "inventory_reconciled" in payload:
         require(isinstance(payload["inventory_reconciled"], bool), "Reconciliation must be boolean")
         record["inventory"]["reconciled"] = payload["inventory_reconciled"]
@@ -333,7 +404,8 @@ def apply_update(record, issues, payload):
     # Report mappings for unaffected confirmed issues persist; invalidate() has
     # already pruned entries tied to confirmed issues in the affected closure.
     ids = (list(record["file_checks"]) + list(record.get("evidence_catalog", {})) +
-           list(issues) + [item["id"] for item in record["traces"] + record["state_groups"]])
+           list(issues) + [item["id"] for item in record["traces"] + record["state_groups"]
+                          + record.get("prior_findings", [])])
     require(len(ids) == len(set(ids)), "Record IDs must be unique across sections")
     validate(record, issues)
     return record, issues, events
@@ -349,9 +421,11 @@ def commit_update(path, record, events):
     }
     encoded_transaction = encoded(transaction)
     atomic_write(path.with_name("transaction.json"), encoded_transaction)
-    directory = path.parent
-    with directory.open("r+" if directory != Path("/") else "r") as handle:
-        os.fsync(handle.fileno())
+    directory_fd = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY)
+    try:
+        os.fsync(directory_fd)
+    finally:
+        os.close(directory_fd)
     return recover(path)
 
 
@@ -410,11 +484,13 @@ def working_set(record, issues, offset=0, limit=1):
              [("trace", item["id"]) for item in record["traces"]
               if item["status"] in ("pending", "blocked")] +
              [("issue", key) for key, item in issues.items()
-              if item["status"] in ("pending", "blocked")])
+              if item["status"] in ("pending", "blocked")] +
+             [("prior", key) for key in summary["remaining_prior_findings"]])
     selected = queue[offset:offset + limit]
     objects = {"file": record["file_checks"], "issue": issues,
                "state": {item["id"]: item for item in record["state_groups"]},
-               "trace": {item["id"]: item for item in record["traces"]}}
+               "trace": {item["id"]: item for item in record["traces"]},
+               "prior": {item["id"]: item for item in record.get("prior_findings", [])}}
     tasks = []
     for kind, key in selected:
         value = objects[kind][key]
@@ -427,7 +503,12 @@ def working_set(record, issues, offset=0, limit=1):
             for section, entries in objects.items() if section != "file"
         }
         evidence_ids = set(evidence_references(value))
-        tasks.append({"kind": kind, "id": key, "record": value, "related_ids": related,
+        task_value = deepcopy(value)
+        if kind == "file":
+            scan = task_value["functional_paths"].get("candidate_scan")
+            if scan is not None:
+                scan["candidate_count"] = len(scan.pop("candidates", []))
+        tasks.append({"kind": kind, "id": key, "record": task_value, "related_ids": related,
                       "evidence_catalog": {name: record["evidence_catalog"][name]
                                            for name in sorted(evidence_ids)}})
     return {
@@ -443,7 +524,15 @@ def working_set(record, issues, offset=0, limit=1):
     }
 
 
-def query(path, record, issues, kind, key):
+def query(path, record, issues, kind, key, offset=0, limit=1):
+    if kind == "candidates":
+        require(key in record["file_checks"], f"Unknown file: {key}")
+        scan = record["file_checks"][key]["functional_paths"].get("candidate_scan", {})
+        candidates = scan.get("candidates", [])
+        return {**{name: value for name, value in scan.items() if name != "candidates"},
+                "total": len(candidates), "offset": offset,
+                "items": candidates[offset:offset + limit],
+                "next_offset": offset + limit if offset + limit < len(candidates) else None}
     if kind == "history":
         require(key in issues, f"Unknown issue: {key}")
         return [event for line in path.with_name("issues.jsonl").read_text(
@@ -451,6 +540,7 @@ def query(path, record, issues, kind, key):
     collections = {"file": record["file_checks"], "issue": issues,
                    "trace": {item["id"]: item for item in record["traces"]},
                    "state": {item["id"]: item for item in record["state_groups"]},
+                   "prior": {item["id"]: item for item in record.get("prior_findings", [])},
                    "evidence": record.get("evidence_catalog", {})}
     require(key in collections[kind], f"Unknown {kind}: {key}")
     value = collections[kind][key]
@@ -468,7 +558,8 @@ def main():
     parser.add_argument("command", choices=("init", "update", "resume", "get", "recover"))
     parser.add_argument("record", type=Path)
     parser.add_argument("--input", type=Path, help="Manifest/update JSON; stdin if omitted")
-    parser.add_argument("--kind", choices=("file", "issue", "trace", "state", "evidence", "history"))
+    parser.add_argument("--kind", choices=("file", "issue", "trace", "state", "evidence",
+                                          "history", "prior", "candidates"))
     parser.add_argument("--id")
     parser.add_argument("--offset", type=int, default=0)
     parser.add_argument("--limit", type=int, default=1)
@@ -503,7 +594,8 @@ def main():
                         result = working_set(record, issues, args.offset, args.limit)
                     else:
                         require(args.kind and args.id, "get requires --kind and --id")
-                        result = query(path, record, issues, args.kind, args.id)
+                        result = query(path, record, issues, args.kind, args.id,
+                                       args.offset, args.limit)
         print(json.dumps(result, ensure_ascii=False))
     except (OSError, ValueError, TypeError, KeyError) as error:
         print(f"Record operation failed: {error}", file=sys.stderr)

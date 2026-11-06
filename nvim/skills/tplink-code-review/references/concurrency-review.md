@@ -6,9 +6,37 @@ flag every global or require a lock around all accesses.
 
 ## 1. Map state to execution contexts
 
-The module completion protocol owns persistence and dedicated state traces;
+The full-source completion protocol owns persistence and dedicated state traces
+for full-file and module reviews;
 the record schema owns fields. This reference owns concurrency reasoning.
 For narrow reviews, apply it only within the selected evidence boundary.
+
+### Mandatory state inventory, including file-scoped reviews
+
+For every C/C++ file or module review, first inventory mutable global and
+file-scope `static` objects in the selected source. Treat each as a candidate
+shared-state group until its access paths have been checked; do not wait to
+notice a second thread before searching. Search the scoped repository by the
+exact identifier for definitions, `extern` declarations, reads, writes, and
+address passing. Follow aliases, wrapper functions, callback tables, and
+indirect dispatch only as needed to identify the actual object and execution
+context. Keep the search targeted to those identifiers and their callers.
+
+Names at an interface boundary may differ from the shared object's name.
+Trace parsed UBUS/RPC/configuration fields and locals through assignments to
+the actual global or file-static object. For example, a payload field named
+`fing_auth_state` can be copied into global `fing_auth_status`; search and
+audit every access to `fing_auth_status`, not only the payload field name.
+
+Use a compact internal access map for each candidate:
+
+| State | Read/write locations | Execution contexts | Synchronization / disposition |
+|---|---|---|---|
+| `<identifier>` | `<file:line>` (R/W) | `<event loop / worker / startup>` | `<common lock, ordered, race, or unresolved>` |
+
+For diff reviews, this inventory is a way to discover relevant context, not to
+widen finding attribution: report only a race introduced or materially
+affected by the selected change.
 
 Locate definitions and declarations, then trace actual accesses and their
 callers. Include helper files and accesses outside the module only when they
@@ -61,6 +89,13 @@ the same write instruction. Finding a runtime writer invalidates an
 initialization-only proof immediately; a newly found worker invalidates a
 single-context assumption until revisited. Reopen dependent dispositions and
 clear report mappings before continuing.
+
+The inventory is not complete merely because the selected file's accesses
+were reviewed. For each mutable global/file-static candidate, account for
+every scoped repository hit that can read or write it, and explain excluded
+hits (such as declarations, inactive build branches, or unrelated same-name
+locals). Do not conclude “no race” while a relevant access or context remains
+unclassified; state the specific limitation instead.
 
 For example, `init -> refresh_cache` before worker creation does not establish
 initialization-only when `methods["reload"] -> refresh_cache` is registered.

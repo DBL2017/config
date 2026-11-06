@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate a session-local module review record without executing source."""
+"""Validate a session-local full-source review record without executing source."""
 
 import argparse
 import json
@@ -7,11 +7,20 @@ from pathlib import Path
 import re
 import sys
 
+from discover_risk_sites import verify_sources
+
 CHECKS = ("functional_paths", "call_interface", "resource_lifetime",
           "shared_state_context")
 SEVERITIES = ("Critical", "High", "Medium", "Low")
 STATUSES = ("pending", "confirmed", "dismissed", "blocked", "merged")
 PHASES = ("initial", "integrating", "integration")
+RISK_CHECKS = {
+    "string_boundary": ("input_max", "destination_capacity", "termination", "length_handling"),
+    "scan_conversion": ("input_max", "destinations", "field_widths",
+                        "conversion_count", "failure_handling"),
+    "structured_input": ("producer", "required_fields", "type_checks", "failure_handling"),
+    "allocation_io": ("size_validation", "allocation_result", "read_result", "cleanup"),
+}
 RULES_PATH = (Path(__file__).resolve().parent.parent
               / "references" / "tplink-c-review-rules.md")
 TPL_ID_RE = re.compile(r"`(TPL-C-[A-Z]+-\d{3})`")
@@ -54,6 +63,11 @@ def text(value):
 
 def evidence(value):
     return isinstance(value, list) and bool(value) and all(text(item) for item in value)
+
+
+def source_evidence(value):
+    return evidence(value) and any(re.search(r"[^\s:]+:[1-9][0-9]*(?:-[1-9][0-9]*)?", item)
+                                   for item in value)
 
 
 def rule_id_index():
@@ -137,6 +151,316 @@ def validate_evidence_catalog(record, issues):
                 f"{key}: catalog evidence must contain source locations, not references")
     for key in evidence_references([record, list(issues.values())]):
         require(key in catalog, f"Unknown evidence reference @{key}")
+
+
+def scan_fields(format_string):
+    fields = []
+    pattern = re.compile(r"%(?P<skip>\*)?(?P<width>[0-9]+)?"
+                         r"(?:hh|ll|[hljztL])?(?P<kind>\[\^?\]?[^\]]*\]|[%A-Za-z])")
+    index = 0
+    for match in pattern.finditer(format_string):
+        kind = match["kind"]
+        if kind == "%" or match["skip"]:
+            continue
+        index += 1
+        if kind.startswith("[") or kind in ("s", "c"):
+            fields.append({"index": index, "conversion": "[" if kind.startswith("[") else kind,
+                           "width": int(match["width"]) if match["width"] else
+                           (1 if kind == "c" else None),
+                           "nul_bytes": 0 if kind == "c" else 1})
+    return fields
+
+
+def validate_site_proof(site, anchor, issues):
+    trace_id = site["id"]
+    category = site["category"]
+    scenarios = site.get("scenarios")
+    require(isinstance(scenarios, dict), f"{trace_id}: scenarios required")
+    required = {
+        "string_boundary": ("bounds", "termination", "result_handling"),
+        "scan_conversion": ("bounds", "conversion_count", "failure_handling"),
+        "structured_input": ("presence", "types", "failure_handling"),
+        "allocation_io": ("size", "operation_failure", "cleanup", "caller_failure"),
+    }[category]
+    require(not set(required) - scenarios.keys(), f"{trace_id}: missing applicable scenarios")
+    findings = set()
+    for name, scenario in scenarios.items():
+        require(isinstance(scenario, dict), f"{trace_id}/{name}: invalid scenario")
+        status = scenario.get("status")
+        require(status in ("safe", "finding", "excluded", "pending", "blocked"),
+                f"{trace_id}/{name}: invalid scenario status")
+        if status in ("pending", "blocked"):
+            require(text(scenario.get("next_check")), f"{trace_id}/{name}: next_check required")
+            require(site["status"] in ("pending", "blocked"),
+                    f"{trace_id}: unresolved scenario cannot close site")
+            continue
+        require(evidence(scenario.get("evidence")) and text(scenario.get("reason")),
+                f"{trace_id}/{name}: scenario evidence and reason required")
+        ids = scenario.get("issue_ids", [])
+        require(isinstance(ids, list) and all(text(key) for key in ids),
+                f"{trace_id}/{name}: issue_ids must be a list")
+        if status == "finding":
+            require(ids and all(key in site["issue_ids"] and key in issues
+                                and issues[key]["status"] == "confirmed" for key in ids),
+                    f"{trace_id}/{name}: finding needs directly linked confirmed issues")
+            findings.update(ids)
+        else:
+            require(not ids, f"{trace_id}/{name}: non-finding scenario cannot claim issues")
+    if site["status"] in ("pending", "blocked"):
+        return
+    require(findings == set(site["issue_ids"]),
+            f"{trace_id}: each linked issue needs its own scenario disposition")
+    require(bool(findings) == (site["status"] == "finding"),
+            f"{trace_id}: scenario findings contradict site status")
+    if site["disposition"] == "excluded":
+        require(all(item["status"] == "excluded" for item in scenarios.values()),
+                f"{trace_id}: excluded site has active scenarios")
+        return
+    facts = site.get("facts")
+    require(isinstance(facts, dict), f"{trace_id}: structured facts required")
+    if category == "string_boundary":
+        buffers = facts.get("buffers")
+        require(isinstance(buffers, list) and buffers, f"{trace_id}: buffer facts required")
+        for item in buffers:
+            require(isinstance(item, dict) and source_evidence(item.get("evidence")),
+                    f"{trace_id}: buffer bound evidence required")
+            for key in ("capacity", "suffix_bytes", "nul_bytes"):
+                require(type(item.get(key)) is int and item[key] >= 0,
+                        f"{trace_id}: numeric {key} required")
+            require(item["capacity"] > 0 and item["nul_bytes"] in (0, 1),
+                    f"{trace_id}: invalid buffer capacity/terminator")
+            if item.get("bound_basis") == "producer":
+                require(source_evidence(item.get("producer_evidence")),
+                        f"{trace_id}: producer limit needs enforcement evidence")
+            elif item.get("bound_basis") == "unknown":
+                require(scenarios["bounds"]["status"] != "safe"
+                        and item.get("max_bytes") is None and text(item.get("reason")),
+                        f"{trace_id}: unknown bound cannot establish safety")
+            else:
+                require(item.get("bound_basis") in ("target_guard", "bounded_operation"),
+                        f"{trace_id}: explicit bound_basis required")
+            if scenarios["bounds"]["status"] == "safe":
+                require(type(item.get("max_bytes")) is int and item["max_bytes"] >= 0,
+                        f"{trace_id}: safe bound needs numeric maximum")
+                require(item["max_bytes"] + item["suffix_bytes"] + item["nul_bytes"]
+                        <= item["capacity"], f"{trace_id}: safe bound exceeds capacity")
+    elif category == "scan_conversion":
+        fmt = facts.get("format_string")
+        require(text(fmt), f"{trace_id}: format_string required")
+        if anchor.get("format_string") is not None:
+            require(fmt == anchor["format_string"], f"{trace_id}: format differs from source")
+        else:
+            require(evidence(facts.get("format_evidence")),
+                    f"{trace_id}: nonliteral format needs source evidence")
+        fields = facts.get("conversions")
+        expected = scan_fields(fmt)
+        require(isinstance(fields, list) and len(fields) == len(expected),
+                f"{trace_id}: each string conversion needs facts")
+        for item, actual in zip(fields, expected):
+            require(isinstance(item, dict) and all(item.get(key) == value
+                    for key, value in actual.items()),
+                    f"{trace_id}: conversion width/type differs from format")
+            require(type(item.get("capacity")) is int and item["capacity"] > 0
+                    and evidence(item.get("evidence")), f"{trace_id}: conversion capacity required")
+            if scenarios["bounds"]["status"] == "safe":
+                maximum = actual["width"]
+                if maximum is None:
+                    maximum = item.get("producer_max")
+                    require(type(maximum) is int and maximum >= 0
+                            and source_evidence(item.get("producer_evidence")),
+                            f"{trace_id}: unbounded scan needs enforced producer bound")
+                require(maximum + actual["nul_bytes"] <= item["capacity"],
+                        f"{trace_id}: safe scan exceeds capacity")
+    elif category == "structured_input":
+        fields = facts.get("fields")
+        require(isinstance(fields, list) and fields, f"{trace_id}: required field facts missing")
+        for item in fields:
+            require(isinstance(item, dict) and text(item.get("name")),
+                    f"{trace_id}: exact field name required")
+            for scenario, key in (("presence", "presence_evidence"), ("types", "type_evidence")):
+                if scenarios[scenario]["status"] == "safe":
+                    require(evidence(item.get(key)), f"{trace_id}: field {key} required")
+    else:
+        size = facts.get("size")
+        require(isinstance(size, dict) and type(size.get("applicable")) is bool
+                and evidence(size.get("evidence")), f"{trace_id}: size facts required")
+        if size["applicable"]:
+            require(all(type(size.get(key)) is int for key in ("minimum", "maximum", "limit")),
+                    f"{trace_id}: numeric size bounds required")
+            if scenarios["size"]["status"] == "safe":
+                require(0 <= size["minimum"] <= size["maximum"] <= size["limit"],
+                        f"{trace_id}: unsafe size bounds")
+        else:
+            require(text(size.get("reason")), f"{trace_id}: explain inapplicable size bound")
+
+
+def validate_risk_sites(checks, traces, issues):
+    sites = {key: value for key, value in traces.items() if value.get("kind") == "risk_site"}
+    linked = set()
+    incomplete_files = []
+    unresolved = []
+    for path, check in checks.items():
+        scan = check["functional_paths"].get("candidate_scan")
+        require(scan is None or isinstance(scan, dict), f"{path}: candidate_scan must be an object")
+        candidates = scan.get("candidates", []) if isinstance(scan, dict) else []
+        require(isinstance(candidates, list)
+                and all(isinstance(item, dict) and text(item.get("id"))
+                        and item.get("category") in RISK_CHECKS for item in candidates),
+                f"{path}: invalid candidate scan")
+        scan_current = (isinstance(scan, dict) and scan.get("version") == 1
+                        and scan.get("source_identity") == check["identity"])
+        candidate_ids = [item["id"] for item in candidates]
+        require(len(candidate_ids) == len(set(candidate_ids)), f"{path}: duplicate candidate IDs")
+        inventory = check["functional_paths"].get("risk_inventory", {})
+        require(isinstance(inventory, dict), f"{path}: risk_inventory must be an object")
+        require(not inventory.keys() - RISK_CHECKS.keys(),
+                f"{path}: unknown risk_inventory category")
+        complete = scan_current
+        for category in RISK_CHECKS:
+            entry = inventory.get(category, {"status": "pending", "trace_ids": []})
+            require(isinstance(entry, dict), f"{path}/{category}: invalid risk inventory")
+            status = entry.get("status")
+            require(status in ("pending", "complete", "not_applicable"),
+                    f"{path}/{category}: invalid risk inventory status")
+            ids = entry.get("trace_ids")
+            require(isinstance(ids, list) and all(text(key) for key in ids)
+                    and len(ids) == len(set(ids)),
+                    f"{path}/{category}: unique trace_ids required")
+            for trace_id in ids:
+                require(trace_id in sites and sites[trace_id].get("file") == path
+                        and sites[trace_id].get("category") == category,
+                        f"{path}/{category}/{trace_id}: dedicated risk_site trace required")
+                require(trace_id not in linked, f"{trace_id}: duplicate risk inventory link")
+                linked.add(trace_id)
+            if status == "pending":
+                complete = False
+            else:
+                require(evidence(entry.get("evidence")),
+                        f"{path}/{category}: discovery/search evidence required")
+                if status == "not_applicable":
+                    require(not ids and text(entry.get("reason")),
+                            f"{path}/{category}: not_applicable needs a reason and no sites")
+                elif not ids:
+                    require(text(entry.get("no_sites_reason")),
+                            f"{path}/{category}: empty inventory needs no_sites_reason")
+                if scan_current:
+                    expected = {item["id"] for item in candidates if item["category"] == category}
+                    mapped = [sites[key].get("candidate_id") for key in ids
+                              if sites[key].get("candidate_id") is not None]
+                    require(len(mapped) == len(set(mapped)),
+                            f"{path}/{category}: candidate mapped more than once")
+                    require(set(mapped) == expected,
+                            f"{path}/{category}: extracted candidates missing or wrongly mapped")
+        if not complete:
+            incomplete_files.append(path)
+    require(set(sites) == linked,
+            "Risk site missing reverse inventory link: " + ", ".join(sorted(set(sites) - linked)))
+    for trace_id, site in sites.items():
+        for field in ("file", "location", "function", "operation"):
+            require(text(site.get(field)), f"{trace_id}: risk site {field} required")
+        location = re.fullmatch(re.escape(site["file"]) + r":([1-9][0-9]*)(?:-([1-9][0-9]*))?",
+                                site["location"])
+        require(location and (location[2] is None or int(location[2]) >= int(location[1])),
+                f"{trace_id}: risk location must identify its target file and valid lines")
+        require(site["file"] in checks, f"{trace_id}: risk site outside target inventory")
+        category = site.get("category")
+        require(category in RISK_CHECKS, f"{trace_id}: invalid risk category")
+        status = site["status"]
+        scan = checks[site["file"]]["functional_paths"].get("candidate_scan", {})
+        if not scan:
+            unresolved.append(trace_id)
+            continue
+        anchor = next((item for item in scan.get("candidates", [])
+                       if item["id"] == site.get("candidate_id")), None)
+        if anchor is None:
+            anchor = site.get("manual_anchor")
+            if anchor is not None:
+                require(evidence(site.get("discovery_evidence")),
+                        f"{trace_id}: manual wrapper needs discovery evidence")
+        if status not in ("pending", "blocked"):
+            require(isinstance(anchor, dict), f"{trace_id}: exact source anchor required")
+            require(anchor.get("source_identity") == checks[site["file"]]["identity"],
+                    f"{trace_id}: stale source anchor")
+            expected_location = f"{site['file']}:{anchor['line']}"
+            if anchor["end_line"] != anchor["line"]:
+                expected_location += f"-{anchor['end_line']}"
+            require(site["location"] == expected_location
+                    and site["operation"] == anchor["callee"]
+                    and site["function"] == anchor["function"],
+                    f"{trace_id}: site must identify one exact call and enclosing function")
+        if status in ("pending", "blocked"):
+            unresolved.append(trace_id)
+            require(text(site.get("next_check")), f"{trace_id}: next_check required")
+            continue
+        disposition = site.get("disposition")
+        if status == "finding":
+            require(disposition == "confirmed_defect",
+                    f"{trace_id}: finding requires confirmed_defect disposition")
+            require(any(issues[key]["status"] == "confirmed" for key in site["issue_ids"]),
+                    f"{trace_id}: risk finding needs a directly linked confirmed issue")
+        else:
+            require(disposition in ("safe", "excluded"),
+                    f"{trace_id}: verified risk site needs safe or excluded disposition")
+        if disposition == "excluded":
+            require(text(site.get("exclusion_reason")) and
+                    evidence(site.get("exclusion_evidence")),
+                    f"{trace_id}: exclusion needs build/reachability evidence")
+            require(not any(issues[key]["status"] == "confirmed" for key in site["issue_ids"]),
+                    f"{trace_id}: excluded site still linked to a confirmed issue")
+        else:
+            proof = site.get("checks", {})
+            require(isinstance(proof, dict) and
+                    all(text(proof.get(key)) for key in RISK_CHECKS[category]),
+                    f"{trace_id}: {category} needs checks: " + ", ".join(RISK_CHECKS[category]))
+            if disposition == "safe":
+                require(not any(issues[key]["status"] == "confirmed"
+                                for key in site["issue_ids"]),
+                        f"{trace_id}: safe site still linked to a confirmed issue")
+        validate_site_proof(site, anchor, issues)
+    return {
+        "risk_inventory_total": len(checks),
+        "risk_inventory_completed": len(checks) - len(incomplete_files),
+        "remaining_risk_files": incomplete_files,
+        "risk_total": len(sites), "risk_completed": len(sites) - len(unresolved),
+        "remaining_risk_sites": unresolved,
+    }
+
+
+def validate_prior_findings(record, issues, gate):
+    remaining = []
+    prior = record.get("prior_findings", [])
+    require(isinstance(prior, list), "prior_findings must be a list")
+    ids = []
+    for item in prior:
+        require(isinstance(item, dict) and text(item.get("id")), "Invalid prior finding")
+        key = item["id"]
+        ids.append(key)
+        status = item.get("status")
+        require(status in ("pending", "retained", "merged", "withdrawn", "excluded"),
+                f"{key}: invalid prior disposition")
+        require(text(item.get("summary")) and text(item.get("location")),
+                f"{key}: original finding required")
+        if status == "pending":
+            require(text(item.get("next_check")), f"{key}: prior next_check required")
+            remaining.append(key)
+            continue
+        require(text(item.get("reason")) and evidence(item.get("evidence")),
+                f"{key}: prior disposition requires reason and evidence")
+        linked = item.get("issue_ids", [])
+        require(isinstance(linked, list), f"{key}: prior issue_ids required")
+        if status in ("retained", "merged"):
+            require(linked and all(key in issues and issues[key]["status"] == "confirmed"
+                                   for key in linked), f"{key}: retained finding needs confirmed issue")
+            if any(issues[issue_id]["severity"] != item["severity"] for issue_id in linked):
+                require(text(item.get("severity_change_reason")),
+                        f"{key}: severity change requires explanation")
+        else:
+            require(not linked, f"{key}: withdrawn/excluded prior cannot link confirmed issue")
+    require(len(ids) == len(set(ids)), "Duplicate prior finding IDs")
+    if gate in ("integration", "final"):
+        require_closed(remaining, "Unreconciled prior findings", "prior")
+    return {"prior_total": len(prior), "prior_completed": len(prior) - len(remaining),
+            "remaining_prior_findings": remaining}
 
 
 def validate_state_groups(record, checks, traces, issues, gate):
@@ -337,7 +661,7 @@ def load_record(path, allow_transaction=False):
     return path, record, issues
 
 
-def derive_phase(record, issues):
+def derive_phase(record, issues, risk_summary):
     inventory = record.get("inventory", {})
     inv_ok = inventory.get("reconciled") is True
     checks = record.get("file_checks", {})
@@ -350,10 +674,12 @@ def derive_phase(record, issues):
                           for t in record.get("traces", []))
     issues_resolved = all(i["status"] not in ("pending", "blocked")
                           for i in issues.values())
+    issues_resolved &= all(item["status"] != "pending"
+                           for item in record.get("prior_findings", []))
     validation = record.get("validation", {})
     validation_ok = validation.get("status") in (
         "executed", "unavailable", "unsafe", "not_applicable")
-    if inv_ok and checks_complete:
+    if inv_ok and checks_complete and not risk_summary["remaining_risk_files"]:
         if traces_resolved and issues_resolved and validation_ok:
             return "integration"
         return "integrating"
@@ -366,6 +692,8 @@ def validate(record, issues, gate="progress"):
     source = record.get("source", {})
     for key in ("module", "identity"):
         require(text(source.get(key)), f"source.{key} required")
+    review_kind = source.get("review_kind", "module")
+    require(review_kind in ("file", "module"), "invalid source.review_kind")
     inventory = record.get("inventory")
     require(isinstance(inventory, dict), "inventory must be an object")
     files = inventory.get("files")
@@ -381,6 +709,9 @@ def validate(record, issues, gate="progress"):
         else:
             require(text(item.get("reason")), f"{item['path']}: exclusion reason required")
     require(len(paths) == len(set(paths)), "Duplicate inventory paths")
+    if review_kind == "file":
+        require(paths == [source["module"]] and included == paths,
+                "File review inventory must contain only the selected in-scope file")
     for field, expected in (("discovered", len(files)), ("in_scope", len(included)),
                             ("excluded", len(files) - len(included))):
         require(inventory.get(field) == expected, f"inventory.{field} inconsistent")
@@ -443,6 +774,9 @@ def validate(record, issues, gate="progress"):
             require(any(issues[key]["status"] in ("confirmed", "merged")
                         for key in trace["issue_ids"]),
                     f"{trace['id']}: finding trace has no corresponding finding")
+    risk_summary = validate_risk_sites(checks, by_id, issues)
+    prior_summary = validate_prior_findings(record, issues, gate)
+    remaining = list(dict.fromkeys(remaining + risk_summary["remaining_risk_files"]))
     state_summary = validate_state_groups(record, checks, by_id, issues, gate)
     progress = record.get("progress")
     require(isinstance(progress, dict), "progress required")
@@ -467,6 +801,16 @@ def validate(record, issues, gate="progress"):
         require(inventory.get("reconciled") is True, "Inventory is not reconciled")
         require_closed(remaining, "Initial pass incomplete", "file")
     if gate in ("integration", "final"):
+        for issue in issues.values():
+            if issue["status"] != "confirmed":
+                continue
+            claim = issue.get("claim", {})
+            require(isinstance(claim, dict)
+                    and claim.get("level") in ("standards", "runtime", "impact")
+                    and evidence(claim.get("evidence")),
+                    f"{issue['id']}: claim strength and evidence required")
+            if claim["level"] != "standards":
+                require(text(claim.get("trigger")), f"{issue['id']}: runtime trigger required")
         unresolved = [t["id"] for t in traces if t["status"] not in ("verified", "finding")]
         require_closed(unresolved, "Unresolved traces", "trace")
         unresolved = [key for key, issue in issues.items()
@@ -484,8 +828,8 @@ def validate(record, issues, gate="progress"):
         require(set(report_map) == confirmed, "Confirmed issue missing report mapping")
     return {"total": len(included), "completed": len(included) - len(remaining),
             "remaining_files": remaining, "confirmed": len(confirmed),
-            "derived_phase": derive_phase(record, issues),
-            **state_summary}
+            "derived_phase": derive_phase(record, issues, risk_summary),
+            **state_summary, **risk_summary, **prior_summary}
 
 
 def main():
@@ -502,6 +846,8 @@ def main():
         require(args.offset >= 0 and args.limit > 0, "Invalid diagnostic pagination")
         _, record, issues = load_record(args.record)
         summary = validate(record, issues, args.gate)
+        if args.gate in ("initial", "integration", "final"):
+            verify_sources(record)
     except (OSError, ValueError, TypeError, KeyError) as error:
         diagnostic = {"error": f"Record validation failed: {error}", "gate": args.gate}
         if isinstance(error, RecordError) and error.items is not None:

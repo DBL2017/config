@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render confirmed module findings only after validating the session record."""
+"""Render full-source findings only after validating the session record."""
 
 import argparse
 from datetime import datetime, timezone
@@ -14,6 +14,7 @@ import tempfile
 from validate_review_record import (
     RecordError, SEVERITIES, load_record, require, text, validate,
 )
+from discover_risk_sites import verify_sources
 
 
 def render(record, issues, partial=False):
@@ -59,16 +60,35 @@ def render(record, issues, partial=False):
                   if trace["status"] in ("pending", "blocked")]
     excluded = [item["path"] + ": " + item["reason"]
                 for item in record["inventory"]["files"] if item["status"] == "excluded"]
-    lines += ["", f"评审范围：发现 {record['inventory']['discovered']} 个实现文件，"
+    file_review = record["source"].get("review_kind", "module") == "file"
+    scope = f"完整文件 {record['source']['module']}；" if file_review else ""
+    file_label = "目标文件" if file_review else "实现文件"
+    lines += ["", f"评审范围：{scope}发现 {record['inventory']['discovered']} 个{file_label}，"
               f"纳入 {summary['total']} 个，排除 {record['inventory']['excluded']} 个；"
-              f"已逐文件初审 {summary['completed']}/{summary['total']} 个实现文件；"
+              f"已逐文件初审 {summary['completed']}/{summary['total']} 个{file_label}；"
               f"跨文件追踪 {len(record['traces']) - len(unresolved)}/{len(record['traces'])}；"
               f"已登记共享状态组闭环 {summary['state_completed']}/{summary['state_total']}；"
+              f"风险调用点清单 {summary['risk_inventory_completed']}/"
+              f"{summary['risk_inventory_total']}；"
+              f"已登记风险调用点闭环 {summary['risk_completed']}/{summary['risk_total']}；"
               + ("排除：" + "；".join(excluded) if excluded else "无排除文件。")]
     if record.get("limitations"):
         lines[-1] += " 限制：" + "；".join(record["limitations"])
+    if record.get("prior_findings"):
+        labels = {"pending": "待确认", "retained": "保留", "merged": "合并",
+                  "withdrawn": "撤回", "excluded": "排除"}
+        lines += ["", "旧发现对账："]
+        for item in record["prior_findings"]:
+            links = "、".join(item.get("issue_ids", []))
+            reason = item.get("reason", item.get("next_check", ""))
+            lines.append(f"- {item['id']} {labels[item['status']]}：{item['summary']}；"
+                         f"{reason}" + (f"；关联 {links}" if links else ""))
+        prior_ids = {key for item in record["prior_findings"] for key in item.get("issue_ids", [])}
+        added = [f"{item['id']} {item['summary']}" for item in findings if item["id"] not in prior_ids]
+        lines.append("本次新增：" + ("；".join(added) if added else "无。"))
     if partial:
-        pending = summary["remaining_files"] + unresolved + summary["remaining_state_groups"] + [
+        pending = (summary["remaining_files"] + unresolved + summary["remaining_state_groups"]
+                   + summary["remaining_prior_findings"]) + [
             key for key, issue in issues.items() if issue["status"] in ("pending", "blocked")]
         lines.append("待续范围：" + ("、".join(pending) or "见记录中的阻塞项"))
     return "\n".join(lines) + "\n"
@@ -122,6 +142,8 @@ def main():
     args = parser.parse_args()
     try:
         path, record, issues = load_record(args.record)
+        if not args.partial:
+            verify_sources(record)
         body = render(record, issues, args.partial)
         footer = (f"续接记录：{path}；下一项检查：{record['progress']['next_step']}\n"
                   if args.partial else f"会话记录：{path}\n")

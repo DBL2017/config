@@ -1,6 +1,7 @@
-# Module completion and continuation
+# Full-source completion and continuation
 
-Apply only to current-module reviews, never to widen file/diff/revision scope.
+Apply to full-file and current-module reviews through the same pipeline.
+Do not apply to selections, excerpts, diffs or revision reviews.
 This reference owns stage gates and persistence policy. Record commands live in
 `record-tools.md`; consult `review-record-format.md` only for unfamiliar fields,
 manual repair or migration. Read `concurrency-review.md` for shared-state or
@@ -8,10 +9,17 @@ asynchronous reasoning, not as a second completion checklist.
 
 ## 1. Inventory and initialize
 
-Resolve implementation files against build inputs, conditional variants and
+For a full-file review, the complete discovered and in-scope inventory is the
+single requested file, including an explicitly requested header or script.
+Use `source.review_kind: file` and put its repository-relative path in the
+legacy `source.module` field. Do not enumerate sibling files as targets.
+For a module review, use `source.review_kind: module` (the legacy default) and
+resolve implementation files against build inputs, conditional variants and
 user paths. Distinguish discovered, in-scope and excluded counts; generated,
 vendor and inactive sources need explicit inclusion/exclusion reasons.
-Headers/build/configuration/tests support contracts, not implementation counts.
+Unless explicitly selected as the full-file target, headers/build/configuration/
+tests support contracts, not target counts. Callers and helpers read to verify
+a target contract are supporting files, not additional audit targets.
 Unexplained or unreadable files are gaps, not convenient exclusions.
 
 Before the per-file pass, use the record tools to create a unique session-local
@@ -19,14 +27,28 @@ review directory outside the reviewed repository. Save repository/module,
 revision/worktree identity, reviewed variants, inventory and real content hashes.
 Track supporting files whose contracts evidence depends on. A commit hash alone
 does not identify dirty worktree content. Mark inventory reconciled only after
-checking build/conditional inputs; source enumeration is not review coverage.
+checking build/conditional inputs relevant to the selected target; a file
+review does not require reconciling its whole directory. Source enumeration
+is not review coverage.
 
 ## 2. Initial pass
 
-Visit every in-scope implementation file. Record four checks with locations:
+Visit every in-scope target file. Record four checks with locations:
 functional/normal/error paths; calls/interfaces; resource ownership/cleanup;
 mutable state/execution contexts. Mark inspected, justified not applicable,
 pending or blocked. Inspecting a file is not proof every integrated path is safe.
+Use `input-boundary-review.md` to populate every target's
+`functional_paths.risk_inventory` and dedicated `kind: risk_site` traces.
+Discovery must explicitly account for strings, scanning, structured inputs and
+allocation/I/O, with evidence for empty or inapplicable categories. Register
+each candidate even when its safety proof will be deferred to integration.
+For C/C++, include string/buffer operations and actual input/capacity/termination
+bounds in the functional check, and conversion counts, truncation and meaningful
+return-value propagation in the functional/interface checks. Include `strncpy`,
+`sscanf` conversions, unbounded string APIs and bounded alternatives as applicable.
+Inspect reads/resets/counters before lock acquisition as well as protected
+regions; later locking cannot protect earlier accesses. Preserve caller evidence
+for destructive error cleanup, such as deleting input that should be retried.
 
 Persist every concrete suspect/confirmed finding with a stable issue ID before
 switching files or verification tasks. Queue cross-file questions with reciprocal
@@ -46,15 +68,21 @@ Save after each file; read back through the validated scoped query. Run:
 python3 <skill-dir>/scripts/validate_review_record.py <review.json> --gate initial
 ```
 
-Only then begin concentrated integration. Pending suspects and state proofs can
+Only then begin concentrated integration. All risk categories must have complete
+discovery or evidenced non-applicability; broad inspected ranges alone do not
+pass this gate. Pending risk sites, suspects and state proofs can
 cross this gate; inaccessible files keep it open while other review work continues.
+Tool-extracted candidates must each map to an exact call trace. Complete final
+delivery also requires all applicable site scenarios and supplied prior findings
+reconciled under `input-boundary-review.md`; one finding does not close other
+failures in the same function.
 Gate CLI output is compact; use `tool-output.md` only when additional diagnostic
 pages are needed. Never mistake a returned subset for the full outstanding scope.
 
 ## 3. Integrate and reconcile
 
-Trace material end-to-end behavior, ownership transfers, normal/error exits,
-startup/refresh/shutdown, and asynchronous paths. Establish actual callback
+Trace material target-related end-to-end behavior, ownership transfers,
+normal/error exits, startup/refresh/shutdown, and asynchronous paths. Establish actual callback
 registration and dispatch, reader/writer contexts, aliases and ordering using
 the concurrency reference. Resolve each registered state group independently.
 
@@ -73,6 +101,9 @@ python3 <skill-dir>/scripts/generate_review_report.py <review.json>
 
 Integration requires complete initial coverage, reconciled inventory, resolved
 material traces/issues/state groups, and recorded validation outcomes/limitations.
+Risk sites must also have category-specific proofs or evidenced build/path
+exclusions, with confirmed defects linked to issues. Shared-state closure
+cannot close an independent string, parser or input-contract concern.
 Unavailable tools alone do not block static review; unresolved material questions
 do. Several serious findings, elapsed effort or a batch boundary are not exits.
 
@@ -81,9 +112,10 @@ reads back and validates the final gate, then atomically writes and reads back
 the Markdown report in the working directory where the review starts, not beside
 the session record. Run the first generation from that working directory.
 Its filename is
-`YYYY-MM-DD-Module-评审报告-v1.md`: the date is the first report's local date,
-and Module is the module path's final component (repository name for a root
-module), with filename-unsafe characters replaced. The record's `report_file`
+`YYYY-MM-DD-Target-评审报告-v1.md`: the date is the first report's local date,
+and Target is the full filename including extension for a file review, or the
+module path's final component (repository name for a root module), with
+filename-unsafe characters replaced. The record's `report_file`
 and absolute `report_directory` preserve the name and destination across
 continuations, including on a later date or from a different working directory.
 Deliver only the saved report path and review status in chat, not its full

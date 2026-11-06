@@ -1,4 +1,4 @@
-# Module review record format (version 3)
+# Full-source review record format (version 3)
 
 Store the following two files in a unique runtime session directory outside
 the reviewed repository. Use absolute paths when invoking bundled scripts.
@@ -8,6 +8,14 @@ Prefer `record-tools.md` commands over manually writing this schema. This file
 owns field definitions and migrations, not stage gates or write policy (see
 `module-review-completion.md`). Incremental commands preserve version-3 records.
 
+## Contents
+
+- [review.json](#reviewjson)
+- [Risk call-site evidence](#risk-call-site-evidence)
+- [Shared-state evidence](#shared-state-evidence)
+- [issues.jsonl](#issuesjsonl)
+- [Commands and migration](#commands-and-migration)
+
 ## review.json
 
 ```json
@@ -15,6 +23,7 @@ owns field definitions and migrations, not stage gates or write policy (see
   "schema_version": 3,
   "source": {
     "repository": "/absolute/repository",
+    "review_kind": "module",
     "module": "packages/private/example",
     "identity": "selected revision, worktree identity and reviewed build variants",
     "spec_available": false
@@ -29,7 +38,15 @@ owns field definitions and migrations, not stage gates or write policy (see
   "file_checks": {
     "src/main.c": {
       "identity": "actual file content hash",
-      "functional_paths": {"status": "pending", "evidence": []},
+      "functional_paths": {
+        "status": "pending", "evidence": [],
+        "risk_inventory": {
+          "string_boundary": {"status": "pending", "trace_ids": []},
+          "scan_conversion": {"status": "pending", "trace_ids": []},
+          "structured_input": {"status": "pending", "trace_ids": []},
+          "allocation_io": {"status": "pending", "trace_ids": []}
+        }
+      },
       "call_interface": {"status": "pending", "evidence": []},
       "resource_lifetime": {"status": "pending", "evidence": []},
       "shared_state_context": {
@@ -47,11 +64,21 @@ owns field definitions and migrations, not stage gates or write policy (see
 ```
 
 The report generator adds optional `report_file`, the Markdown basename
-(`YYYY-MM-DD-Module-评审报告-v1.md`), and `report_directory`, the absolute working
+(`YYYY-MM-DD-Target-评审报告-v1.md`), and `report_directory`, the absolute working
 directory at first generation. Preserve both during updates and recovery so
 every continuation refreshes the same report in the original working directory,
 not the session directory. These are delivery metadata, not evidence that the
 completion gates passed.
+
+`source.review_kind` is `module` (also the default for existing records) or
+`file`. The legacy `source.module` field stores the repository-relative target:
+a directory for module reviews, the complete file path for file reviews.
+A file review's inventory must contain exactly that one in-scope file,
+even when it is a header or script. Necessary external callers, headers,
+configuration and tests are supporting files, not additional targets.
+Both routes use the same four checks, state/trace/issue records, completion
+gates and continuation protocol. File report names use the full filename
+including extension; module report names keep their existing directory name.
 
 Set `inventory.reconciled` only after cross-checking build/conditional inputs.
 Inventory counts must match its unique paths. Excluded items require a reason.
@@ -82,6 +109,71 @@ fields; absence of tools is not automatically a defect.
 `progress.blockers` contains material blockers. Document minor limitations
 in `limitations`. Partial reports require a factual `progress.interruption`;
 script rejection is not itself permission to abandon accessible review work.
+
+## Risk call-site evidence
+
+Every full-source target has a `functional_paths.risk_inventory` entry for each
+of `string_boundary`, `scan_conversion`, `structured_input`, and `allocation_io`.
+`input-boundary-review.md` owns discovery and category-specific proof rules.
+The initializer creates pending entries; update them through ordinary
+`file_checks[path].functional_paths` deltas.
+
+Each category has `status`, unique `trace_ids`, and discovery `evidence`.
+Statuses are `pending`, `complete` (discovery finished) and `not_applicable`.
+Empty complete entries need `no_sites_reason`; not-applicable entries need
+`reason`, evidence and an empty trace list. Missing/pending categories keep
+that file's initial pass open, even when its four checks say inspected.
+
+Each linked trace has `kind: risk_site`, target `file`, `category`, `location`,
+`function`, `operation`, normal trace status/issue links, and evidence.
+Inventory links are reciprocal: a site belongs to exactly one target/category.
+For example, register a bounded-copy candidate pending full proof:
+
+```json
+{
+  "id": "T010", "kind": "risk_site",
+  "file": "src/main.c", "category": "string_boundary",
+  "location": "src/main.c:30", "function": "copy_name", "operation": "snprintf",
+  "candidate_id": "30:5:snprintf",
+  "status": "pending", "issue_ids": [],
+  "next_check": "Verify every scenario and fill structured facts",
+  "evidence": ["src/main.c:25-34"],
+  "checks": {
+    "input_max": "Caller passes a terminated name; arbitrary length is rejected",
+    "destination_capacity": "name[128]",
+    "termination": "snprintf receives sizeof(name), leaving a terminator",
+    "length_handling": "Return < 0 or >= sizeof(name) returns an error before use"
+  }
+}
+```
+
+The example is intentionally pending. `candidate_scan` is initialized from source;
+its exact candidate ID, location and enclosing function must match. A resolved
+site additionally needs per-scenario dispositions and structured facts defined
+in `input-boundary-review.md`; copying free-text `checks` alone cannot close it.
+Manual wrapper anchors must match `discover_risk_sites.py --all-calls`.
+
+`verified` sites use `safe` with all category-specific `checks`, or `excluded`
+with `exclusion_reason` and `exclusion_evidence`. `finding` sites use
+`confirmed_defect`, all category-specific checks, and a directly linked confirmed
+issue with the usual reciprocal `trace_ids`. Pending/blocked sites require
+`next_check`; blocked sites also require `reason`. They prevent integration/final
+completion, not initial discovery handoff.
+
+Version-3 records without this additive inventory remain progress-readable but
+cannot pass initial/integration/final gates. Reconstruct actual discovery and
+site evidence before continuing; no automatic conversion from a broad source
+range to a safe-site conclusion is allowed. Report counters describe registered
+sites, not a proof of exhaustive discovery.
+
+`prior_findings` is an optional tool-imported array from manifest `prior_reports`.
+Each entry preserves immutable original location/summary/severity, report SHA-256
+and session snapshot path. Its pending/retained/merged/withdrawn/excluded
+disposition is validated separately from current issues. Integration requires all
+entries reconciled. Confirmed current issues also need `claim.level` and
+`claim.evidence`; runtime/impact levels require `claim.trigger`. Source, scenario,
+prior reconciliation and claim-strength rules are owned by
+`input-boundary-review.md`.
 
 ## Shared-state evidence
 
@@ -216,8 +308,9 @@ python3 <skill-dir>/scripts/validate_review_record.py <session-dir>/review.json 
 ```
 
 `progress` validates structure/links and prints compact derived coverage; `initial`
-also checks reconciled inventory and per-file coverage; `integration` also
-checks resolved traces/issues and recorded validation; `final` additionally
+also checks reconciled inventory, per-file coverage and risk-site discovery;
+`integration` also checks resolved traces/issues, category-specific risk-site
+proofs and recorded validation; `final` additionally
 requires a bijection between confirmed IDs and report entries. The generator
 constructs that mapping from confirmed issues and validates it before output.
 A final validator alone does not prove a report was actually delivered.

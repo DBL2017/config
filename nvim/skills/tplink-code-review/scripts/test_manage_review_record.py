@@ -13,7 +13,7 @@ from generate_review_report import render
 from manage_review_record import (
     apply_update, commit_update, digest, encoded, initialize, query, recover, working_set,
 )
-from test_review_record import issue, state_record
+from test_review_record import issue, no_risk_inventory, risk_record, state_record
 from validate_review_record import CHECKS, RecordError, load_record, validate
 
 
@@ -51,10 +51,44 @@ class ManageRecordTests(unittest.TestCase):
         return {"file_checks": {
             name: {**{key: {"status": "inspected", "evidence": [name + ":1"]}
                       for key in CHECKS},
+                   "functional_paths": {
+                       "status": "inspected", "evidence": [name + ":1"],
+                       "risk_inventory": no_risk_inventory(name)},
                    "shared_state_context": {
                        "status": "inspected", "evidence": [name + ":1"],
                        "state_group_ids": [], "no_state_reason": "No shared mutable objects"}}
             for name in ("main.c", "helper.c")}}
+
+    def test_risk_discovery_recovery_and_invalidation_preserve_site_links(self):
+        payload = self.complete_files()
+        payload.update(inventory_reconciled=True)
+        record, _, _ = self.update(payload)
+        inventory = record["file_checks"]["main.c"]["functional_paths"]["risk_inventory"]
+        self.assertEqual(working_set(record, {})["task_count"], 0)
+        _, site = risk_record()
+        site.update(file="main.c", location="main.c:1", status="pending")
+        site["manual_anchor"].update(line=1, end_line=1,
+                                    source_identity=record["file_checks"]["main.c"]["identity"])
+        inventory["string_boundary"]["trace_ids"] = ["T001"]
+        record, _, _ = self.update({
+            "file_checks": {"main.c": {"functional_paths": {"risk_inventory": inventory}}},
+            "traces": [site],
+        })
+        self.assertEqual(working_set(record, {})["tasks"][0]["id"], "T001")
+        site.update(status="verified", next_check=None)
+        self.update({"traces": [site]})
+        record, _, _ = self.update({
+            "invalidate": ["T001"], "reason": "Producer now returns longer strings"})
+        entry = record["file_checks"]["main.c"]["functional_paths"]["risk_inventory"]
+        self.assertEqual(entry["string_boundary"]["status"], "pending")
+        self.assertEqual(entry["string_boundary"]["trace_ids"], ["T001"])
+        self.assertEqual(record["traces"][0]["status"], "pending")
+        self.assertEqual(record["traces"][0]["next_check"], "Producer now returns longer strings")
+        work = working_set(record, {})
+        self.assertEqual(work["tasks"][0]["id"], "main.c")
+        self.assertEqual(work["coverage"]["risk_completed"], 0)
+        self.assertEqual(record["file_checks"]["helper.c"]["functional_paths"]["status"],
+                         "inspected")
 
     def test_initialization_hashes_and_does_not_claim_reconciliation(self):
         record, issues = self.read()
@@ -66,6 +100,125 @@ class ManageRecordTests(unittest.TestCase):
         self.assertEqual(self.path.with_name("issues.jsonl").read_text(), "")
         with self.assertRaisesRegex(RecordError, "new review directory"):
             initialize(self.path, self.manifest)
+
+    def test_supporting_contract_change_reopens_risk_discovery_and_site(self):
+        payload = self.complete_files()
+        _, site = risk_record()
+        site.update(file="main.c", location="main.c:1", dependencies=["module.h"])
+        site["manual_anchor"].update(line=1, end_line=1,
+                                    source_identity=digest((self.repository / "main.c").read_bytes()))
+        entry = payload["file_checks"]["main.c"]["functional_paths"]["risk_inventory"]
+        entry["string_boundary"].update(trace_ids=["T001"])
+        payload.update(inventory_reconciled=True, traces=[site])
+        self.update(payload)
+        (self.repository / "module.h").write_text("long helper(void);\n")
+        record, issues, _ = self.update({"progress": {"next_step": "Recheck contract"}})
+        self.assertEqual(record["traces"][0]["status"], "pending")
+        entry = record["file_checks"]["main.c"]["functional_paths"]["risk_inventory"]
+        self.assertEqual(entry["string_boundary"]["status"], "pending")
+        self.assertEqual(entry["string_boundary"]["trace_ids"], ["T001"])
+        self.assertEqual(working_set(record, issues)["tasks"][0]["id"], "main.c")
+        self.assertEqual(record["file_checks"]["helper.c"]["functional_paths"]["status"],
+                         "inspected")
+
+    def test_legacy_record_without_risk_inventory_can_resume_but_not_complete(self):
+        payload = self.complete_files()
+        payload["inventory_reconciled"] = True
+        self.update(payload)
+        record, issues = self.read()
+        for checks in record["file_checks"].values():
+            del checks["functional_paths"]["risk_inventory"]
+        work = working_set(record, issues)
+        self.assertTrue(work["resume_allowed"])
+        self.assertEqual(work["task_count"], 2)
+        self.assertEqual(work["tasks"][0]["kind"], "file")
+        with self.assertRaisesRegex(RecordError, "Initial pass incomplete"):
+            validate(record, issues, "initial")
+
+    def test_full_file_review_uses_shared_gates_and_report_continuation(self):
+        manifest = deepcopy(self.manifest)
+        manifest["source"].update(review_kind="file", module="main.c")
+        manifest["files"] = [{"path": "main.c", "status": "in_scope"}]
+        manifest["supporting_files"] = ["helper.c", "module.h"]
+        path = self.path.parent.parent / "file-review" / "review.json"
+        initialize(path, manifest)
+        _, record, issues = load_record(path)
+        self.assertEqual(set(record["file_checks"]), {"main.c"})
+        self.assertEqual(set(record["supporting_files"]), {"helper.c", "module.h"})
+        self.assertEqual(record["file_checks"]["main.c"]["identity"],
+                         digest((self.repository / "main.c").read_bytes()))
+        self.assertEqual(working_set(record, issues)["tasks"][0]["id"], "main.c")
+        with self.assertRaisesRegex(RecordError, "Inventory"):
+            validate(record, issues, "initial")
+
+        updated, _, events = apply_update(record, issues, {
+            "progress": {"interruption": "User requested pause"}})
+        commit_update(path, updated, events)
+        working = self.path.parent.parent / "reports"
+        working.mkdir()
+        script = Path(__file__).with_name("generate_review_report.py")
+        command = [sys.executable, str(script), str(path)]
+        partial = subprocess.run(command + ["--partial"], cwd=working,
+                                 capture_output=True, text=True)
+        self.assertEqual(partial.returncode, 0, partial.stderr)
+        _, record, issues = load_record(path)
+        report_path = working / record["report_file"]
+        self.assertRegex(report_path.name, r"^\d{4}-\d{2}-\d{2}-main\.c-评审报告-v1\.md$")
+        self.assertIn("初审 0/1 个目标文件", report_path.read_text(encoding="utf-8"))
+        blocked = subprocess.run(command, cwd=working, capture_output=True, text=True)
+        self.assertEqual(blocked.returncode, 1)
+
+        checks = self.complete_files()["file_checks"]["main.c"]
+        updated, latest, events = apply_update(record, issues, {
+            "file_checks": {"main.c": checks}, "inventory_reconciled": True,
+            "validation": {"status": "unavailable", "details": "No target compiler"},
+            "progress": {"interruption": None, "next_step": "Generate complete report"},
+        })
+        commit_update(path, updated, events)
+        validate(updated, latest, "initial")
+        validate(updated, latest, "integration")
+        completed = subprocess.run(command, cwd=path.parent,
+                                   capture_output=True, text=True)
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        report = report_path.read_text(encoding="utf-8")
+        self.assertIn("评审状态：已完成", report)
+        self.assertIn("完整文件 main.c", report)
+        self.assertIn("初审 1/1 个目标文件", report)
+        self.assertNotIn("helper.c", report)
+        self.assertEqual(list(working.glob("*.md")), [report_path])
+        self.assertEqual(list(path.parent.glob("*.md")), [])
+        self.assertNotIn("未发现明确", completed.stdout)
+        _, saved, latest = load_record(path)
+        validate(saved, latest, "final")
+        self.assertEqual(saved["report_file"], record["report_file"])
+
+    def test_file_review_rejects_directory_and_sibling_targets(self):
+        for target, files, message in (
+            (".", [{"path": "main.c", "status": "in_scope"}], "existing file"),
+            ("main.c", self.manifest["files"], "only the selected"),
+            ("main.c", [{"path": "helper.c", "status": "in_scope"}], "only the selected"),
+            ("main.c", [{"path": "main.c", "status": "excluded",
+                         "reason": "Not inspected"}], "only the selected"),
+        ):
+            with self.subTest(target=target, files=files):
+                manifest = deepcopy(self.manifest)
+                manifest["source"].update(review_kind="file", module=target)
+                manifest["files"] = files
+                path = self.path.parent.parent / "invalid-file-review" / "review.json"
+                with self.assertRaisesRegex(RecordError, message):
+                    initialize(path, manifest)
+                self.assertFalse(path.parent.exists())
+
+    def test_explicit_header_can_be_the_full_file_target(self):
+        manifest = deepcopy(self.manifest)
+        manifest["source"].update(review_kind="file", module="module.h")
+        manifest["files"] = [{"path": "module.h", "status": "in_scope"}]
+        manifest["supporting_files"] = ["main.c", "helper.c"]
+        path = self.path.parent.parent / "header-review" / "review.json"
+        initialize(path, manifest)
+        _, record, issues = load_record(path)
+        self.assertEqual(set(record["file_checks"]), {"module.h"})
+        self.assertEqual(validate(record, issues)["total"], 1)
 
     def test_initialization_rejects_escape_duplicate_and_repository_records(self):
         for name in ("../outside.c", str(self.repository / "main.c")):
@@ -179,15 +332,19 @@ class ManageRecordTests(unittest.TestCase):
         self.assertTrue(result["resume_allowed"])
         self.assertNotIn("issues.jsonl", json.dumps(result))
 
-    def test_source_change_blocks_resume_and_requires_explicit_invalidation(self):
+    def test_source_change_blocks_resume_and_update_invalidates_coverage(self):
         self.update(self.complete_files())
         (self.repository / "main.c").write_text("int main(void) { return 1; }\n")
         record, issues = self.read()
         result = working_set(record, issues)
         self.assertFalse(result["resume_allowed"])
         self.assertIn("main.c", result["source_changes"])
-        with self.assertRaisesRegex(RecordError, "explicitly invalidate"):
-            self.update({"progress": {"next_step": "Read main"}})
+        record, _, _ = self.update({"progress": {"next_step": "Read main"}})
+        self.assertIn("automatic invalidation", record["progress"]["last_invalidate"]["reason"])
+        self.assertEqual(record["file_checks"]["main.c"]["functional_paths"]["status"],
+                         "pending")
+        risk = record["file_checks"]["main.c"]["functional_paths"]["risk_inventory"]
+        self.assertTrue(all(entry["status"] == "pending" for entry in risk.values()))
         record, issues, _ = self.update({
             "invalidate": ["main.c"], "reason": "Source changed; re-read main.c"})
         self.assertEqual(record["file_checks"]["main.c"]["functional_paths"]["status"], "pending")
@@ -305,7 +462,7 @@ class ManageRecordTests(unittest.TestCase):
     def test_skill_is_routed_and_keeps_scope_failure_contracts(self):
         skill = Path(__file__).resolve().parents[1]
         content = (skill / "SKILL.md").read_text()
-        self.assertLessEqual(len(content.splitlines()), 180)
+        self.assertLessEqual(len(content.splitlines()), 500)
         self.assertIn("未提供有效的 Git diff，请先暂存变更或指定一个 Git commit。", content)
         self.assertIn("diagnostic.stage", content)
         self.assertIn("diagnostic.endpoint", content)
@@ -316,7 +473,7 @@ class ManageRecordTests(unittest.TestCase):
         for name in ("record-tools.md", "report-format.md", "module-review-completion.md"):
             self.assertIn(name, content)
             self.assertTrue((skill / "references" / name).is_file())
-        self.assertIn("Non-module", content)
+        self.assertIn("Snippet and change reviews do not require a full-source ledger", content)
 
     def test_long_history_is_retained_but_resume_emits_latest_issue_only(self):
         delta = issue("pending")

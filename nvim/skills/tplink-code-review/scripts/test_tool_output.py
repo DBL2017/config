@@ -12,7 +12,7 @@ from unittest.mock import patch
 
 from generate_review_report import render
 from search_review_source import search
-from test_review_record import issue, record_for, state_record
+from test_review_record import issue, materialize_source, record_for, state_record
 from validate_review_record import RecordError, validate
 
 
@@ -25,6 +25,7 @@ class GateOutputTests(unittest.TestCase):
         self.script = Path(__file__).with_name("validate_review_record.py")
 
     def save(self, record, issues=None):
+        materialize_source(record, self.path.parent / "repo")
         self.path.write_text(json.dumps(record), encoding="utf-8")
         self.path.with_name("issues.jsonl").write_text(
             "".join(json.dumps(value) + "\n" for value in (issues or {}).values()),

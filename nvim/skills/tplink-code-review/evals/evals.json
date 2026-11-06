@@ -347,6 +347,189 @@
         "Recognizes the changed if statement as compliant with TPL-C-STYLE-003",
         "Uses the prescribed clean-review output when no other finding is evidenced"
       ]
+    },
+    {
+      "id": 30,
+      "prompt": "请评审 `fing_device_report.c:10-19` 这段当前 C 代码，重点看锁和错误路径。目标构建定义 SUPPORT_CLIENT_DATABASE=y。代码是：`UCI_LOCK(); fp = fopen(state_file, \"r\"); if (fp == NULL) goto error;`；正常路径读完文件、`fclose(fp)`、`UCI_UNLOCK()` 后返回；`error:` 只在 `fp != NULL` 时关闭文件，然后直接返回错误，没有解锁。调用者忽略该返回值，接着调用 `load_state()`；它也会执行 `UCI_LOCK()`。`UCI_LOCK/UNLOCK` 在此构建分别展开为同一个普通 pthread mutex 的 lock/unlock。请按 C/C++ 生命周期闭环审查，只报告有证据的问题。",
+      "expected_output": "报告 fopen 失败分支在持有锁时跳转到未解锁的错误标签；确认目标构建中的宏是真实互斥锁，并结合调用者随后再次获取同一把锁说明可能的同线程死锁及其他用户阻塞。引用具体路径并建议修复持锁出口，不声称运行测试。",
+      "files": [],
+      "expectations": [
+        "Finds the missing unlock on the fopen failure path, despite the normal path being balanced",
+        "Checks the selected build's SUPPORT_CLIENT_DATABASE macro expansion rather than assuming the lock is active or empty",
+        "Traces the caller's subsequent load_state lock acquisition and describes only supported blocking consequences",
+        "Does not add an unconditional unlock to the shared error label without considering paths that may arrive unlocked"
+      ]
+    },
+    {
+      "id": 31,
+      "prompt": "请评审这个 C 函数的锁生命周期，不需要访问仓库。代码在获取锁之前有一个参数校验失败分支直接跳到 `error`；获取锁后，文件打开失败分支先调用 `UCI_UNLOCK()` 再跳到同一个 `error`；正常路径也在返回前解锁；错误标签只释放可能已打开的文件。已提供的所有调用路径和构建宏均完整，没有其他资源问题。请避免因共享错误标签而误报。",
+      "expected_output": "确认锁获取后的成功和失败路径均解锁，获取锁前的校验分支不需要解锁；不报告锁泄漏或不安全的无条件解锁。",
+      "files": [],
+      "expectations": [
+        "Distinguishes the pre-acquisition error path from paths that hold the lock",
+        "Recognizes that both post-acquisition exits release the lock",
+        "Does not report a lock leak merely because the shared error label contains no unlock",
+        "Does not recommend an unconditional unlock that could act on an unheld lock"
+      ]
+    },
+    {
+      "id": 32,
+      "prompt": "请评审这个 C 文件的锁行为。源码中 `UCI_LOCK()` 只有在 `SUPPORT_CLIENT_DATABASE` 定义时才展开为 pthread mutex 操作，否则为空宏。目标构建配置和 `compile_commands.json` 均确认没有定义该宏；代码中的错误路径没有 `UCI_UNLOCK()`。没有其他资源生命周期问题。请按目标构建判断，不推测其他未选构建。",
+      "expected_output": "说明选定构建中的 UCI_LOCK/UCI_UNLOCK 均为空宏，因此该分支不存在实际的锁泄漏；不把其他构建变体的条件问题冒充为当前构建缺陷。",
+      "files": [],
+      "expectations": [
+        "Resolves the wrapper using the selected build flags",
+        "Does not report an active lock leak when the selected macro expands to no operation",
+        "Does not generalize the selected-build conclusion to unreviewed variants"
+      ]
+    },
+    {
+      "id": 33,
+      "prompt": "请评审这个 C++ 函数的资源生命周期，不需要访问仓库：`int update(std::mutex &mu) { std::lock_guard<std::mutex> guard(mu); if (!ready()) return -1; if (!commit()) throw update_error(); return 0; }`。`ready()`、`commit()` 均不会保存 guard 引用，也没有其他资源或锁。请按 C/C++ 生命周期闭环规则检查，不要要求显式 unlock。",
+      "expected_output": "识别 `std::lock_guard` 在正常返回和异常展开时通过 RAII 释放互斥锁；不报告缺少显式 unlock，也不虚构其他问题。",
+      "files": [],
+      "expectations": [
+        "Accounts for RAII cleanup on both early return and exception unwinding",
+        "Does not report a lock leak solely because there is no explicit unlock",
+        "Does not invent additional ownership or concurrency defects"
+      ]
+    },
+    {
+      "id": 34,
+      "prompt": "请只评审以下 `auth_cache.c:10-24` 代码片段，并查看给出的必要直接调用方证据，不评审完整文件。证据：`auth_cache.c:10` 定义可变全局 `int fing_auth_status = -1`，`:20-24` 的 `query_task()` 读取它；`ubus_server.c:40-45` 的 UBUS handler 从消息字段 `fing_auth_state` 读取新值并写入 `fing_auth_status`，该 handler 注册为 `update_fing_auth_state`（`:60`）；`main.c:15-17` 创建线程池 worker，`:20` 在独立线程启动 UBUS/uloop；`client_report.c:30` 将 `query_task` 入队到 worker。`query_task` 在读取授权状态之后才尝试获取 `query_mutex`；UBUS 写方不获取该锁，且没有其他原子/同步协议。只基于这些证据评审，不要把消息字段名当成全局变量名。",
+      "expected_output": "报告 `fing_auth_status` 的跨线程未同步读写：标明 worker 读取、UBUS handler 写入、两个执行上下文可并行的证据，以及读方后置获取的锁不覆盖读写双方；建议使用双方共同的同步协议或受保护快照，不夸大未证实后果。",
+      "files": [],
+      "expectations": [
+        "Maps the UBUS payload field fing_auth_state to the actual global fing_auth_status",
+        "Searches and reports the global's conflicting worker read and UBUS handler write",
+        "Uses thread-pool and independent UBUS/uloop execution evidence to establish possible overlap",
+        "Recognizes that a mutex acquired only after the read and not used by the writer does not synchronize the accesses",
+        "Does not claim a specific crash or exploit without additional evidence"
+      ]
+    },
+    {
+      "id": 35,
+      "prompt": "请仅评审以下 `cache.c:5-12` 代码片段，并检查给出的必要调用/启动上下文，不评审完整文件。`cache.c:5` 定义可变全局 `int cached_mode`；唯一写入位于 `initialize_cache()`（`:12`），该函数由 `main()` 在创建任何 worker 线程之前调用一次。仓库范围标识符搜索无其他写入，worker 启动后所有访问均为只读；没有可晚到的回调、重载入口或重置路径。请检查是否有已证实的数据竞争，不要只因它是全局变量而报错。",
+      "expected_output": "通过 counterexample 检查后确认该变量仅在线程启动前初始化、之后只读；不报告数据竞争，并说明结论依据是完整写路径和启动顺序，而非全局变量本身。",
+      "files": [],
+      "expectations": [
+        "Checks for runtime writers, reload/reset paths, and delayed callbacks before accepting initialization-only",
+        "Uses the supplied worker-start ordering to exclude concurrent mutation",
+        "Does not report a race based only on mutable global storage duration"
+      ]
+    },
+    {
+      "id": 36,
+      "prompt": "请仅评审以下 `settings.c` 共享状态代码片段，不评审完整文件。`settings.c:8` 定义全局 `int mode` 和 `pthread_mutex_t mode_lock`；所有读函数在读取 `mode` 的完整区间持有 `mode_lock`，唯一写函数也在同一把锁内完成赋值；没有返回内部指针或锁外访问。调用点和构建宏均已提供且确认锁有效。请判断是否存在数据竞争，不要误报。",
+      "expected_output": "确认读写双方使用同一有效互斥锁覆盖完整访问区间，因此没有证据支持数据竞争；不因共享全局变量本身报告问题。",
+      "files": [],
+      "expectations": [
+        "Verifies the same active mutex protects both reads and writes for the full access interval",
+        "Does not report a data race when the stated synchronization contract is complete",
+        "Does not infer additional unsynchronized aliases or accesses absent evidence"
+      ]
+    },
+    {
+      "id": 37,
+      "prompt": "请完整评审 evals/fixtures/coverage-module/a_policy.c 当前实现，必要时读取头文件和直接调用方。不是评审整个 coverage-module，也不是 diff。不要执行用例程序或修改源码。",
+      "expected_output": "按完整源码路线创建会话台账，唯一目标为 a_policy.c，必要头文件和调用方仅作支撑文件；完成四维初审、必要集成追踪及门禁，确认错误拒绝合法端口65535；生成含扩展名的 a_policy.c 报告，聊天只交付路径和状态，不审计整个模块或报告其独立缓存竞争。",
+      "files": ["evals/fixtures/coverage-module"],
+      "expectations": [
+        "Uses source.review_kind=file with source.module pointing to a_policy.c and exactly one in-scope inventory entry",
+        "Tracks necessary header and caller contracts as supporting files rather than adding them to target coverage",
+        "Reports the rejection of valid port 65535 without independently auditing the module's unrelated cache race",
+        "Runs the shared initial/integration gates and generate_review_report.py, reporting 1/1 target-file coverage",
+        "Delivers only the generated report path and review status in chat, with a filename ending in -a_policy.c-评审报告-v1.md"
+      ]
+    },
+    {
+      "id": 38,
+      "prompt": "请评审 evals/fixtures/coverage-module/a_policy.c:4-7 这个选区，只检查 accept_port 的边界和必要契约，不评审完整文件或目录。不要执行用例程序或修改源码。",
+      "expected_output": "保持代码选区路线，核实头文件和端口范围契约后在对话中报告65535被错误拒绝；不创建完整源码台账或Markdown报告，不启动模块覆盖门禁。",
+      "files": ["evals/fixtures/coverage-module"],
+      "expectations": [
+        "Keeps the explicit line selection on the narrow snippet route despite receiving a file path",
+        "Reports the evidenced inclusive-port boundary defect directly in chat",
+        "Does not initialize a full-source ledger, run its completion gates, or generate a report file",
+        "Does not broaden the selection into a directory-wide audit"
+      ]
+    },
+    {
+      "id": 39,
+      "prompt": "请完整评审 evals/fixtures/coverage-module/module.h，仅以这个头文件为目标，必要时读取实现确认接口契约。不要因为它是头文件就改成评审整个模块，也不要执行程序或修改源码。",
+      "expected_output": "明确指定的头文件作为唯一完整文件目标，其他实现仅作支撑上下文；使用与模块相同的记录和门禁，对不适用的资源/状态检查给出实际依据；生成 module.h 文件报告，聊天只交付路径和状态。",
+      "files": ["evals/fixtures/coverage-module"],
+      "expectations": [
+        "Accepts the explicitly requested header as the sole full-file target rather than excluding it as supporting-only",
+        "Uses the shared full-source records, four checks, completion gates and generated-report delivery",
+        "Keeps inspected implementations as supporting files and reports exactly one target file",
+        "Does not invent runtime resource acquisitions or shared-state definitions in a declaration-only header"
+      ]
+    },
+    {
+      "id": 40,
+      "prompt": "请完整评审 evals/fixtures/coverage-module/z_cache.c 的资源和共享状态，必要时读取启动入口、worker 和 helper 确认实际执行上下文。只以 z_cache.c 为目标，不审计整个模块；不要执行含故意竞争的程序或修改源码。",
+      "expected_output": "唯一目标为 z_cache.c，main.c、y_report.c 和相关接口/helper 作为支撑证据；登记 g_generation 状态组及专用追踪，确认线程启动后的主线程写入与 worker 读取无同步。完成共享门禁后生成 z_cache.c 报告，覆盖仍为1/1，不将其他文件的独立端口边界问题列入报告。",
+      "files": ["evals/fixtures/coverage-module"],
+      "expectations": [
+        "Keeps exactly z_cache.c in the target inventory while recording actual startup, writer and worker dispatch evidence from supporting files",
+        "Persists the g_generation access group and dedicated shared_state trace under the shared full-source protocol",
+        "Confirms the runtime conflicting accesses without treating startup initialization as the only writer",
+        "Generates a file report with 1/1 target coverage and does not report the independent accept_port defect",
+        "Does not execute fixture source or claim unproven crash or exploitation consequences"
+      ]
+    },
+    {
+      "id": 41,
+      "prompt": "请完整评审 evals/fixtures/boundary-input-module/boundaries.c 当前实现，按旁边的 contract.h 和 Makefile 核实输入契约及默认构建。检查功能、边界、错误路径和资源；其他文件仅提供契约，不扩大目标。不要执行或链接用例程序，也不要修改源码。",
+      "expected_output": "报告 bad_bonjour 的后缀拼接越界、bad_response 的缺字段解引用、bad_state_line 的无宽度扫描三类独立根因；不误报 good_* 的对应受保护操作，不把默认未启用的 legacy_name 当作当前构建缺陷。逐调用点保存风险清单、分类证据和处置，通过共享门禁生成唯一目标文件报告。",
+      "files": ["evals/fixtures/boundary-input-module"],
+      "expectations": [
+        "Reports the concatenation overflow in bad_bonjour, accounting for 128 bytes and the .local suffix plus terminator",
+        "Reports absent or mistyped required JSON fields before bad_response dereferences clients",
+        "Reports the two unbounded scansets and missing conversion handling in bad_state_line",
+        "Does not report the guarded good_bonjour, good_response or good_state_line as boundary/input defects",
+        "Records legacy_name as a default-build exclusion with actual macro/build evidence rather than a current defect",
+        "Saves four-category discovery plus reciprocal risk_site traces with category-specific checks, and generates a one-target completed report",
+        "Does not execute fixture source or claim proven remote exploitation"
+      ]
+    },
+    {
+      "id": 42,
+      "prompt": "请评审 evals/fixtures/boundary-input-module 整个模块，默认构建以 Makefile 为准，contract.h 给出所有外部输入契约。不要运行含故意缺陷的用例。请完整盘点并通过模块门禁，既检查异常路径也核实安全反例，不设置问题条数配额。",
+      "expected_output": "同一统一流程覆盖唯一实现文件 boundaries.c，头文件和构建为支撑；确认三类缺陷且不误报安全函数/默认排除分支；风险调用点与共享状态分别闭环，声明无可变共享状态不能代替输入边界检查。",
+      "files": ["evals/fixtures/boundary-input-module"],
+      "expectations": [
+        "Uses the module route with boundaries.c as its only implementation target and supporting header/build evidence",
+        "Finds all three independent boundary, structured-input and scan-conversion root causes",
+        "Does not substitute an empty shared-state inventory for risk-site discovery or closure",
+        "Keeps safe counterparts and inactive LEGACY_INPUT_PATH out of confirmed runtime findings",
+        "Uses the generator only after risk discovery and per-site completion gates pass"
+      ]
+    },
+    {
+      "id": 43,
+      "prompt": "仅评审这个已给出的 C diff，不访问其他版本：新增 char service_name[128] = {0}; 随后 strcpy(service_name, name); strcat(service_name, \".local\");。调用方契约已确认 name 是以零结尾、最长127字符的输入；修改行坐标为 name.c:10-12。不要扩展成完整文件评审。",
+      "expected_output": "保持原有变更路线，在对话中报告后缀和结束符导致的容量不足；不创建完整源码风险清单、台账或文件报告，不运行完整源码门禁。",
+      "files": [],
+      "expectations": [
+        "Reports the attributable changed-line overflow using the supplied maximum length and destination capacity",
+        "Keeps the diff review on the existing chat-only route without full-source records, gates or report files",
+        "Does not invent unrelated source, execution or build results"
+      ]
+    },
+    {
+      "id": 44,
+      "prompt": "完整评审 evals/fixtures/failure-path-module/upload.c，旧报告是同目录 prior.md，请逐项核实而不是机械继承。源文件注释给出接口契约；不要运行或链接该故意缺陷用例，不修改源码。",
+      "expected_output": "分别确认序列化 NULL 未检查、fopen 失败返回成功、调用方忽略失败仍删除数据；旧报告中的打开失败问题必须保留或有证据处置。每个调用点绑定源码，错误/清理/调用方场景分别闭环，不能仅发现序列化错误就关闭整段上传函数。",
+      "files": ["evals/fixtures/failure-path-module"],
+      "expectations": [
+        "Retains the prior fopen-failure and caller-deletion defect with current evidence",
+        "Separately identifies unchecked serialization failure without using it to close fopen and caller scenarios",
+        "Maps each extracted operation to a distinct exact source-anchored risk trace",
+        "Reconciles every imported prior finding and explains any severity change",
+        "Does not execute fixture source or change snippet/change-review routing"
+      ]
     }
   ]
 }

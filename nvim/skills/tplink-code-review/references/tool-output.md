@@ -70,7 +70,7 @@ Keep material limitations in the report and full evidence in the ledger.
 
 ## Final report
 
-Continue using `generate_review_report.py` for module reports, with no findings
-quota or output truncation. Tool preview limits never limit confirmed findings,
+Continue using `generate_review_report.py` for full-file and module reports,
+with no findings quota or output truncation. Tool preview limits never limit confirmed findings,
 required coverage, report mappings, or the prescribed partial-report fields.
 Do not regenerate the same report merely to summarize it a second time.
