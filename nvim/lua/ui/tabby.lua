@@ -1,5 +1,5 @@
 return {
-    "nanozuki/tabby.nvim",
+    "DBL2017/tabby.nvim",
     -- 解决tabby高亮和主题colorscheme出现的竟态问题
     event = "VeryLazy",
     enabled = true,
@@ -73,7 +73,9 @@ return {
                     hl = theme.fill,
                 }
             end,
-            option = {}, --  setup modules' option,
+            option = {
+                buf_new_position = "next", -- first、next、last
+            }, --  setup modules' option,
         })
     end,
 }
