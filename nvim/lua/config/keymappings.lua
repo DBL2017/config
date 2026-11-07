@@ -2,6 +2,7 @@
 local custom_function = require("config.custom_function")
 local platform = require("config.platform")
 
+-- NOTE: 退出
 vim.keymap.set(
     { "n", "v" },
     "<LocalLeader>q",
@@ -12,31 +13,33 @@ vim.keymap.set(
 vim.keymap.set({ "n", "v" }, "<C-q>", "<cmd>q!<CR>", { noremap = true, silent = true, desc = "关闭当前窗口" })
 vim.keymap.set(
     { "n", "v" },
-    "<LocalLeader>w",
-    "<cmd>w<CR>",
-    { noremap = true, silent = true, desc = "保存当前buffer" }
-)
-vim.keymap.set(
-    { "n", "v" },
     "<LocalLeader>qa",
     "<cmd>qa<CR>",
     { noremap = true, silent = true, desc = "退出所有窗口" }
+)
+
+-- NOTE: 保存
+vim.keymap.set(
+    { "n", "v" },
+    "<LocalLeader>w",
+    "<cmd>w<CR>",
+    { noremap = true, silent = true, desc = "保存当前buffer" }
 )
 -- Normal / Visual 模式直接保存
 vim.keymap.set({ "n", "v" }, "<C-s>", "<cmd>w<CR>", {
     noremap = true,
     silent = true,
-    desc = "保存修改内容",
+    desc = "保存当前buffer",
 })
 
 -- Insert 模式先退出到 Normal 再保存
 vim.keymap.set("i", "<C-s>", "<Esc><cmd>w<CR>", {
     noremap = true,
     silent = true,
-    desc = "切换为Normal并保存",
+    desc = "切换为Normal并保存当前buffer",
 })
 
--- 查找
+-- NOTE: 查找
 -- 自动将查找到的字符串设置到屏幕中央
 vim.keymap.set("n", "n", "nzz", { noremap = true, silent = true, desc = "查找并自动跳转屏幕中间" })
 vim.keymap.set("n", "N", "Nzz", { noremap = true, silent = true, desc = "查找并自动跳转屏幕中间" })
@@ -49,6 +52,7 @@ vim.keymap.set(
     { noremap = true, silent = true, desc = "打开文件" }
 )
 
+-- NOTE: 自定义复制
 -- 扩展复制
 vim.keymap.set({ "n", "x" }, "<LocalLeader>yy", function()
     custom_function.copy_with_metadata(0)
@@ -57,19 +61,19 @@ end, {
     silent = true,
     desc = "复制（含文件名和行号）",
 })
-vim.keymap.set({ "n", "x" }, "<LocalLeader>yf", function()
-    custom_function.copy_with_metadata(1)
-end, {
-    noremap = true,
-    silent = true,
-    desc = "复制（含完整路径和行号）",
-})
 vim.keymap.set({ "n", "x" }, "<LocalLeader>yr", function()
     custom_function.copy_with_metadata(2)
 end, {
     noremap = true,
     silent = true,
     desc = "复制（含相对项目路径和行号）",
+})
+vim.keymap.set({ "n", "x" }, "<LocalLeader>yf", function()
+    custom_function.copy_with_metadata(1)
+end, {
+    noremap = true,
+    silent = true,
+    desc = "复制（含完整路径和行号）",
 })
 -- 获取当前文件所在的路径名
 vim.keymap.set("n", "<LocalLeader>yp", custom_function.copy_current_filepath, {
@@ -84,6 +88,7 @@ vim.keymap.set("n", "<LocalLeader>yc", custom_function.get_line_commit, {
     desc = "获取当前行的提交 SHA",
 })
 
+-- NOTE: 代码Blame
 -- 查看当前行对应的commit信息
 vim.keymap.set("n", "<LocalLeader>gc", custom_function.show_line_commit, {
     noremap = true,
@@ -98,6 +103,7 @@ vim.keymap.set("n", "<LocalLeader>gd", custom_function.git_diff_with_commit_sha,
     desc = "对比当前行与git commit的差异",
 })
 
+-- NOTE: 时间
 -- 普通模式下在当前位置插入时间
 vim.keymap.set("n", "<LocalLeader>ta", "a<C-R>=strftime('%Y-%m-%d %H:%M:%S')<CR><ESC>", {
     noremap = true,
@@ -111,6 +117,7 @@ vim.keymap.set("n", "<LocalLeader>tO", "O<C-R>=strftime('%Y-%m-%d %H:%M:%S')<CR>
     desc = "在上一行插入本地化时间",
 })
 
+-- NOTE: 函数注释
 -- 在当前函数上方插入注释
 vim.keymap.set(
     "n",
@@ -149,7 +156,7 @@ vim.keymap.set("n", "<LocalLeader>td", custom_function.insert_todo_keyword, {
     desc = "插入 todo-comments 关键词",
 })
 
--- tab快捷键
+-- NOTE:tab快捷键
 -- Move to previous/next
 vim.keymap.set("n", "<A-Up>", "<cmd>tabprevious<CR>", { noremap = true, silent = true, desc = "上一个标签页" })
 vim.keymap.set("n", "<A-Down>", "<cmd>tabnext<CR>", { noremap = true, silent = true, desc = "下一个标签页" })
@@ -185,6 +192,12 @@ vim.keymap.set(
 
 -- 当前终端中Alt-t和Esc-t映射的是相同的编码，导致Esc-t也会产生相同效果
 vim.keymap.set("n", "<LocalLeader>t", function()
+    local tabs = vim.api.nvim_list_tabpages()
+    if #tabs < 3 then
+        vim.notify(string.format("当前Tab数 < %d，无需跳转", #tabs), vim.log.levels.INFO)
+        return
+    end
+
     local input = vim.fn.input("请输入要跳转的 Tab Number: ")
 
     -- 空输入
@@ -201,8 +214,6 @@ vim.keymap.set("n", "<LocalLeader>t", function()
 
     local tabnr = tonumber(input)
 
-    local tabs = vim.api.nvim_list_tabpages()
-
     if tabnr < 1 or tabnr > #tabs then
         vim.notify(string.format("Tab %d 不存在，当前共有 %d 个 Tab", tabnr, #tabs), vim.log.levels.INFO)
         return
@@ -215,6 +226,7 @@ end, {
     desc = "交互式跳转到指定 Tab",
 })
 
+-- NOTE: Buffer
 -- buffer 快捷键
 vim.keymap.set({ "n" }, "<A-.>", "<cmd>bnext<CR>", { noremap = true, silent = true, desc = "下一个缓冲区" })
 vim.keymap.set({ "n" }, "<A-,>", "<cmd>bprevious<CR>", { noremap = true, silent = true, desc = "上一个缓冲区" })
@@ -254,35 +266,7 @@ end, {
     silent = true,
 })
 
-vim.keymap.set({ "n" }, "<LocalLeader>b", function()
-    local input = vim.fn.input("请输入要跳转的 Buffer Number: ")
-
-    -- 空输入
-    if input == nil or input == "" then
-        vim.notify("未输入 Buffer Number", vim.log.levels.INFO)
-        return
-    end
-
-    -- 非数字
-    local bufnr = tonumber(input)
-    if not bufnr then
-        vim.notify(string.format("'%s' 不是有效的 Buffer Number", input), vim.log.levels.INFO)
-        return
-    end
-
-    -- Buffer 不存在
-    if not vim.api.nvim_buf_is_valid(bufnr) then
-        vim.notify(string.format("Buffer %d 不存在", bufnr), vim.log.levels.INFO)
-        return
-    end
-
-    vim.api.nvim_set_current_buf(bufnr)
-end, {
-    noremap = true,
-    silent = true,
-    desc = "交互式跳转到指定 Buffer",
-})
-
+-- NOTE: 窗口
 -- 调整窗口小
 vim.keymap.set(
     "n",
@@ -309,7 +293,7 @@ vim.keymap.set(
     { noremap = true, silent = true, desc = "窗口宽度调整 +3" }
 )
 
--- diagnostics
+-- NOTE: diagnostics
 -- 2. 优化 float 窗口打开行为（通过自定义函数封装）
 local function open_optimized_diagnostic_float()
     vim.diagnostic.config({

@@ -73,6 +73,7 @@ local function get_line_commit(opts)
     end
 
     if opts.copy ~= false then
+        vim.notify("Copied " .. sha)
         copy_to_clipboard(sha)
     end
     -- vim.notify("Copied SHA: " .. sha, vim.log.levels.INFO)
@@ -174,6 +175,7 @@ local function copy_with_metadata(path_type)
     end
     -- 写入系统剪贴板
     local joined = table.concat(lines, "\n")
+    vim.notify("Copied")
     copy_to_clipboard(joined)
     -- 如果是可视模式，退出
     if vim.fn.mode() == "v" or vim.fn.mode() == "V" then
